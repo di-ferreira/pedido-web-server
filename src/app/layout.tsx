@@ -21,7 +21,7 @@ export default function RootLayout({
     <html lang='pt-br'>
       <body
         className={cn(
-          'min-h-screen bg-background font-sans antialiased',
+          'w-screen  min-h-screen overflow-hidden  bg-background font-sans antialiased',
           openSans.variable
         )}
       >

@@ -10,7 +10,7 @@ export default function Layout({
   return (
     <SessionWrapper>
       <Header />
-      <section className='flex flex-row w-screen h-full bg-slate-50'>
+      <section className='flex flex-row w-screen h-full overflow-hidden bg-slate-50'>
         <NavBar />
         {children}
       </section>

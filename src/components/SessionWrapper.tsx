@@ -14,7 +14,7 @@ const SessionWrapper: React.FC<Props> = async ({ children }) => {
     redirect('/auth');
   }
   return (
-    <main className='flex flex-col w-full overflow-x-hidden min-h-screen bg-light-surface'>
+    <main className='flex flex-col w-full overflow-hidden min-h-full bg-light-surface'>
       {children}
     </main>
   );
