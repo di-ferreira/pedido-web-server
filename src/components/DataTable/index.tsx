@@ -240,7 +240,6 @@ export function DataTable<TData, TValue>({
               setPageIndex((old) => {
                 return (old = table.getState().pagination.pageIndex + 1);
               });
-              console.log('Next', pageIndex);
 
               externalFunction({
                 skip: (pageIndex + 1) * pageSize,

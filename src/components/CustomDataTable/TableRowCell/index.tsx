@@ -1,8 +1,9 @@
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { get } from 'lodash';
 import { JSX } from 'react';
-import { iColumnType } from '../../../@types/Table';
+import { iButtonAction, iColumnType } from '../../../@types/Table';
 
 interface iTableCellProps<T> {
   item: T;
@@ -30,26 +31,39 @@ export function TableRowCell<T>({
         >
           {column.action ? (
             <span className='flex items-center justify-evenly'>
-              {column.action.map((button, i) => (
+              {column.action.map((button: iButtonAction<T>, i) => (
                 <Button
-                  className='w-12 h-12 rounded-full text-emsoft_dark-text'
+                  title={button.Title}
+                  className={cn(
+                    ' text-2xl text-center  capitalize',
+                    `${
+                      button.Color.text
+                        ? button.Color.text
+                        : 'text-emsoft_blue-main'
+                    }`,
+                    `${
+                      button.Color.background
+                        ? button.Color.background
+                        : 'bg-transparent'
+                    }`,
+                    `${
+                      button.Color.backgroundHover
+                        ? button.Color.backgroundHover
+                        : 'hover:bg-transparent'
+                    }`,
+                    `${
+                      button.Color.hover
+                        ? `hover:${button.Color.hover}`
+                        : 'hover:text-emsoft_blue-light'
+                    }`,
+                    `${button.Rounded ? ` rounded-full ` : 'rounded-sm'}`
+                  )}
                   key={i}
                   onClick={() => button.onclick(item)}
                 >
+                  {button.Icon ? <FontAwesomeIcon icon={button.Icon} /> : ''}
                   {button.Text}
                 </Button>
-                // <Button
-                //   Icon={button.Icon}
-                //   onclick={() => button.onclick(item)}
-                //   Height='3rem'
-                //   Width='3rem'
-                //   Title={button.Title}
-                //   Rounded={button.Rounded}
-                //   Type={button.Type}
-                //   Size={button.Size}
-                //   Text={button.Text}
-                //   key={i}
-                // />
               ))}
             </span>
           ) : column.render ? (

@@ -11,7 +11,6 @@ export async function LoginUser(
   if (resultVenda.value === undefined) {
     return { error: resultVenda.error };
   }
-  console.log('login user', resultVenda);
 
   const token = resultVenda.value;
 

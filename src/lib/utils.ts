@@ -45,3 +45,17 @@ export const MaskCnpjCpf = (value: string | undefined) => {
       .replace(/(\d{4})(\d)/, '$1-$2')
       .replace(/(-\d{2})\d+?$/, '$1');
 };
+
+export function saveStorage<T>(key: string, value: T): void {
+  localStorage.setItem(key, JSON.stringify(value));
+}
+
+export function loadStorage<T>(key: string): T {
+  const result: T = JSON.parse(String(localStorage.getItem(key)));
+  return result;
+}
+
+export function removeStorage(key: string): void {
+  localStorage.removeItem(key);
+}
+
