@@ -16,7 +16,7 @@ const RenderIconBloqueado = (value: string): JSX.Element => {
 export const headers: iColumnType<iCliente>[] = [
   {
     key: 'CLIENTE',
-    title: 'ID',
+    title: 'CÓDIGO',
     width: '10rem',
   },
   {

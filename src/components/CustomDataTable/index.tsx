@@ -24,11 +24,11 @@ export function DataTable<T>({
   IsLoading,
 }: iTableDataProps<T>): JSX.Element {
   return (
-    <table className='border-collapse border-none w-full h-full table-fixed'>
+    <table className='border-collapse border-none w-full table-fixed'>
       <thead className='w-full table-fixed'>
         <TableHeader columns={columns} />
       </thead>
-      <tbody className='w-full h-full table-fixed overflow-x-hidden overflow-y-auto max-sm:overflow-auto'>
+      <tbody className='w-full table-fixed overflow-x-hidden overflow-y-auto max-sm:overflow-auto'>
         {IsLoading && <Loading />}
 
         {!IsLoading && <TableRow data={TableData} columns={columns} />}

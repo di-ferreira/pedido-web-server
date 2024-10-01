@@ -12,12 +12,13 @@ import {
   SelectTrigger,
 } from '@/components/ui/select';
 import { loadStorage, saveStorage } from '@/lib/utils';
+import { KEY_NAME_TABLE_PAGINATION } from '@/constants';
 interface iDataTablePagination<T> {
   QuantityRegiters: number;
   OnFetchData: (filter: iFilter<T>) => void;
 }
 
-type tpPaginationValues = {
+export type tpPaginationValues = {
   CurrentPage: number;
   RowsPerPage: number;
   TotalPages: number;
@@ -29,7 +30,6 @@ export function TablePagination<T>({
   OnFetchData,
 }: iDataTablePagination<T>): JSX.Element {
   const RowsPerPageOptions = [10, 20, 50, 100];
-  const KEY_NAME_TABLE_PAGINATION = 'tablePagenation';
   const [PaginationOptions, setPaginationOptions] =
     useState<tpPaginationValues>({
       CurrentPage: 1,

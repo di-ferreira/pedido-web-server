@@ -20,6 +20,11 @@ export interface iUniqueResult<T> {
   data: T;
 }
 
+export interface iSearch<T> {
+  filterBy: keyof T;
+  value: string;
+}
+
 export type typeSimNao = 'S' | 'N';
 
 type SQLType =

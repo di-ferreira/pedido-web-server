@@ -10,25 +10,43 @@ import {
   SelectItem,
   SelectTrigger,
 } from '../ui/select';
+import { useState } from 'react';
+import { loadStorage } from '@/lib/utils';
+import { tpPaginationValues } from '../CustomDataTable/TablePagination';
+import { iSearch } from '@/@types';
 
 interface FilterProps<T, K> {
-  options?: { key: string; value: K }[];
-  onSearch?: (filter: iFilter<T>) => void;
+  options: { key: string; value: K }[];
+  onSearch: (params: iSearch<T>) => void;
+}
+interface iFilterOptions<T, K> {
+  value: K;
+  key: string;
 }
 
-function Filter<T, K>({ options }: FilterProps<T, K>): JSX.Element {
+function Filter<T, K>({ options, onSearch }: FilterProps<T, K>): JSX.Element {
+  const [FilterOptions, setFilterOptions] = useState<iFilterOptions<T, K>>({
+    value: options[0].value,
+    key: options[0].key,
+  });
+
+  const [SearchInput, setSearchInput] = useState<string>('');
+
   return (
     <div className='flex justify-center items-center w-full min-h-10 overflow-hidden'>
       {options && (
         <Select
           defaultValue={String(options[0].value)}
-          value={String(options[0].value)}
+          value={String(FilterOptions.value)}
           onValueChange={(e: any) => {
-            console.log('value changed to:', String(e));
+            const selected = options.find((opt) => opt.value === e);
+            setFilterOptions((old) => {
+              return selected ? (old = selected) : old;
+            });
           }}
         >
           <SelectTrigger className='w-fit text-emsoft_dark-text'>
-            {options[0].key}
+            {FilterOptions.key}
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
@@ -47,10 +65,8 @@ function Filter<T, K>({ options }: FilterProps<T, K>): JSX.Element {
       )}
       <div className='w-96 mr-0 ml-2'>
         <Input
-          onChange={(e) => {
-            console.log('Change Input');
-          }}
-          value={''}
+          onChange={(e) => setSearchInput((old) => (old = e.target.value))}
+          value={SearchInput}
           placeholder='Digite sua busca'
           className='w-[25rem] h-16'
         />
@@ -60,7 +76,12 @@ function Filter<T, K>({ options }: FilterProps<T, K>): JSX.Element {
         className='ml-3 h-10'
         variant='secondary'
         size='sm'
-        onClick={() => console.log('Search')}
+        onClick={() =>
+          onSearch({
+            filterBy: FilterOptions.value,
+            value: SearchInput,
+          } as iSearch<T>)
+        }
       >
         Buscar
       </Button>
