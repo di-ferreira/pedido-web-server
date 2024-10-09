@@ -29,7 +29,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     return (
       <div
         className={cn(
-          `relative flex w-full max-w-sm items-center gap-1.5 my-2`,
+          `relative flex w-full items-center gap-1.5 my-2`,
           labelPosition === 'top' && `flex-col items-start`,
           labelPosition === 'right' && `flex-row-reverse`,
           className

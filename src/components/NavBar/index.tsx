@@ -1,5 +1,10 @@
 'use client';
-import { faCogs, faHomeAlt, faUsers } from '@fortawesome/free-solid-svg-icons';
+import {
+  faCogs,
+  faFileLines,
+  faHomeAlt,
+  faUsers,
+} from '@fortawesome/free-solid-svg-icons';
 import React, { useState } from 'react';
 import NavBarItem, { iNavItem } from './NavBarItem';
 
@@ -9,6 +14,7 @@ const NavBar: React.FC = () => {
   const linkList: iNavItem[] = [
     { icon: faHomeAlt, link: '/app/dashboard', text: 'Dashboard' },
     { icon: faUsers, link: '/app/customers', text: 'Clientes' },
+    { icon: faFileLines, link: '/app/budgets', text: 'Orçamentos' },
     { icon: faCogs, link: '/app/config', text: 'Configuração' },
   ];
 

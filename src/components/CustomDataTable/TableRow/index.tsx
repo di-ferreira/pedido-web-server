@@ -3,6 +3,7 @@ import { JSX } from 'react';
 import { iColumnType } from '../../../@types/Table';
 import { TableRowCell } from '../TableRowCell';
 import { TableRowHeaderCell } from '../TableRowHeaderCell';
+import React from 'react';
 
 interface iTableRowProps<T> {
   data: T[];

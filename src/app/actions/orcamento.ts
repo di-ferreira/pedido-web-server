@@ -1,14 +1,16 @@
 'use server';
-
 import { ResponseType } from '@/@types';
-import { iCliente } from '@/@types/Cliente';
 import { iFilter } from '@/@types/Filter';
+import { iOrcamento } from '@/@types/Orcamento';
 import { iDataResultTable } from '@/@types/Table';
-import { CustomFetch } from '@/services/api';
 import { getCookie } from '.';
-const ROUTE_CLIENTE = '/Clientes';
+import { CustomFetch } from '@/services/api';
+const ROUTE_GET_ALL_ORCAMENTO = '/Orcamento';
+const ROUTE_SAVE_ORCAMENTO = '/ServiceVendas/NovoOrcamento';
+const ROUTE_REMOVE_ITEM_ORCAMENTO = '/ServiceVendas/ExcluirItemOrcamento';
+const ROUTE_SAVE_ITEM_ORCAMENTO = '/ServiceVendas/NovoItemOrcamento';
 
-async function CreateFilter(filter: iFilter<iCliente>): Promise<string> {
+async function CreateFilter(filter: iFilter<iOrcamento>): Promise<string> {
   const VendedorLocal: string = await getCookie('user');
 
   let ResultFilter: string = `$filter=VENDEDOR eq ${VendedorLocal}`;
@@ -17,19 +19,19 @@ async function CreateFilter(filter: iFilter<iCliente>): Promise<string> {
     ResultFilter = `$filter=VENDEDOR eq ${VendedorLocal}`;
     const andStr = ' AND ';
     filter.filter.map((itemFilter) => {
-      if (itemFilter.typeSearch) {
+      if (itemFilter.typeSearch)
         itemFilter.typeSearch === 'like'
           ? (ResultFilter = `${ResultFilter}${andStr} contains(${
               itemFilter.key
             }, '${String(itemFilter.value).toUpperCase()}')${andStr}`)
           : itemFilter.typeSearch === 'eq' &&
             (ResultFilter = `${ResultFilter}${andStr}${itemFilter.key} eq '${itemFilter.value}'${andStr}`);
-      } else
+      else
         ResultFilter = `${ResultFilter}${andStr} contains(${
           itemFilter.key
         }, '${String(itemFilter.value).toUpperCase()}')${andStr}`;
-      return (ResultFilter = ResultFilter.slice(0, -andStr.length));
     });
+    ResultFilter = ResultFilter.slice(0, -andStr.length);
   }
 
   const ResultOrderBy = filter.orderBy ? `&$orderby=${filter.orderBy}` : '';
@@ -40,25 +42,26 @@ async function CreateFilter(filter: iFilter<iCliente>): Promise<string> {
 
   ResultFilter !== '' && (ResultTop = `&${ResultTop}`);
 
-  const ResultRoute: string = `?${ResultFilter}${ResultTop}${ResultSkip}${ResultOrderBy}&$inlinecount=allpages`;
-
+  const ResultRoute: string = `?${ResultFilter}${ResultTop}${ResultSkip}${ResultOrderBy}&$orderby=ORCAMENTO desc&$expand=VENDEDOR,CLIENTE,
+                                    ItensOrcamento/PRODUTO/FORNECEDOR,ItensOrcamento/PRODUTO/FABRICANTE,
+                                    ItensOrcamento,ItensOrcamento/PRODUTO&$inlinecount=allpages`;
   return ResultRoute;
 }
 
-export async function GetClienteFromVendedor(
-  filter: iFilter<iCliente> | null | undefined
-): Promise<ResponseType<iDataResultTable<iCliente>>> {
+export async function GetOrcamentosFromVendedor(
+  filter: iFilter<iOrcamento> | null | undefined
+): Promise<ResponseType<iDataResultTable<iOrcamento>>> {
   const VendedorLocal: string = await getCookie('user');
   const tokenCookie = await getCookie('token');
 
   const FILTER = filter
     ? await CreateFilter(filter)
-    : `?$filter=VENDEDOR eq ${VendedorLocal}&$inlinecount=allpages`;
+    : `?$filter=VENDEDOR eq ${VendedorLocal}&$orderby=ORCAMENTO&$top=10&$expand=VENDEDOR,CLIENTE,ItensOrcamento/PRODUTO/FORNECEDOR,ItensOrcamento/PRODUTO/FABRICANTE,ItensOrcamento,ItensOrcamento/PRODUTO&$inlinecount=allpages`;
 
   const response = await CustomFetch<{
     '@xdata.count': number;
-    value: iCliente[];
-  }>(`${ROUTE_CLIENTE}${FILTER}`, {
+    value: iOrcamento[];
+  }>(`${ROUTE_GET_ALL_ORCAMENTO}${FILTER}`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -66,7 +69,8 @@ export async function GetClienteFromVendedor(
     },
   });
 
-  const result: iDataResultTable<iCliente> = {
+  console.log('link response', response);
+  const result: iDataResultTable<iOrcamento> = {
     Qtd_Registros: response.body['@xdata.count'],
     value: response.body.value,
   };
@@ -86,13 +90,15 @@ export async function GetClienteFromVendedor(
   };
 }
 
-export async function GetCliente(
-  customerCode: string | number
-): Promise<ResponseType<iCliente>> {
+export async function GetOrcamento(
+  OrcamentoNumber: string | number
+): Promise<ResponseType<iOrcamento>> {
   const tokenCookie = await getCookie('token');
 
-  const response = await CustomFetch<iCliente>(
-    `${ROUTE_CLIENTE}(${customerCode})?$expand=Telefones, AgendamentosList, PendenciasList`,
+  const response = await CustomFetch<iOrcamento>(
+    `${ROUTE_GET_ALL_ORCAMENTO}(${OrcamentoNumber})?$expand=VENDEDOR,CLIENTE,
+    ItensOrcamento/PRODUTO/FORNECEDOR,ItensOrcamento/PRODUTO/FABRICANTE,ItensOrcamento,
+    ItensOrcamento/PRODUTO`,
     {
       method: 'GET',
       headers: {
@@ -102,7 +108,7 @@ export async function GetCliente(
     }
   );
 
-  const result: iCliente = response.body;
+  const result: iOrcamento = response.body;
 
   if (response.status !== 200) {
     return {

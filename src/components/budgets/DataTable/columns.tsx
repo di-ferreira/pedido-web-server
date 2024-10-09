@@ -1,10 +1,12 @@
 'use client';
 import { iCliente } from '@/@types/Cliente';
+import { iOrcamento } from '@/@types/Orcamento';
 import { iColumnType } from '@/@types/Table';
 import { MaskCnpjCpf } from '@/lib/utils';
 import {
   faBan,
   faCheck,
+  faEdit,
   faFileLines,
   faUserAlt,
 } from '@fortawesome/free-solid-svg-icons';
@@ -12,6 +14,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React from 'react';
+import dayjs from 'dayjs';
 
 const RenderIconBloqueado = (value: string): JSX.Element => {
   if (value === 'S')
@@ -21,75 +24,62 @@ const RenderIconBloqueado = (value: string): JSX.Element => {
   );
 };
 
-export const headers: iColumnType<iCliente>[] = [
+export const headers: iColumnType<iOrcamento>[] = [
   {
-    key: 'CLIENTE',
-    title: 'CÓDIGO',
-    width: '10rem',
+    key: 'ORCAMENTO',
+    title: 'ORCAMENTO',
+    width: '10%',
   },
   {
-    key: 'NOME',
+    key: 'CLIENTE.NOME',
     title: 'NOME',
     width: '20rem',
   },
   {
-    key: 'BLOQUEADO',
-    title: 'BLOQUEADO',
-    width: '11rem',
-    isHideMobile: true,
-    render: (_, item) =>
-      item.BLOQUEADO && <>{RenderIconBloqueado(String(item.BLOQUEADO))}</>,
-  },
-  {
-    key: 'CIC',
-    title: 'CPF/CNPJ',
+    key: 'DATA',
+    title: 'DATA',
     width: '20rem',
-    render: (_, item) => <>{MaskCnpjCpf(item.CIC)}</>,
+    render: (_, item) => {
+      return dayjs(item.DATA).format('DD/MM/YYYY');
+    },
   },
   {
-    key: 'ENDERECO',
-    title: 'ENDEREÇO',
-    isHideMobile: true,
+    key: 'VENDEDOR.NOME',
+    title: 'VENDEDOR',
     width: '20rem',
+    isHideMobile: true,
   },
   {
-    key: 'BAIRRO',
-    title: 'BAIRRO',
-    isHideMobile: true,
-    width: '20rem',
-  },
-  {
-    key: 'CIDADE',
-    title: 'CIDADE',
-    isHideMobile: true,
-    width: '20rem',
-  },
-  {
-    key: 'UF',
-    title: 'UF',
-    isHideMobile: true,
+    key: 'TOTAL',
+    title: 'TOTAL',
     width: '7rem',
+    render: (_, item) => {
+      return item.TOTAL.toLocaleString('pt-br', {
+        style: 'currency',
+        currency: 'BRL',
+      });
+    },
   },
   {
-    key: 'actions',
+    key: 'acoes',
     title: 'AÇÕES',
-    width: '20rem',
+    width: '5rem',
     render: (_, item) => (
       <span className='flex w-full items-center justify-center gap-x-5'>
-        <Link href={`/app/customers/${item.CLIENTE}`}>
-          <FontAwesomeIcon
-            icon={faUserAlt}
-            className='text-emsoft_blue-main hover:text-emsoft_blue-light'
-            size='xl'
-            title='Cliente'
-          />
-        </Link>
-        <Link href={`/app/customers/${item.CLIENTE}`}>
+        <Link href={`/app/budgets/${item.ORCAMENTO}`}>
           <FontAwesomeIcon
             icon={faFileLines}
+            className='text-emsoft_blue-main hover:text-emsoft_blue-light'
+            size='xl'
+            title='Gerar Pré-venda'
+          />
+        </Link>
+        <Link href={`/app/budgets/${item.ORCAMENTO}`}>
+          <FontAwesomeIcon
+            icon={faEdit}
             className='text-emsoft_orange-main hover:text-emsoft_orange-light'
             size='xl'
-            title='Orçamento'
+            title='Editar'
           />
         </Link>
       </span>

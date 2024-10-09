@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { get } from 'lodash';
 import { JSX } from 'react';
 import { iButtonAction, iColumnType } from '../../../@types/Table';
+import React from 'react';
 
 interface iTableCellProps<T> {
   item: T;
@@ -36,26 +37,27 @@ export function TableRowCell<T>({
                   title={button.Title}
                   className={cn(
                     ' text-2xl text-center  capitalize',
-                    `${
-                      button.Color.text
-                        ? button.Color.text
-                        : 'text-emsoft_blue-main'
-                    }`,
-                    `${
-                      button.Color.background
-                        ? button.Color.background
-                        : 'bg-transparent'
-                    }`,
-                    `${
-                      button.Color.backgroundHover
-                        ? button.Color.backgroundHover
-                        : 'hover:bg-transparent'
-                    }`,
-                    `${
-                      button.Color.hover
-                        ? `hover:${button.Color.hover}`
-                        : 'hover:text-emsoft_blue-light'
-                    }`,
+                    button.Color !== undefined &&
+                      (`${
+                        button.Color.text
+                          ? button.Color.text
+                          : 'text-emsoft_blue-main'
+                      }`,
+                      `${
+                        button.Color.background
+                          ? button.Color.background
+                          : 'bg-transparent'
+                      }`,
+                      `${
+                        button.Color.backgroundHover
+                          ? button.Color.backgroundHover
+                          : 'hover:bg-transparent'
+                      }`,
+                      `${
+                        button.Color.hover
+                          ? `hover:${button.Color.hover}`
+                          : 'hover:text-emsoft_blue-light'
+                      }`),
                     `${button.Rounded ? ` rounded-full ` : 'rounded-sm'}`
                   )}
                   key={i}

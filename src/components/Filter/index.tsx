@@ -68,7 +68,7 @@ function Filter<T, K>({ options, onSearch }: FilterProps<T, K>): JSX.Element {
           onChange={(e) => setSearchInput((old) => (old = e.target.value))}
           value={SearchInput}
           placeholder='Digite sua busca'
-          className='w-[25rem] h-16'
+          className='w-full h-16'
         />
       </div>
 
