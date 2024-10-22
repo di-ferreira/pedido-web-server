@@ -1,7 +1,7 @@
 'use server';
 import { ResponseType } from '@/@types';
 import { iFilter } from '@/@types/Filter';
-import { iOrcamento } from '@/@types/Orcamento';
+import { iItensOrcamento, iOrcamento } from '@/@types/Orcamento';
 import { iDataResultTable } from '@/@types/Table';
 import { getCookie } from '.';
 import { CustomFetch } from '@/services/api';
@@ -98,7 +98,7 @@ export async function GetOrcamento(
   const response = await CustomFetch<iOrcamento>(
     `${ROUTE_GET_ALL_ORCAMENTO}(${OrcamentoNumber})?$expand=VENDEDOR,CLIENTE,
     ItensOrcamento/PRODUTO/FORNECEDOR,ItensOrcamento/PRODUTO/FABRICANTE,ItensOrcamento,
-    ItensOrcamento/PRODUTO`,
+    ItensOrcamento/PRODUTO,ItensOrcamento/ORCAMENTO`,
     {
       method: 'GET',
       headers: {
@@ -120,8 +120,61 @@ export async function GetOrcamento(
     };
   }
 
+  const itensOrcs: iItensOrcamento[] = response.body.ItensOrcamento.map(
+    (item) => {
+      return { ...item, ORCAMENTO: response.body.ORCAMENTO };
+    }
+  );
+
   return {
-    value: result,
+    value: {
+      ...result,
+      ItensOrcamento: itensOrcs,
+    },
+    error: undefined,
+  };
+}
+
+export async function removeItem(
+  itemOrcamento: iItensOrcamento
+): Promise<ResponseType<iOrcamento>> {
+  const tokenCookie = await getCookie('token');
+
+  const data = await CustomFetch<iOrcamento>(ROUTE_REMOVE_ITEM_ORCAMENTO, {
+    body: JSON.stringify({
+      pIdOrcamento: itemOrcamento.ORCAMENTO,
+      pProduto: itemOrcamento.PRODUTO.PRODUTO,
+    }),
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `bearer ${tokenCookie}`,
+    },
+  });
+
+  const response = await GetOrcamento(itemOrcamento.ORCAMENTO);
+
+  if (response.error !== undefined) {
+    return {
+      value: undefined,
+      error: {
+        code: response.error.code,
+        message: response.error.message,
+      },
+    };
+  }
+
+  if (data.status !== 200) {
+    return {
+      value: undefined,
+      error: {
+        code: String(data.status),
+        message: String(data.statusText),
+      },
+    };
+  }
+  return {
+    value: response.value,
     error: undefined,
   };
 }

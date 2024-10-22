@@ -19,7 +19,6 @@ function TableHeader<T>({ columns }: iHeaderProps<T>): JSX.Element {
             <th
               className={cn(
                 `font-semibold table-fixed text-center text-base pr-5 pl-0 flex-grow`,
-                `${column.width ? `w-[${column.width}]` : 'w-max'}`,
                 `max-sm:w-[${column.width ? column.width : 'auto'}]`,
                 `overflow-hidden table-fixed border-b`,
                 `${column.isHideMobile ? 'max-sm:hidden' : ''}`,

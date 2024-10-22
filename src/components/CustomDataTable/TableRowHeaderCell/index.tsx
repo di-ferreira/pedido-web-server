@@ -13,8 +13,8 @@ export function TableRowHeaderCell<T>({
     <>
       {
         <td
-          className={`pr-5 pl-0 text-2xl text-center flex-grow capitalize text-emsoft_dark-text  
-            w-[${column.width ? column.width : 'auto'}]
+          className={`p-2 text-2xl text-center flex-grow capitalize text-emsoft_dark-text  max-w-36
+            w-[${column.width ? column.width : 'w-min'}]
             overflow-hidden table-fixed hidden font-bold
             ${
               column.isHideMobile && 'max-sm:hidden'

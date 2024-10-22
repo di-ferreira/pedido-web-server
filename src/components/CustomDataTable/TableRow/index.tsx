@@ -16,7 +16,7 @@ function TableRow<T>({ data, columns }: iTableRowProps<T>): JSX.Element {
       {data &&
         data.map((item, idx) => (
           <tr
-            className='relative table-fixed w-screen cursor-auto max-sm:flex last:rounded-e hover:opacity-80 max-sm:flex-col  text-emsoft_dark-text h-14'
+            className='relative w-screen cursor-auto max-sm:flex last:rounded-e hover:opacity-80 max-sm:flex-col  text-emsoft_dark-text h-14'
             key={`table-row-${idx}`}
           >
             {columns.map((column, columnIndex) => (

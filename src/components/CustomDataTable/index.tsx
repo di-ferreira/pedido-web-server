@@ -1,3 +1,4 @@
+'use client';
 import { iFilter } from '@/@types/Filter';
 import { JSX } from 'react';
 import { iColumnType } from '../../@types/Table';

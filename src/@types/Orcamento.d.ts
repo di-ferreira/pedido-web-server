@@ -38,7 +38,7 @@ export interface iItensOrcamento {
   P_DESC?: number;
   ID_VALE_CASCO?: number;
   // eslint-disable-next-line no-use-before-define
-  ORCAMENTO: iOrcamento;
+  ORCAMENTO: number;
   PRODUTO: iProduto;
 }
 export interface iOrcamento {
@@ -99,3 +99,4 @@ export interface iOrcamentoInserir {
   Origem?: string;
   Itens?: iItemInserir[];
 }
+

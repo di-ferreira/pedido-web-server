@@ -10,11 +10,7 @@ export interface iModalRender extends iModalStyle {
   children?: ReactNode;
   bodyHeight?: string;
   bodyWidth?: string;
-  xs?: iModalStyle;
-  sm?: iModalStyle;
-  md?: iModalStyle;
-  lg?: iModalStyle;
-  xl?: iModalStyle;
+  containerStyle?: string;
 }
 export interface iModal extends iModalStyle {
   Title: string;
@@ -28,3 +24,4 @@ export interface iModal extends iModalStyle {
   lg?: iModalStyle;
   xl?: iModalStyle;
 }
+

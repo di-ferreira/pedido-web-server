@@ -21,7 +21,7 @@ export function TableRowCell<T>({
       {
         <td
           className={cn(
-            'pr-5 pl-0 text-xs text-center text-wrap flex-grow capitalize text-emsoft_dark-text',
+            'pr-5 pl-0 text-xs text-center text-wrap flex-grow capitalize text-emsoft_dark-text max-w-36',
             `${column.width ? `w-[${column.width}]` : 'w-min'}`,
             `max-sm:w-[${column.width ? column.width : 'auto'}]`,
             `overflow-hidden table-fixed border-b`,
