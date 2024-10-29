@@ -1,10 +1,7 @@
 import { GetOrcamento } from '@/app/actions/orcamento';
 import DataTableItensBudget from '@/components/budgets/budgetItens/DataTable';
-import { tableHeaders } from '@/components/budgets/budgetItens/DataTable/columns';
-import { DataTable } from '@/components/CustomDataTable';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { faArrowLeft, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Link from 'next/link';
 import React from 'react';
@@ -14,7 +11,7 @@ interface iBudgetPage {
 }
 
 const Budget: React.FC<iBudgetPage> = async ({ params }) => {
-  const budget = await GetOrcamento(params.id);
+  let budget = await GetOrcamento(params.id);
 
   if (!budget.value) return <p>Failed to load budget.</p>;
 
@@ -29,7 +26,7 @@ const Budget: React.FC<iBudgetPage> = async ({ params }) => {
       </h1>
 
       <div className='flex w-full h-[75vh] flex-col overflow-x-hidden overflow-y-auto'>
-        <div className='flex gap-4 w-full h-[40%] px-5 py-0 flex-wrap'>
+        <div className='flex gap-3 w-full h-[40%] px-5 py-0 flex-wrap'>
           <Input
             labelText='CÓDIGO'
             labelPosition='top'
@@ -93,44 +90,9 @@ const Budget: React.FC<iBudgetPage> = async ({ params }) => {
             value={budget.value.CLIENTE.CEP}
             className='w-[10%]'
           />
-
-          <Input
-            labelText='OBSERVAÇÃO 1'
-            labelPosition='top'
-            name='OBS1'
-            value={budget.value.OBS1}
-            className='w-[45.5%]'
-          />
-
-          <Input
-            labelText='OBSERVAÇÃO 2'
-            labelPosition='top'
-            name='OBS2'
-            value={budget.value.OBS2}
-            className='w-[46%]'
-          />
         </div>
 
-        <div className='flex w-full items-center px-5 mt-4'>
-          <Button className='gap-2'>
-            <FontAwesomeIcon
-              icon={faPlusCircle}
-              className='text-emsoft_light-main'
-              size='xl'
-              title='Editar'
-            />
-            Novo Item
-          </Button>
-        </div>
-
-        <div className='flex gap-4 w-full h-[60%] px-5 py-2 mt-5 border-t-2 border-emsoft_orange-main'>
-          {/* <DataTable
-            columns={tableHeaders}
-            TableData={budget.value.ItensOrcamento}
-            QuantityRegiters={budget.value.ItensOrcamento.length}
-            IsLoading={false}
-            // onFetchPagination={handleBudgets}
-          /> */}
+        <div className='flex gap-4 w-full h-[70%]'>
           <DataTableItensBudget orc={budget.value} />
         </div>
       </div>

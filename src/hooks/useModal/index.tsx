@@ -10,8 +10,6 @@ const RenderLayout: React.FC<iModalRender> = ({
   OnClose,
   OnCloseButtonClick,
   children,
-  height,
-  width,
   bodyHeight,
   bodyWidth,
   containerStyle,
@@ -43,22 +41,24 @@ const RenderLayout: React.FC<iModalRender> = ({
     <section className='flex items-center justify-center fixed top-0 left-0 z-[500] w-screen h-screen bg-emsoft_dark-text bg-opacity-70'>
       <div
         className={cn(
-          `relative overflow-hidden max-w-full max-h-full flex w-full items-center gap-1.5 my-2`,
+          `relative overflow-hidden max-w-full max-h-full flex flex-col w-full items-center gap-1.5 my-2 bg-white rounded-md`,
           containerStyle
         )}
       >
         <span
-          className='absolute right-2 top-2 flex items-center justify-center cursor-pointer border-none w-5 h-5 '
+          className='absolute right-0 top-0 flex items-center justify-center cursor-pointer border-none w-10 h-10 bg-red-700'
           onClick={BtnClose}
         >
           <FontAwesomeIcon
             icon={faTimes}
             size='xl'
             title='Fechar'
-            className='mr-3'
+            className='text-white'
           />
         </span>
-        <header className={``}>
+        <header
+          className={`flex items-center justify-center text-3xl uppercase font-bold w-full h-11 border-b-2 border-emsoft_orange-main`}
+        >
           <h1>{Title}</h1>
         </header>
         <main
@@ -83,10 +83,9 @@ const useModal = () => {
     Title,
     children,
     OnCloseButtonClick,
-    height,
-    width,
     bodyHeight,
     bodyWidth,
+    containerStyle,
   }) =>
     ReactDOM.createPortal(
       RenderLayout({
@@ -94,10 +93,9 @@ const useModal = () => {
         children,
         OnClose,
         OnCloseButtonClick,
-        height,
-        width,
         bodyHeight,
         bodyWidth,
+        containerStyle,
       }),
       document.body
     );

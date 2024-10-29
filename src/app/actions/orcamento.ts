@@ -1,7 +1,7 @@
 'use server';
-import { ResponseType } from '@/@types';
+import { iApiResult, ResponseType } from '@/@types';
 import { iFilter } from '@/@types/Filter';
-import { iItensOrcamento, iOrcamento } from '@/@types/Orcamento';
+import { iItemInserir, iItensOrcamento, iOrcamento } from '@/@types/Orcamento';
 import { iDataResultTable } from '@/@types/Table';
 import { getCookie } from '.';
 import { CustomFetch } from '@/services/api';
@@ -69,7 +69,6 @@ export async function GetOrcamentosFromVendedor(
     },
   });
 
-  console.log('link response', response);
   const result: iDataResultTable<iOrcamento> = {
     Qtd_Registros: response.body['@xdata.count'],
     value: response.body.value,
@@ -98,7 +97,7 @@ export async function GetOrcamento(
   const response = await CustomFetch<iOrcamento>(
     `${ROUTE_GET_ALL_ORCAMENTO}(${OrcamentoNumber})?$expand=VENDEDOR,CLIENTE,
     ItensOrcamento/PRODUTO/FORNECEDOR,ItensOrcamento/PRODUTO/FABRICANTE,ItensOrcamento,
-    ItensOrcamento/PRODUTO,ItensOrcamento/ORCAMENTO`,
+    ItensOrcamento/PRODUTO,ItensOrcamento/ORCAMENTO,ItensOrcamento/PRODUTO/ListaChaves`,
     {
       method: 'GET',
       headers: {
@@ -173,6 +172,50 @@ export async function removeItem(
       },
     };
   }
+  return {
+    value: response.value,
+    error: undefined,
+  };
+}
+
+export async function addItem(itemOrcamento: iItemInserir) {
+  const tokenCookie = await getCookie('token');
+  const res = await CustomFetch<iApiResult<iOrcamento>>(
+    ROUTE_SAVE_ITEM_ORCAMENTO,
+    {
+      body: JSON.stringify(itemOrcamento),
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `bearer ${tokenCookie}`,
+      },
+    }
+  );
+  console.log('Add Item res ->', res);
+
+  if (res.body.StatusCode !== 200) {
+    return {
+      value: undefined,
+      error: {
+        code: String(res.body.StatusCode),
+        message: String(res.body.StatusMessage),
+      },
+    };
+  }
+
+  const response = await GetOrcamento(itemOrcamento.pIdOrcamento);
+  console.log('Add Item response ->', response);
+
+  if (response.error !== undefined) {
+    return {
+      value: undefined,
+      error: {
+        code: response.error.code,
+        message: response.error.message,
+      },
+    };
+  }
+
   return {
     value: response.value,
     error: undefined,

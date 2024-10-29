@@ -18,6 +18,7 @@ export interface iModal extends iModalStyle {
   children?: ReactNode;
   bodyHeight?: string;
   bodyWidth?: string;
+  containerStyle?: string;
   xs?: iModalStyle;
   sm?: iModalStyle;
   md?: iModalStyle;

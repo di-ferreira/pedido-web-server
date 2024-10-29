@@ -1,21 +1,21 @@
+import * as React from 'react';
+
 import { cn } from '@/lib/utils';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import * as React from 'react';
 import { Label } from './label';
 
-export interface InputProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface TextareaProps
+  extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   icon?: IconProp;
   labelText?: string;
   labelPosition?: 'top' | 'left' | 'right';
 }
 
-const Input = React.forwardRef<HTMLInputElement, InputProps>(
+const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
   (
     {
       className,
-      type,
       icon,
       id,
       disabled,
@@ -55,20 +55,11 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         >
           {icon && <FontAwesomeIcon icon={icon} className='text-slate-400' />}
         </span>
-        <input
-          type={type}
-          id={id}
+        <textarea
           disabled={disabled}
-          required={required}
           className={cn(
-            `flex h-10 w-full  rounded-md border border-input bg-background p-3 py-2 
-                        text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm
-                        file:font-medium placeholder:text-muted-foreground focus-visible:outline-none
-                        focus-visible:ring-1 focus-visible:ring-emsoft_blue-light focus:invalid:ring-destructive
-                        disabled:cursor-not-allowed disabled:opacity-50 placeholder:italic
-                        placeholder:text-slate-400`,
-            icon && `pl-8 pr-3`,
-            icon && labelText !== '' && `pl-10 pr-3`
+            'flex min-h-[60px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50',
+            className
           )}
           ref={ref}
           {...props}
@@ -77,8 +68,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     );
   }
 );
+// Textarea.displayName = "Textarea"
 
-// Input.displayName = 'Input';
-
-export { Input };
+export { Textarea };
 

@@ -1,12 +1,18 @@
 'use client';
-import { iFilter } from '@/@types/Filter';
 import { iItensOrcamento, iOrcamento } from '@/@types/Orcamento';
+import { iColumnType } from '@/@types/Table';
 import { GetOrcamento, removeItem } from '@/app/actions/orcamento';
 import { DataTable } from '@/components/CustomDataTable';
-import { Suspense, useCallback, useEffect, useState } from 'react';
-import { iColumnType } from '@/@types/Table';
+import {
+  faEdit,
+  faPlusCircle,
+  faTrashAlt,
+} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
+import { Suspense, useCallback, useState } from 'react';
+import FormEdit from '../EditBudgetIten/FormEdit';
+import { ModalEditBudgetItem } from '../EditBudgetIten/ModalEditBudgetItem';
+import { Input } from '@/components/ui/input';
 
 interface iItemBudgetTable {
   orc: iOrcamento;
@@ -49,12 +55,14 @@ const DataTableItensBudget: React.FC<iItemBudgetTable> = ({ orc }) => {
               handleItensBudgets();
             }}
           />
-          <FontAwesomeIcon
-            icon={faEdit}
-            className='cursor-pointer text-emsoft_orange-main hover:text-emsoft_orange-light'
-            size='xl'
-            title='Editar'
-          />
+          <ModalEditBudgetItem
+            modalTitle={`Item Orçamento ${item.ORCAMENTO}`}
+            buttonIcon={faEdit}
+            iconStyle='cursor-pointer text-emsoft_orange-main hover:text-emsoft_orange-light'
+            buttonStyle='bg-tranparent hover:bg-tranparent'
+          >
+            <FormEdit budgetCode={item.ORCAMENTO} item={item} />
+          </ModalEditBudgetItem>
         </span>
       ),
     },
@@ -102,15 +110,52 @@ const DataTableItensBudget: React.FC<iItemBudgetTable> = ({ orc }) => {
     },
   ];
 
-  if (loading) {
-    return <span>Carregando...</span>;
-  }
+  // if (loading) {
+  //   return <span>Carregando...</span>;
+  // }
 
   return (
     <section className='flex flex-col gap-x-5 w-full'>
-      <Suspense fallback={<span>Carregando...</span>}>
-        <DataTable columns={tableHeaders} TableData={data} IsLoading={false} />
-      </Suspense>
+      <div className='flex gap-4 w-full h-[40%] px-5 py-0 flex-wrap'>
+        <Input
+          labelText='OBSERVAÇÃO 1'
+          labelPosition='top'
+          name='OBS1'
+          value={orc.OBS1}
+          className='w-[45.5%]'
+        />
+
+        <Input
+          labelText='OBSERVAÇÃO 2'
+          labelPosition='top'
+          name='OBS2'
+          value={orc.OBS2}
+          className='w-[46%]'
+        />
+      </div>
+      <div className='flex w-full items-center px-5 mt-4'>
+        <ModalEditBudgetItem
+          modalTitle={'Novo Item'}
+          buttonText={'Novo Item'}
+          buttonIcon={faPlusCircle}
+        >
+          <FormEdit budgetCode={orc.ORCAMENTO} CallBack={handleItensBudgets} />
+        </ModalEditBudgetItem>
+      </div>
+
+      <div className='flex gap-4 w-full h-[70%] px-5 py-2 mt-5 border-t-2 border-emsoft_orange-main'>
+        {loading ? (
+          <span>Carregando...</span>
+        ) : (
+          <Suspense fallback={<span>Carregando...</span>}>
+            <DataTable
+              columns={tableHeaders}
+              TableData={data}
+              IsLoading={false}
+            />
+          </Suspense>
+        )}
+      </div>
     </section>
   );
 };

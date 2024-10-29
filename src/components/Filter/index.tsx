@@ -1,8 +1,8 @@
 'use client';
+import { iSearch } from '@/@types';
+import { useState } from 'react';
 import { Button } from '../ui/button';
-import { Checkbox } from '../ui/checkbox';
 import { Input } from '../ui/input';
-import { iFilter } from '../../@types/Filter';
 import {
   Select,
   SelectContent,
@@ -10,10 +10,6 @@ import {
   SelectItem,
   SelectTrigger,
 } from '../ui/select';
-import { useState } from 'react';
-import { loadStorage } from '@/lib/utils';
-import { tpPaginationValues } from '../CustomDataTable/TablePagination';
-import { iSearch } from '@/@types';
 
 interface FilterProps<T, K> {
   options: { key: string; value: K }[];

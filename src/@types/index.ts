@@ -1,10 +1,5 @@
 export interface iDataResult<T> {
-  data: {
-    Data: T;
-    RecordCount: number;
-    StatusCode: number;
-    StatusMessage: string;
-  };
+  data: iApiResult<T>;
 }
 export interface iApiData<T> {
   Qtd_Registros: number;

@@ -20,8 +20,6 @@ function DataTableBudget() {
     setLoading(true);
     GetOrcamentosFromVendedor(filter)
       .then((res) => {
-        console.log('orçamentos:', res);
-
         setData(res);
         setLoading(false);
       })

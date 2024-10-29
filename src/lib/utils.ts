@@ -46,6 +46,28 @@ export const MaskCnpjCpf = (value: string | undefined) => {
       .replace(/(-\d{2})\d+?$/, '$1');
 };
 
+export const FormatToCurrency = (value: string): string => {
+  const BrlValue = Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 3,
+  });
+  const result = BrlValue.format(parseFloat(value));
+  return result;
+};
+
+export const FormatToNumber = (value: string): number => {
+  const BrlValue = Intl.NumberFormat('pt-BR', {
+    // style: 'currency',
+    // currency: 'BRL',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 3,
+  });
+  const result = BrlValue.format(parseFloat(value));
+  return parseFloat(result);
+};
+
 export function saveStorage<T>(key: string, value: T): void {
   localStorage.setItem(key, JSON.stringify(value));
 }
