@@ -21,10 +21,10 @@ export function TableRowCell<T>({
       {
         <td
           className={cn(
-            'pr-5 pl-0 text-xs text-center text-wrap flex-grow capitalize text-emsoft_dark-text max-w-36',
+            'pr-5 pl-0 text-xs text-center overflow-hidden whitespace-nowrap flex-grow text-ellipsis capitalize h-full max-h-[45px] text-emsoft_dark-text max-w-36',
             `${column.width ? `w-[${column.width}]` : 'w-min'}`,
             `max-sm:w-[${column.width ? column.width : 'auto'}]`,
-            `overflow-hidden table-fixed border-b`,
+            ` table-fixed border-b`,
             `${column.isHideMobile ? 'max-sm:hidden' : ''}`,
             ` max-sm:w-1/2 max-sm:items-center`
           )}

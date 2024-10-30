@@ -2,7 +2,7 @@
 import { iSearch, ResponseType } from '@/@types';
 import { iCliente } from '@/@types/Cliente';
 import { iFilter, iFilterQuery } from '@/@types/Filter';
-import { iDataResultTable } from '@/@types/Table';
+import { iColumnType, iDataResultTable } from '@/@types/Table';
 import { GetClienteFromVendedor } from '@/app/actions/cliente';
 import { DataTable } from '@/components/CustomDataTable';
 import { Suspense, useCallback, useEffect, useState } from 'react';
@@ -10,11 +10,24 @@ import { headers } from './columns';
 import Filter from '@/components/Filter';
 import { removeStorage } from '@/lib/utils';
 import { KEY_NAME_TABLE_PAGINATION } from '@/constants';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faFileLines,
+  faSpinner,
+  faUserAlt,
+} from '@fortawesome/free-solid-svg-icons';
+import { NewOrcamento } from '@/app/actions/orcamento';
+import { iOrcamento } from '@/@types/Orcamento';
+import { iVendedor } from '@/@types/Vendedor';
 
 function DataTableCustomer() {
+  const router = useRouter();
   const [data, setData] = useState<ResponseType<iDataResultTable<iCliente>>>(
     {}
   );
+  const [iconLoading, setIconLoading] = useState(false);
   const [loading, setLoading] = useState(false);
   const filterValues = [
     { key: 'NOME', value: 'NOME' },
@@ -101,12 +114,68 @@ function DataTableCustomer() {
     return <span>Carregando...</span>;
   }
 
+  const NewAddOrcamento: iOrcamento = {
+    ORCAMENTO: 0,
+    TOTAL: 0.0,
+    CLIENTE: {} as iCliente,
+    VENDEDOR: {} as iVendedor,
+    COM_FRETE: 'N',
+    ItensOrcamento: [],
+  };
+
+  const headersAction: iColumnType<iCliente> = {
+    key: 'actions',
+    title: 'AÇÕES',
+    width: '20rem',
+    render: (_, item) => (
+      <span className='flex w-full items-center justify-center gap-x-5'>
+        <Link href={`/app/customers/${item.CLIENTE}`}>
+          <FontAwesomeIcon
+            icon={faUserAlt}
+            className='text-emsoft_blue-main hover:text-emsoft_blue-light'
+            size='xl'
+            title='Cliente'
+          />
+        </Link>
+        <FontAwesomeIcon
+          icon={iconLoading ? faSpinner : faFileLines}
+          spin={iconLoading}
+          className='cursor-pointer text-emsoft_orange-main hover:text-emsoft_orange-light'
+          size='xl'
+          title='Gerar Orçamento'
+          onClick={() => {
+            let orcID = 0;
+            setIconLoading(true);
+            NewOrcamento({
+              ...NewAddOrcamento,
+              CLIENTE: item,
+            })
+              .then((res) => {
+                if (res.value !== undefined) {
+                  orcID = res.value.ORCAMENTO;
+                }
+              })
+              .catch((err) => {
+                console.error('Create budget error: ', err);
+              })
+              .finally(() => {
+                setIconLoading(false);
+                router.push(`/app/budgets/${orcID}`);
+              });
+          }}
+        />
+      </span>
+    ),
+  };
+
+  const headersFull: iColumnType<iCliente>[] = [...headers, headersAction];
+
   return (
     <section className='flex flex-col gap-x-5 w-full'>
       <Filter options={filterValues} onSearch={handleCustomerSearch} />
       <Suspense fallback={<span>Carregando...</span>}>
         <DataTable
-          columns={headers}
+          columns={headersFull}
           TableData={data.value.value}
           QuantityRegiters={data.value.Qtd_Registros}
           onFetchPagination={handleCustomer}

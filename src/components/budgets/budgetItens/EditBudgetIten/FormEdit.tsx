@@ -25,7 +25,7 @@ import { iProduto, iTabelaVenda } from '@/@types/Produto';
 import { SuperFindProducts, TableFromProduct } from '@/app/actions/produto';
 import { ResponseType } from '@/@types';
 import { iDataResultTable } from '@/@types/Table';
-import { addItem } from '@/app/actions/orcamento';
+import { addItem, updateItem } from '@/app/actions/orcamento';
 
 interface iFormEditItem {
   item?: iItensOrcamento;
@@ -78,24 +78,46 @@ const FormEdit: React.FC<iFormEditItem> = ({ item, budgetCode, CallBack }) => {
       },
     });
 
-    const response = await addItem({
-      pIdOrcamento: budgetCode,
-      pItemOrcamento: {
-        CodigoProduto: budgetItem.PRODUTO.PRODUTO,
-        Desconto: 0,
-        Frete: 0,
-        Qtd: budgetItem.QTD,
-        Tabela: budgetItem.TABELA,
-        Valor: budgetItem.VALOR,
-        SubTotal: budgetItem.SUBTOTAL,
-        Total: budgetItem.TOTAL,
-      },
-    });
+    if (budgetItem.ORCAMENTO > 0) {
+      const response = await updateItem({
+        pIdOrcamento: budgetCode,
+        pItemOrcamento: {
+          CodigoProduto: budgetItem.PRODUTO.PRODUTO,
+          Desconto: 0,
+          Frete: 0,
+          Qtd: budgetItem.QTD,
+          Tabela: budgetItem.TABELA,
+          Valor: budgetItem.VALOR,
+          SubTotal: budgetItem.SUBTOTAL,
+          Total: budgetItem.TOTAL,
+        },
+      });
 
-    if (response.value !== undefined && CallBack) {
-      await CallBack();
+      if (CallBack) {
+        CallBack();
+      }
+
+      console.log('Update item response ->', response);
+    } else {
+      const response = await addItem({
+        pIdOrcamento: budgetCode,
+        pItemOrcamento: {
+          CodigoProduto: budgetItem.PRODUTO.PRODUTO,
+          Desconto: 0,
+          Frete: 0,
+          Qtd: budgetItem.QTD,
+          Tabela: budgetItem.TABELA,
+          Valor: budgetItem.VALOR,
+          SubTotal: budgetItem.SUBTOTAL,
+          Total: budgetItem.TOTAL,
+        },
+      });
+
+      if (response.value !== undefined && CallBack) {
+        CallBack();
+      }
+      console.log('Save item response ->', response);
     }
-    console.log('Save item response ->', response);
   }
 
   async function getTablesFromProducts(product: iProduto) {
@@ -391,7 +413,7 @@ const FormEdit: React.FC<iFormEditItem> = ({ item, budgetCode, CallBack }) => {
                   ...budgetItem,
                   PRODUTO: products.value!.value[0],
                   VALOR: products.value!.value[0].PRECO,
-                  QTD: 1,
+                  QTD: budgetItem.QTD,
                   SUBTOTAL: budgetItem.VALOR * budgetItem.QTD,
                   TOTAL: budgetItem.VALOR * budgetItem.QTD,
                 })
@@ -431,9 +453,20 @@ const FormEdit: React.FC<iFormEditItem> = ({ item, budgetCode, CallBack }) => {
   useEffect(() => {
     return () => {
       if (item) {
-        getTablesFromProducts(item.PRODUTO);
-        setBudgetItem(item);
-        setWordProducts(item.PRODUTO.PRODUTO);
+        getTablesFromProducts(item.PRODUTO).finally(() => {
+          setBudgetItem(
+            (old) =>
+              (old = {
+                ...item,
+                PRODUTO: item.PRODUTO,
+                VALOR: item.PRODUTO.PRECO,
+                QTD: item.QTD,
+                SUBTOTAL: item.SUBTOTAL,
+                TOTAL: item.TOTAL,
+              })
+          );
+          setWordProducts(item.PRODUTO.PRODUTO);
+        });
         console.log('Item ->', item);
       }
     };
@@ -459,6 +492,7 @@ const FormEdit: React.FC<iFormEditItem> = ({ item, budgetCode, CallBack }) => {
                   name='ProdutoPalavras'
                   labelText='PRODUTO'
                   labelPosition='top'
+                  disabled={item !== undefined}
                 />
               </div>
               <div className={`flex w-[10%] mb-2`}>
@@ -548,6 +582,7 @@ const FormEdit: React.FC<iFormEditItem> = ({ item, budgetCode, CallBack }) => {
             columns={tableChavesHeaders}
             IsLoading={false}
             TableData={budgetItem.PRODUTO.ListaChaves}
+            ErrorMessage='Nenhuma Chave encontrada'
           />
         </div>
       </div>
@@ -614,6 +649,7 @@ const FormEdit: React.FC<iFormEditItem> = ({ item, budgetCode, CallBack }) => {
             labelText='VALOR'
             labelPosition='top'
             className='text-right'
+            disabled
           />
         </div>
         <div className={`flex w-[20%]`}>
@@ -623,6 +659,7 @@ const FormEdit: React.FC<iFormEditItem> = ({ item, budgetCode, CallBack }) => {
             labelText='TOTAL'
             labelPosition='top'
             className='text-right'
+            disabled
           />
         </div>
       </div>

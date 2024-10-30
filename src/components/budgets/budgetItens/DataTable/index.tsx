@@ -20,6 +20,7 @@ interface iItemBudgetTable {
 
 const DataTableItensBudget: React.FC<iItemBudgetTable> = ({ orc }) => {
   const [data, setData] = useState<iItensOrcamento[]>(orc.ItensOrcamento);
+  const [TOTAL, setTOTAL] = useState<number>(orc.TOTAL);
   const [loading, setLoading] = useState(false);
 
   const handleItensBudgets = useCallback(() => {
@@ -27,7 +28,10 @@ const DataTableItensBudget: React.FC<iItemBudgetTable> = ({ orc }) => {
     GetOrcamento(orc.ORCAMENTO)
       .then((res) => {
         console.log('orçamentos:', res);
-        if (res.value) setData(res.value.ItensOrcamento);
+        if (res.value) {
+          setData(res.value.ItensOrcamento);
+          setTOTAL(res.value.TOTAL);
+        }
         setLoading(false);
       })
       .catch((err) => {
@@ -51,7 +55,10 @@ const DataTableItensBudget: React.FC<iItemBudgetTable> = ({ orc }) => {
             size='xl'
             title='Gerar Pré-venda'
             onClick={() => {
-              removeItem(item);
+              removeItem({
+                pIdOrcamento: item.ORCAMENTO,
+                pProduto: item.PRODUTO.PRODUTO,
+              });
               handleItensBudgets();
             }}
           />
@@ -61,7 +68,11 @@ const DataTableItensBudget: React.FC<iItemBudgetTable> = ({ orc }) => {
             iconStyle='cursor-pointer text-emsoft_orange-main hover:text-emsoft_orange-light'
             buttonStyle='bg-tranparent hover:bg-tranparent'
           >
-            <FormEdit budgetCode={item.ORCAMENTO} item={item} />
+            <FormEdit
+              budgetCode={item.ORCAMENTO}
+              item={item}
+              CallBack={handleItensBudgets}
+            />
           </ModalEditBudgetItem>
         </span>
       ),
@@ -110,13 +121,9 @@ const DataTableItensBudget: React.FC<iItemBudgetTable> = ({ orc }) => {
     },
   ];
 
-  // if (loading) {
-  //   return <span>Carregando...</span>;
-  // }
-
   return (
     <section className='flex flex-col gap-x-5 w-full'>
-      <div className='flex gap-4 w-full h-[40%] px-5 py-0 flex-wrap'>
+      <div className='flex gap-4 w-full h-[20%] px-5 py-0 flex-wrap'>
         <Input
           labelText='OBSERVAÇÃO 1'
           labelPosition='top'
@@ -143,7 +150,7 @@ const DataTableItensBudget: React.FC<iItemBudgetTable> = ({ orc }) => {
         </ModalEditBudgetItem>
       </div>
 
-      <div className='flex gap-4 w-full h-[70%] px-5 py-2 mt-5 border-t-2 border-emsoft_orange-main'>
+      <div className='flex flex-col gap-4 w-full h-[70%] px-5 py-2 mt-5 border-t-2 border-emsoft_orange-main'>
         {loading ? (
           <span>Carregando...</span>
         ) : (
@@ -155,6 +162,15 @@ const DataTableItensBudget: React.FC<iItemBudgetTable> = ({ orc }) => {
             />
           </Suspense>
         )}
+      </div>
+      <div className='flex w-full gap-x-5 items-end justify-end px-5 pt-3 mt-4 border-t-2 border-emsoft_orange-main'>
+        <span className='bold text-3xl'>TOTAL:</span>
+        <span className='bold text-xl'>
+          {TOTAL.toLocaleString('pt-br', {
+            style: 'currency',
+            currency: 'BRL',
+          })}
+        </span>
       </div>
     </section>
   );

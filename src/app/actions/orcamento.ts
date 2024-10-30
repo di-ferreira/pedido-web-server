@@ -1,7 +1,13 @@
 'use server';
 import { iApiResult, ResponseType } from '@/@types';
 import { iFilter } from '@/@types/Filter';
-import { iItemInserir, iItensOrcamento, iOrcamento } from '@/@types/Orcamento';
+import {
+  iItemInserir,
+  iItemRemove,
+  iItensOrcamento,
+  iOrcamento,
+  iOrcamentoInserir,
+} from '@/@types/Orcamento';
 import { iDataResultTable } from '@/@types/Table';
 import { getCookie } from '.';
 import { CustomFetch } from '@/services/api';
@@ -134,24 +140,97 @@ export async function GetOrcamento(
   };
 }
 
+export async function NewOrcamento(orcamento: iOrcamento) {
+  const tokenCookie = await getCookie('token');
+  const VendedorLocal: string = await getCookie('user');
+  const ItensOrcamento: iItemInserir[] = [];
+
+  orcamento.ItensOrcamento?.map((item) => {
+    const ItemInsert: iItemInserir = {
+      pIdOrcamento: 0,
+      pItemOrcamento: {
+        CodigoProduto: item.PRODUTO ? item.PRODUTO.PRODUTO : '',
+        Qtd: item.QTD,
+        SubTotal: item.SUBTOTAL,
+        Tabela: item.TABELA ? item.TABELA : 'SISTEMA',
+        Total: item.TOTAL,
+        Valor: item.VALOR,
+        Frete: 0,
+        Desconto: 0,
+      },
+    };
+    ItensOrcamento.push(ItemInsert);
+  });
+
+  const OrcamentoInsert: iOrcamentoInserir = {
+    CodigoCliente: orcamento.CLIENTE.CLIENTE,
+    CodigoVendedor1: Number(VendedorLocal),
+    Total: orcamento.TOTAL,
+    SubTotal: orcamento.TOTAL,
+    Itens: ItensOrcamento,
+  };
+
+  const responseInsert = await CustomFetch<iApiResult<iOrcamento>>(
+    ROUTE_SAVE_ORCAMENTO,
+    {
+      body: JSON.stringify(OrcamentoInsert),
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `bearer ${tokenCookie}`,
+      },
+    }
+  );
+
+  if (responseInsert.body.StatusCode !== 200) {
+    return {
+      value: undefined,
+      error: {
+        code: String(responseInsert.body.StatusCode),
+        message: String(responseInsert.body.StatusMessage),
+      },
+    };
+  }
+
+  const response = await GetOrcamento(responseInsert.body.Data.ORCAMENTO);
+
+  if (response.error !== undefined) {
+    return {
+      value: undefined,
+      error: {
+        code: response.error.code,
+        message: response.error.message,
+      },
+    };
+  }
+
+  return {
+    value: response.value,
+    error: undefined,
+  };
+}
+
 export async function removeItem(
-  itemOrcamento: iItensOrcamento
+  itemOrcamento: iItemRemove
 ): Promise<ResponseType<iOrcamento>> {
   const tokenCookie = await getCookie('token');
 
-  const data = await CustomFetch<iOrcamento>(ROUTE_REMOVE_ITEM_ORCAMENTO, {
-    body: JSON.stringify({
-      pIdOrcamento: itemOrcamento.ORCAMENTO,
-      pProduto: itemOrcamento.PRODUTO.PRODUTO,
-    }),
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `bearer ${tokenCookie}`,
-    },
-  });
+  const data = await CustomFetch<iApiResult<iOrcamento>>(
+    ROUTE_REMOVE_ITEM_ORCAMENTO,
+    {
+      body: JSON.stringify({
+        pIdOrcamento: itemOrcamento.pIdOrcamento,
+        pProduto: itemOrcamento.pProduto,
+      }),
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `bearer ${tokenCookie}`,
+      },
+    }
+  );
 
-  const response = await GetOrcamento(itemOrcamento.ORCAMENTO);
+  const response = await GetOrcamento(itemOrcamento.pIdOrcamento);
 
   if (response.error !== undefined) {
     return {
@@ -191,7 +270,6 @@ export async function addItem(itemOrcamento: iItemInserir) {
       },
     }
   );
-  console.log('Add Item res ->', res);
 
   if (res.body.StatusCode !== 200) {
     return {
@@ -204,7 +282,74 @@ export async function addItem(itemOrcamento: iItemInserir) {
   }
 
   const response = await GetOrcamento(itemOrcamento.pIdOrcamento);
-  console.log('Add Item response ->', response);
+
+  if (response.error !== undefined) {
+    return {
+      value: undefined,
+      error: {
+        code: response.error.code,
+        message: response.error.message,
+      },
+    };
+  }
+
+  return {
+    value: response.value,
+    error: undefined,
+  };
+}
+
+export async function updateItem(itemOrcamento: iItemInserir) {
+  const tokenCookie = await getCookie('token');
+
+  const removeResult = await CustomFetch<iApiResult<iOrcamento>>(
+    ROUTE_REMOVE_ITEM_ORCAMENTO,
+    {
+      body: JSON.stringify({
+        pIdOrcamento: itemOrcamento.pIdOrcamento,
+        pProduto: itemOrcamento.pItemOrcamento.CodigoProduto,
+      }),
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `bearer ${tokenCookie}`,
+      },
+    }
+  );
+
+  if (removeResult.body.StatusCode !== 200) {
+    return {
+      value: undefined,
+      error: {
+        code: String(removeResult.body.StatusCode),
+        message: String(removeResult.body.StatusMessage),
+      },
+    };
+  }
+
+  const resultSave = await CustomFetch<iApiResult<iOrcamento>>(
+    ROUTE_SAVE_ITEM_ORCAMENTO,
+    {
+      body: JSON.stringify(itemOrcamento),
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `bearer ${tokenCookie}`,
+      },
+    }
+  );
+
+  if (resultSave.body.StatusCode !== 200) {
+    return {
+      value: undefined,
+      error: {
+        code: String(resultSave.body.StatusCode),
+        message: String(resultSave.body.StatusMessage),
+      },
+    };
+  }
+
+  const response = await GetOrcamento(itemOrcamento.pIdOrcamento);
 
   if (response.error !== undefined) {
     return {

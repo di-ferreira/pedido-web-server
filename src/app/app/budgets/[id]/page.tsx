@@ -26,24 +26,27 @@ const Budget: React.FC<iBudgetPage> = async ({ params }) => {
       </h1>
 
       <div className='flex w-full h-[75vh] flex-col overflow-x-hidden overflow-y-auto'>
-        <div className='flex gap-3 w-full h-[40%] px-5 py-0 flex-wrap'>
+        <div className='flex gap-3 w-full h-[20%] px-5 py-0 flex-wrap'>
           <Input
             labelText='CÓDIGO'
             labelPosition='top'
             value={budget.value.CLIENTE.CLIENTE}
             className='w-[10%]'
+            disabled
           />
           <Input
             labelText='NOME'
             labelPosition='top'
             value={budget.value.CLIENTE.NOME}
             className='w-[40%]'
+            disabled
           />
           <Input
             labelText='CPF/CNPJ'
             labelPosition='top'
             value={budget.value.CLIENTE.CIC}
             className='w-[20%]'
+            disabled
           />
 
           <Input
@@ -52,6 +55,7 @@ const Budget: React.FC<iBudgetPage> = async ({ params }) => {
             name='TELEFONE'
             value={budget.value.CLIENTE.TELEFONE}
             className='w-[20%]'
+            disabled
           />
 
           <Input
@@ -60,6 +64,7 @@ const Budget: React.FC<iBudgetPage> = async ({ params }) => {
             name='CLIENTE.ENDERECO'
             value={budget.value.CLIENTE.ENDERECO}
             className='w-[30%]'
+            disabled
           />
           <Input
             labelText='BAIRRO'
@@ -67,6 +72,7 @@ const Budget: React.FC<iBudgetPage> = async ({ params }) => {
             name='CLIENTE.BAIRRO'
             value={budget.value.CLIENTE.BAIRRO}
             className='w-[24%]'
+            disabled
           />
 
           <Input
@@ -75,6 +81,7 @@ const Budget: React.FC<iBudgetPage> = async ({ params }) => {
             name='CLIENTE.CIDADE'
             value={budget.value.CLIENTE.CIDADE}
             className='w-[15%]'
+            disabled
           />
           <Input
             labelText='UF'
@@ -82,6 +89,7 @@ const Budget: React.FC<iBudgetPage> = async ({ params }) => {
             name='CLIENTE.UF'
             value={budget.value.CLIENTE.UF}
             className='w-[10%]'
+            disabled
           />
           <Input
             labelText='CEP'
@@ -89,10 +97,11 @@ const Budget: React.FC<iBudgetPage> = async ({ params }) => {
             name='CLIENTE.CEP'
             value={budget.value.CLIENTE.CEP}
             className='w-[10%]'
+            disabled
           />
         </div>
 
-        <div className='flex gap-4 w-full h-[70%]'>
+        <div className='flex gap-4 w-full h-[70%] mt-[2%]'>
           <DataTableItensBudget orc={budget.value} />
         </div>
       </div>

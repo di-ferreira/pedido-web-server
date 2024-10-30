@@ -29,15 +29,15 @@ export function DataTable<T>({
       <thead className='w-full table-fixed'>
         <TableHeader columns={columns} />
       </thead>
-      <tbody className='w-full table-fixed overflow-x-hidden overflow-y-auto max-sm:overflow-auto'>
+      <tbody className='w-full relative table-fixed overflow-x-hidden overflow-y-auto max-sm:overflow-auto'>
         {IsLoading && <Loading />}
 
         {!IsLoading && <TableRow data={TableData} columns={columns} />}
 
         {ErrorMessage !== '' && (!TableData || TableData.length === 0) && (
-          <p className='flex text-center items-center justify-center pl-14 pr-6'>
-            {ErrorMessage}
-          </p>
+          <div className='flex absolute w-[300px] top-5 left-[50%] translate-x-[-50%] items-center justify-center pl-14 pr-6'>
+            <p>{ErrorMessage}</p>
+          </div>
         )}
       </tbody>
       {onFetchPagination && QuantityRegiters && (
