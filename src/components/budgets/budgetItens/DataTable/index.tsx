@@ -3,8 +3,10 @@ import { iItensOrcamento, iOrcamento } from '@/@types/Orcamento';
 import { iColumnType } from '@/@types/Table';
 import { GetOrcamento, removeItem } from '@/app/actions/orcamento';
 import { DataTable } from '@/components/CustomDataTable';
+import { Input } from '@/components/ui/input';
 import {
   faEdit,
+  faFileLines,
   faPlusCircle,
   faTrashAlt,
 } from '@fortawesome/free-solid-svg-icons';
@@ -12,7 +14,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Suspense, useCallback, useState } from 'react';
 import FormEdit from '../EditBudgetIten/FormEdit';
 import { ModalEditBudgetItem } from '../EditBudgetIten/ModalEditBudgetItem';
-import { Input } from '@/components/ui/input';
+import { PdfViewer } from '../../PdfViewer/PdfViewer';
 
 interface iItemBudgetTable {
   orc: iOrcamento;
@@ -140,13 +142,20 @@ const DataTableItensBudget: React.FC<iItemBudgetTable> = ({ orc }) => {
           className='w-[46%]'
         />
       </div>
-      <div className='flex w-full items-center px-5 mt-4'>
+      <div className='flex w-full items-center px-5 mt-4 gap-x-4'>
         <ModalEditBudgetItem
           modalTitle={'Novo Item'}
           buttonText={'Novo Item'}
           buttonIcon={faPlusCircle}
         >
           <FormEdit budgetCode={orc.ORCAMENTO} CallBack={handleItensBudgets} />
+        </ModalEditBudgetItem>
+        <ModalEditBudgetItem
+          modalTitle={`Orçamento ${orc.ORCAMENTO}`}
+          buttonText={'Gerar PDF'}
+          buttonIcon={faFileLines}
+        >
+          <PdfViewer orc={orc} />
         </ModalEditBudgetItem>
       </div>
 
