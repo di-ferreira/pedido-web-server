@@ -58,6 +58,8 @@ const config = {
         },
         emsoft_blue: { main: '#063778', light: '#0c6ff1', dark: '#031b3b' },
         emsoft_orange: { main: '#F27318', light: '#f59854', dark: '#bf560b' },
+        emsoft_success: { main: '#22BB33', light: '#76e683', dark: '#0e4f16' },
+        emsoft_danger: { main: '#BB2124', light: '#dd3f42', dark: '#85171a' },
         emsoft_dark: { main: '#0f0f0f', text: '#030202' },
         emsoft_light: { main: '#F6F6F6', surface: '#e6ebf1' },
       },

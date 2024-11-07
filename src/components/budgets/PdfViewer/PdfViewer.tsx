@@ -49,24 +49,6 @@ export function PdfViewer({ orc }: PdfViewerProps) {
     <PDFViewer width={'100%'} height={'100%'} showToolbar={true}>
       <Document language='PT-BR'>
         <Page wrap size='A4' style={styles.page}>
-          {/*
-          <Text
-            render={({ pageNumber, totalPages }) =>
-              `${pageNumber} / ${totalPages}`
-            }
-            fixed
-          />
-
-          <View
-            render={({ pageNumber }) =>
-              pageNumber % 2 !== 0 && (
-                <View style={{ backgroundColor: 'red' }}>
-                  <Text>I'm only visible in odd pages!</Text>
-                </View>
-              )
-            }
-          /> */}
-
           <View style={styles.default}>
             {/* header  */}
             <View>

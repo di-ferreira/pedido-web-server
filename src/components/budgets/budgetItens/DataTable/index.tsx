@@ -6,6 +6,7 @@ import { DataTable } from '@/components/CustomDataTable';
 import { Input } from '@/components/ui/input';
 import {
   faEdit,
+  faFileInvoiceDollar,
   faFileLines,
   faPlusCircle,
   faTrashAlt,
@@ -15,6 +16,8 @@ import { Suspense, useCallback, useState } from 'react';
 import FormEdit from '../EditBudgetIten/FormEdit';
 import { ModalEditBudgetItem } from '../EditBudgetIten/ModalEditBudgetItem';
 import { PdfViewer } from '../../PdfViewer/PdfViewer';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 interface iItemBudgetTable {
   orc: iOrcamento;
@@ -29,7 +32,6 @@ const DataTableItensBudget: React.FC<iItemBudgetTable> = ({ orc }) => {
     setLoading(true);
     GetOrcamento(orc.ORCAMENTO)
       .then((res) => {
-        console.log('orçamentos:', res);
         if (res.value) {
           setData(res.value.ItensOrcamento);
           setTOTAL(res.value.TOTAL);
@@ -157,6 +159,17 @@ const DataTableItensBudget: React.FC<iItemBudgetTable> = ({ orc }) => {
         >
           <PdfViewer orc={orc} />
         </ModalEditBudgetItem>
+        <Button>
+          <Link href={`/app/pre-sales/${orc.ORCAMENTO}`}>
+            <FontAwesomeIcon
+              icon={faFileInvoiceDollar}
+              className={'text-emsoft_light-main mr-2'}
+              size='xl'
+              title={'Gerar Pré-venda'}
+            />
+            Gerar Pré-venda
+          </Link>
+        </Button>
       </div>
 
       <div className='flex flex-col gap-4 w-full h-[70%] px-5 py-2 mt-5 border-t-2 border-emsoft_orange-main'>

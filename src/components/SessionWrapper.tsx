@@ -2,6 +2,7 @@ import { getCookie } from 'cookies-next';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import React from 'react';
+import { Toaster } from './ui/toaster';
 
 interface Props {
   children: React.ReactNode;
@@ -14,9 +15,12 @@ const SessionWrapper: React.FC<Props> = async ({ children }) => {
     redirect('/auth');
   }
   return (
-    <main className='flex flex-col w-full overflow-hidden min-h-full bg-light-surface'>
-      {children}
-    </main>
+    <>
+      <Toaster />
+      <main className='flex flex-col w-full overflow-hidden min-h-full bg-light-surface'>
+        {children}
+      </main>
+    </>
   );
 };
 

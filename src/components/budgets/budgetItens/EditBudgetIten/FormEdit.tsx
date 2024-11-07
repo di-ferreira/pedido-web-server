@@ -1,17 +1,13 @@
 'use client';
+import { ResponseType } from '@/@types';
+import { iItensOrcamento } from '@/@types/Orcamento';
+import { iProduto, iTabelaVenda } from '@/@types/Produto';
+import { iDataResultTable } from '@/@types/Table';
+import { addItem, updateItem } from '@/app/actions/orcamento';
+import { SuperFindProducts, TableFromProduct } from '@/app/actions/produto';
 import { DataTable } from '@/components/CustomDataTable';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import {
-  faSave,
-  faSearch,
-  faSpinner,
-  faStore,
-} from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useEffect, useState } from 'react';
-import { tableChavesHeaders } from './columns';
 import {
   Select,
   SelectContent,
@@ -19,13 +15,13 @@ import {
   SelectItem,
   SelectTrigger,
 } from '@/components/ui/select';
-import { iItensOrcamento } from '@/@types/Orcamento';
+import { Textarea } from '@/components/ui/textarea';
+import { toast } from '@/components/ui/use-toast';
 import { FormatToCurrency } from '@/lib/utils';
-import { iProduto, iTabelaVenda } from '@/@types/Produto';
-import { SuperFindProducts, TableFromProduct } from '@/app/actions/produto';
-import { ResponseType } from '@/@types';
-import { iDataResultTable } from '@/@types/Table';
-import { addItem, updateItem } from '@/app/actions/orcamento';
+import { faSave, faSearch, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import React, { useEffect, useState } from 'react';
+import { tableChavesHeaders } from './columns';
 
 interface iFormEditItem {
   item?: iItensOrcamento;
@@ -62,21 +58,6 @@ const FormEdit: React.FC<iFormEditItem> = ({ item, budgetCode, CallBack }) => {
 
   async function saveItem(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    console.log('Produto budget ->', budgetItem.PRODUTO);
-
-    console.log('Save Item', {
-      pIdOrcamento: budgetCode,
-      pItemOrcamento: {
-        CodigoProduto: budgetItem.PRODUTO.PRODUTO,
-        Desconto: 0,
-        Frete: 0,
-        Qtd: budgetItem.QTD,
-        Tabela: budgetItem.TABELA,
-        Valor: budgetItem.VALOR,
-        SubTotal: budgetItem.SUBTOTAL,
-        Total: budgetItem.TOTAL,
-      },
-    });
 
     if (budgetItem.ORCAMENTO > 0) {
       const response = await updateItem({
@@ -114,8 +95,23 @@ const FormEdit: React.FC<iFormEditItem> = ({ item, budgetCode, CallBack }) => {
       });
 
       if (response.value !== undefined && CallBack) {
+        toast({
+          title: 'Sucesso!',
+          description: 'Item adicionado com sucesso',
+          variant: 'success',
+        });
         CallBack();
+        console.log('sucesso');
       }
+
+      if (response.error !== undefined) {
+        toast({
+          title: 'Error!',
+          description: 'Erro ao adicionar item',
+          variant: 'destructive',
+        });
+      }
+
       console.log('Save item response ->', response);
     }
   }

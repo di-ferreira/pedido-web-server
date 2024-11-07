@@ -66,7 +66,7 @@ export const headers: iColumnType<iOrcamento>[] = [
     width: '5rem',
     render: (_, item) => (
       <span className='flex w-full items-center justify-center gap-x-5'>
-        <Link href={`/app/budgets/${item.ORCAMENTO}`}>
+        <Link href={`/app/pre-sales/${item.ORCAMENTO}`}>
           <FontAwesomeIcon
             icon={faFileLines}
             className='text-emsoft_blue-main hover:text-emsoft_blue-light'
@@ -74,6 +74,7 @@ export const headers: iColumnType<iOrcamento>[] = [
             title='Gerar Pré-venda'
           />
         </Link>
+
         <Link href={`/app/budgets/${item.ORCAMENTO}`}>
           <FontAwesomeIcon
             icon={faEdit}

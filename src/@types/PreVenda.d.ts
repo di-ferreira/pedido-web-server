@@ -245,6 +245,12 @@ export interface iPreVenda {
   Itens: iItemPreVenda[];
 }
 
+export interface iParcelasPgto {
+  DIAS: number;
+  VENCIMENTO: string;
+  VALOR: number;
+}
+
 export interface iCondicaoPgto {
   ID: number;
   NOME: string;
@@ -276,3 +282,4 @@ export interface iTransportadora {
   NOME: string;
   CIDADE: string;
 }
+

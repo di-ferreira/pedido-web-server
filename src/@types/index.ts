@@ -5,12 +5,20 @@ export interface iApiData<T> {
   Qtd_Registros: number;
   value: T[];
 }
+
 export interface iApiResult<T> {
   Data: T;
   RecordCount: number;
   StatusCode: number;
   StatusMessage: string;
 }
+
+export interface iResultApi<T> {
+  status: number;
+  statusText: string;
+  body: { value: T[] };
+}
+
 export interface iUniqueResult<T> {
   data: T;
 }

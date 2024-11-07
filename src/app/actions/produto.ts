@@ -90,6 +90,7 @@ export async function TableFromProduct(
       },
     ],
   });
+  console.log('Produto:', body);
 
   const res = await CustomFetch<any>(`${ROUTE_SELECT_SQL}`, {
     method: 'POST',
