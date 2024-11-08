@@ -1,9 +1,15 @@
 'use client';
 import { iItensOrcamento, iOrcamento } from '@/@types/Orcamento';
 import { iColumnType } from '@/@types/Table';
-import { GetOrcamento, removeItem } from '@/app/actions/orcamento';
+import {
+  GetOrcamento,
+  removeItem,
+  UpdateOrcamento,
+} from '@/app/actions/orcamento';
 import { DataTable } from '@/components/CustomDataTable';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { toast } from '@/components/ui/use-toast';
 import {
   faEdit,
   faFileInvoiceDollar,
@@ -12,20 +18,18 @@ import {
   faTrashAlt,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import Link from 'next/link';
 import { Suspense, useCallback, useState } from 'react';
+import { PdfViewer } from '../../PdfViewer/PdfViewer';
 import FormEdit from '../EditBudgetIten/FormEdit';
 import { ModalEditBudgetItem } from '../EditBudgetIten/ModalEditBudgetItem';
-import { PdfViewer } from '../../PdfViewer/PdfViewer';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
 
 interface iItemBudgetTable {
   orc: iOrcamento;
 }
 
 const DataTableItensBudget: React.FC<iItemBudgetTable> = ({ orc }) => {
-  const [data, setData] = useState<iItensOrcamento[]>(orc.ItensOrcamento);
-  const [TOTAL, setTOTAL] = useState<number>(orc.TOTAL);
+  const [data, setData] = useState<iOrcamento>(orc);
   const [loading, setLoading] = useState(false);
 
   const handleItensBudgets = useCallback(() => {
@@ -33,18 +37,65 @@ const DataTableItensBudget: React.FC<iItemBudgetTable> = ({ orc }) => {
     GetOrcamento(orc.ORCAMENTO)
       .then((res) => {
         if (res.value) {
-          setData(res.value.ItensOrcamento);
-          setTOTAL(res.value.TOTAL);
+          setData(res.value);
+        }
+        if (res.error !== undefined) {
+          toast({
+            title: `Error ${res.error.code}`,
+            description: res.error.message,
+            variant: 'destructive',
+          });
         }
         setLoading(false);
       })
       .catch((err) => {
         console.error('Erro ao carregar clientes:', err);
+        toast({
+          title: 'Error!',
+          description: err.message,
+          variant: 'destructive',
+        });
       })
       .finally(() => {
         setLoading(false);
       });
   }, []);
+
+  function UpdateBudget() {
+    setLoading(true);
+
+    UpdateOrcamento({
+      ...data,
+    })
+      .then((res) => {
+        if (res.value !== undefined) {
+          setData(res.value);
+          toast({
+            title: 'Sucesso!',
+            description: 'Orçamento salvo com sucesso',
+            variant: 'success',
+          });
+        }
+        if (res.error !== undefined) {
+          toast({
+            title: `Error ${res.error.code}`,
+            description: res.error.message,
+            variant: 'destructive',
+          });
+        }
+        handleItensBudgets();
+      })
+      .catch((err) => {
+        toast({
+          title: 'Error!',
+          description: err.message,
+          variant: 'destructive',
+        });
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }
 
   const tableHeaders: iColumnType<iItensOrcamento>[] = [
     {
@@ -132,7 +183,10 @@ const DataTableItensBudget: React.FC<iItemBudgetTable> = ({ orc }) => {
           labelText='OBSERVAÇÃO 1'
           labelPosition='top'
           name='OBS1'
-          value={orc.OBS1}
+          value={data.OBS1 || ''}
+          onChange={(e) => {
+            setData((old) => (old = { ...data, OBS1: e.target.value }));
+          }}
           className='w-[45.5%]'
         />
 
@@ -140,7 +194,10 @@ const DataTableItensBudget: React.FC<iItemBudgetTable> = ({ orc }) => {
           labelText='OBSERVAÇÃO 2'
           labelPosition='top'
           name='OBS2'
-          value={orc.OBS2}
+          value={data.OBS2 || ''}
+          onChange={(e) => {
+            setData((old) => (old = { ...data, OBS2: e.target.value }));
+          }}
           className='w-[46%]'
         />
       </div>
@@ -150,17 +207,17 @@ const DataTableItensBudget: React.FC<iItemBudgetTable> = ({ orc }) => {
           buttonText={'Novo Item'}
           buttonIcon={faPlusCircle}
         >
-          <FormEdit budgetCode={orc.ORCAMENTO} CallBack={handleItensBudgets} />
+          <FormEdit budgetCode={data.ORCAMENTO} CallBack={handleItensBudgets} />
         </ModalEditBudgetItem>
         <ModalEditBudgetItem
-          modalTitle={`Orçamento ${orc.ORCAMENTO}`}
+          modalTitle={`Orçamento ${data.ORCAMENTO}`}
           buttonText={'Gerar PDF'}
           buttonIcon={faFileLines}
         >
-          <PdfViewer orc={orc} />
+          <PdfViewer orc={data} />
         </ModalEditBudgetItem>
         <Button>
-          <Link href={`/app/pre-sales/${orc.ORCAMENTO}`}>
+          <Link href={`/app/pre-sales/${data.ORCAMENTO}`}>
             <FontAwesomeIcon
               icon={faFileInvoiceDollar}
               className={'text-emsoft_light-main mr-2'}
@@ -169,6 +226,18 @@ const DataTableItensBudget: React.FC<iItemBudgetTable> = ({ orc }) => {
             />
             Gerar Pré-venda
           </Link>
+        </Button>
+        <Button
+          className='bg-emsoft_success-main text-emsoft_dark-text'
+          onClick={UpdateBudget}
+        >
+          <FontAwesomeIcon
+            icon={faFileInvoiceDollar}
+            className={'text-emsoft_dark-text mr-2'}
+            size='xl'
+            title={'Gerar Pré-venda'}
+          />
+          Salvar Orçamento
         </Button>
       </div>
 
@@ -179,7 +248,7 @@ const DataTableItensBudget: React.FC<iItemBudgetTable> = ({ orc }) => {
           <Suspense fallback={<span>Carregando...</span>}>
             <DataTable
               columns={tableHeaders}
-              TableData={data}
+              TableData={data.ItensOrcamento}
               IsLoading={false}
             />
           </Suspense>
@@ -188,7 +257,7 @@ const DataTableItensBudget: React.FC<iItemBudgetTable> = ({ orc }) => {
       <div className='flex w-full gap-x-5 items-end justify-end px-5 pt-3 mt-4 border-t-2 border-emsoft_orange-main'>
         <span className='bold text-3xl'>TOTAL:</span>
         <span className='bold text-xl'>
-          {TOTAL.toLocaleString('pt-br', {
+          {data.TOTAL.toLocaleString('pt-br', {
             style: 'currency',
             currency: 'BRL',
           })}

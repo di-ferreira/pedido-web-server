@@ -9,8 +9,8 @@ import {
   iOrcamentoInserir,
 } from '@/@types/Orcamento';
 import { iDataResultTable } from '@/@types/Table';
-import { getCookie } from '.';
 import { CustomFetch } from '@/services/api';
+import { getCookie } from '.';
 const ROUTE_GET_ALL_ORCAMENTO = '/Orcamento';
 const ROUTE_SAVE_ORCAMENTO = '/ServiceVendas/NovoOrcamento';
 const ROUTE_REMOVE_ITEM_ORCAMENTO = '/ServiceVendas/ExcluirItemOrcamento';
@@ -193,6 +193,56 @@ export async function NewOrcamento(orcamento: iOrcamento) {
   }
 
   const response = await GetOrcamento(responseInsert.body.Data.ORCAMENTO);
+
+  if (response.error !== undefined) {
+    return {
+      value: undefined,
+      error: {
+        code: response.error.code,
+        message: response.error.message,
+      },
+    };
+  }
+
+  return {
+    value: response.value,
+    error: undefined,
+  };
+}
+
+export async function UpdateOrcamento(orcamento: iOrcamento) {
+  const tokenCookie = await getCookie('token');
+  const VendedorLocal: string = await getCookie('user');
+
+  const itens = orcamento.ItensOrcamento.map((i) => {
+    return { ...i, ORCAMENTO: String(i.ORCAMENTO) };
+  });
+
+  const responseInsert = await CustomFetch<iOrcamento>(
+    `/Orcamento(${orcamento.ORCAMENTO})`,
+    {
+      body: JSON.stringify({
+        OBS1: orcamento.OBS1,
+        OBS2: orcamento.OBS2,
+      }),
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `bearer ${tokenCookie}`,
+      },
+    }
+  );
+  if (responseInsert.status !== 200) {
+    return {
+      value: undefined,
+      error: {
+        code: String(responseInsert.status),
+        message: String(responseInsert.statusText),
+      },
+    };
+  }
+
+  const response = await GetOrcamento(responseInsert.body.ORCAMENTO);
 
   if (response.error !== undefined) {
     return {

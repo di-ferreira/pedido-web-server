@@ -2,25 +2,25 @@
 import { iSearch, ResponseType } from '@/@types';
 import { iCliente } from '@/@types/Cliente';
 import { iFilter, iFilterQuery } from '@/@types/Filter';
+import { iOrcamento } from '@/@types/Orcamento';
 import { iColumnType, iDataResultTable } from '@/@types/Table';
+import { iVendedor } from '@/@types/Vendedor';
 import { GetClienteFromVendedor } from '@/app/actions/cliente';
+import { NewOrcamento } from '@/app/actions/orcamento';
 import { DataTable } from '@/components/CustomDataTable';
-import { Suspense, useCallback, useEffect, useState } from 'react';
-import { headers } from './columns';
 import Filter from '@/components/Filter';
-import { removeStorage } from '@/lib/utils';
 import { KEY_NAME_TABLE_PAGINATION } from '@/constants';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { removeStorage } from '@/lib/utils';
 import {
   faFileLines,
   faSpinner,
   faUserAlt,
 } from '@fortawesome/free-solid-svg-icons';
-import { NewOrcamento } from '@/app/actions/orcamento';
-import { iOrcamento } from '@/@types/Orcamento';
-import { iVendedor } from '@/@types/Vendedor';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { Suspense, useCallback, useEffect, useState } from 'react';
+import { headers } from './columns';
 
 function DataTableCustomer() {
   const router = useRouter();
@@ -64,8 +64,6 @@ function DataTableCustomer() {
   );
 
   const handleCustomerSearch = useCallback((filter: iSearch<iCliente>) => {
-    console.log(filter);
-
     setLoading(true);
     GetClienteFromVendedor({
       top: 15,

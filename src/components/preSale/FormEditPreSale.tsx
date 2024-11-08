@@ -22,6 +22,7 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import dayjs from 'dayjs';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import React, { Suspense, useEffect, useState } from 'react';
 import { DataTable } from '../CustomDataTable';
 import { Button } from '../ui/button';
@@ -49,6 +50,7 @@ interface iTipoEntrega {
 }
 
 const FormEditPreSale: React.FC<iFormEditPreSale> = ({ orc }) => {
+  const router = useRouter();
   const [CondicaoPgto, setCondicaoPgto] = useState<iCondicaoPgto[]>([]);
   const [CondicaoPgtoSelected, setCondicaoPgtoSelected] =
     useState<iCondicaoPgto>({
@@ -234,6 +236,9 @@ const FormEditPreSale: React.FC<iFormEditPreSale> = ({ orc }) => {
           description: e.message,
           variant: 'destructive',
         });
+      })
+      .finally(() => {
+        router.push('/app/pre-sales');
       });
   }
 
