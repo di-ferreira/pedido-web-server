@@ -17,6 +17,7 @@ const NavBar: React.FC = () => {
     { icon: faUsers, link: '/app/customers', text: 'Clientes' },
     { icon: faFileLines, link: '/app/budgets', text: 'Orçamentos' },
     { icon: faFileInvoiceDollar, link: '/app/pre-sales', text: 'Pré-vendas' },
+    { icon: faFileInvoiceDollar, link: '/app/sales', text: 'Vendas' },
     { icon: faCogs, link: '/app/config', text: 'Configuração' },
   ];
 
@@ -24,7 +25,8 @@ const NavBar: React.FC = () => {
     <aside
       className={`flex transition-all overflow-hidden 
                   ${open ? ' w-52 ' : ' w-14  '} 
-                  h-[calc(100vh-74px)] bg-emsoft_blue-main
+                  h-[100vh] 
+                  bg-emsoft_blue-main
                   border-t-4 border-r-2 border-emsoft_orange-main`}
       onMouseOver={() => setOpen((curr) => true)}
       onMouseOut={() => setOpen((curr) => false)}

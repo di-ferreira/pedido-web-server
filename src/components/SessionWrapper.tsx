@@ -17,7 +17,7 @@ const SessionWrapper: React.FC<Props> = async ({ children }) => {
   return (
     <>
       <Toaster />
-      <main className='flex flex-col w-full overflow-hidden min-h-full bg-light-surface'>
+      <main className='flex flex-col w-full overflow-hidden  min-h-full bg-light-surface'>
         {children}
       </main>
     </>

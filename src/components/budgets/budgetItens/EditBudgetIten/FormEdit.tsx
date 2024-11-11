@@ -169,11 +169,20 @@ const FormEdit: React.FC<iFormEditItem> = ({ item, budgetCode, CallBack }) => {
           }
         }
 
-        if (products.error !== undefined)
-          console.error('Error find Products', products.error);
+        if (products.error !== undefined) {
+          toast({
+            title: 'Error!',
+            description: `Erro: ${products.error.message}`,
+            variant: 'destructive',
+          });
+        }
       })
       .catch((e) => {
-        console.error('Error find Products', e);
+        toast({
+          title: 'Error!',
+          description: `Erro: ${e.message}`,
+          variant: 'destructive',
+        });
       })
       .finally(() => {
         setLoading(false);

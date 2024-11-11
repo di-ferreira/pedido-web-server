@@ -17,11 +17,11 @@ const NavBarItem: React.FC<iNavItem> = ({ icon, link, text }) => {
     >
       <Link
         href={link}
-        className='flex items-baseline text-emsoft_light-main  p-3'
+        className='flex items-center text-emsoft_light-main  p-3'
       >
         <span
           className={
-            'flex items-center justify-center  w-5 h-auto pr-1 ml-1 mr-[18px]'
+            'flex items-center justify-center w-5 h-auto pr-1 ml-1 mr-[18px]'
           }
         >
           <FontAwesomeIcon

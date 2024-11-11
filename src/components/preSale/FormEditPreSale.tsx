@@ -251,7 +251,7 @@ const FormEditPreSale: React.FC<iFormEditPreSale> = ({ orc }) => {
   }, []);
 
   return (
-    <section className='flex flex-col w-full gap-4 h-full'>
+    <section className='flex flex-col w-full gap-4 pb-4 max-h-screen overflow-y-auto'>
       <h1
         className={`text-4xl font-bold mt-5 py-1 px-3 
           border-b-2 text-emsoft_dark-text
