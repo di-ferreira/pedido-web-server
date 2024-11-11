@@ -82,8 +82,6 @@ const FormEdit: React.FC<iFormEditItem> = ({ item, budgetCode, CallBack }) => {
       if (CallBack) {
         CallBack();
       }
-
-      console.log('Update item response ->', response);
     } else {
       const response = await addItem({
         pIdOrcamento: budgetCode,
@@ -106,7 +104,6 @@ const FormEdit: React.FC<iFormEditItem> = ({ item, budgetCode, CallBack }) => {
           variant: 'success',
         });
         CallBack();
-        console.log('sucesso');
       }
 
       if (response.error !== undefined) {
@@ -116,8 +113,6 @@ const FormEdit: React.FC<iFormEditItem> = ({ item, budgetCode, CallBack }) => {
           variant: 'destructive',
         });
       }
-
-      console.log('Save item response ->', response);
     }
   }
 
@@ -206,7 +201,6 @@ const FormEdit: React.FC<iFormEditItem> = ({ item, budgetCode, CallBack }) => {
           );
           setWordProducts(item.PRODUTO.PRODUTO);
         });
-        console.log('Item ->', item);
       }
     };
   }, []);
@@ -360,7 +354,13 @@ const FormEdit: React.FC<iFormEditItem> = ({ item, budgetCode, CallBack }) => {
             defaultValue={budgetItem.TABELA}
             value={String(budgetItem.VALOR)}
             onValueChange={(e: any) => {
-              console.log('change select');
+              const selectedTable = Tables.find((tb) => tb.TABELA === e);
+              if (selectedTable) {
+                setBudgetItem(
+                  (old) =>
+                    (old = { ...budgetItem, TABELA: selectedTable.TABELA })
+                );
+              }
             }}
           >
             <SelectTrigger className='w-full mb-2 text-emsoft_dark-text'>

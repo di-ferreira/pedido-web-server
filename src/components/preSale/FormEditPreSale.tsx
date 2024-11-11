@@ -158,8 +158,6 @@ const FormEditPreSale: React.FC<iFormEditPreSale> = ({ orc }) => {
   }
   function getTransport() {
     GetTransport().then((responseTransp) => {
-      console.log('tranporte', responseTransp);
-
       if (responseTransp.value) {
         setTransportadora(responseTransp.value);
         setTransportadoraSelected(responseTransp.value[0]);
@@ -288,7 +286,6 @@ const FormEditPreSale: React.FC<iFormEditPreSale> = ({ orc }) => {
                           (old) => (old = selectedCondicao)
                         );
                       }
-                      console.log('change select', e);
                     }}
                   >
                     <SelectTrigger className='w-full mb-2 text-emsoft_dark-text'>
@@ -321,7 +318,6 @@ const FormEditPreSale: React.FC<iFormEditPreSale> = ({ orc }) => {
                       if (selectedForma) {
                         setFormaPgtoSelected((old) => (old = selectedForma));
                       }
-                      console.log('change select', e);
                     }}
                   >
                     <SelectTrigger className='w-full mb-2 text-emsoft_dark-text'>
