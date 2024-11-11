@@ -24,6 +24,7 @@ export const ModalEditBudgetItem: React.FC<iModalEditBudgetItem> = ({
   iconStyle,
 }) => {
   const { Modal, OnCloseModal, showModal } = useModal();
+
   return (
     <>
       <Button className={cn(`gap-2`, buttonStyle)} onClick={() => showModal()}>

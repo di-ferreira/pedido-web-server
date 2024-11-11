@@ -41,12 +41,11 @@ export function DataTable<T>({
         )}
       </tbody>
       {onFetchPagination && QuantityRegiters && (
-        <tfoot className='w-full table-fixed'>
-          <TablePagination
-            OnFetchData={onFetchPagination}
-            QuantityRegiters={QuantityRegiters}
-          />
-        </tfoot>
+        <TablePagination
+          OnFetchData={onFetchPagination}
+          QuantityRegiters={QuantityRegiters}
+          rowsQtd={columns.length}
+        />
       )}
     </table>
   );

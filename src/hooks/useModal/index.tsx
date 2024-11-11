@@ -1,9 +1,9 @@
+import { cn } from '@/lib/utils';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import ReactDOM from 'react-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { iModal, iModalRender } from '../../@types/Modal';
-import { cn } from '@/lib/utils';
 
 const RenderLayout: React.FC<iModalRender> = ({
   Title,

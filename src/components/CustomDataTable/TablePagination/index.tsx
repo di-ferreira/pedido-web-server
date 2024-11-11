@@ -11,11 +11,12 @@ import {
   SelectItem,
   SelectTrigger,
 } from '@/components/ui/select';
-import { loadStorage, saveStorage } from '@/lib/utils';
 import { KEY_NAME_TABLE_PAGINATION } from '@/constants';
+import { loadStorage, saveStorage } from '@/lib/utils';
 interface iDataTablePagination<T> {
   QuantityRegiters: number;
   OnFetchData: (filter: iFilter<T>) => void;
+  rowsQtd: number;
 }
 
 export type tpPaginationValues = {
@@ -28,6 +29,7 @@ export type tpPaginationValues = {
 export function TablePagination<T>({
   QuantityRegiters,
   OnFetchData,
+  rowsQtd,
 }: iDataTablePagination<T>): JSX.Element {
   const RowsPerPageOptions = [10, 20, 50, 100];
   const [PaginationOptions, setPaginationOptions] =
@@ -144,83 +146,89 @@ export function TablePagination<T>({
   }, []);
 
   return (
-    <div className='flex w-screen items-center justify-around space-x-2 py-4'>
-      <div className='flex w-1/2 items-center justify-center space-x-2 py-4'>
-        <Label>Registros por página</Label>
-        <Select
-          defaultValue={String(PaginationOptions.RowsPerPage)}
-          value={String(PaginationOptions.RowsPerPage)}
-          onValueChange={(e: any) => {
-            const selected = Number(e);
-            setPaginationOptions({
-              ...PaginationOptions,
-              RowsPerPage: selected,
-            });
-            ChangeRowsPerPage(selected);
-          }}
-        >
-          <SelectTrigger className='w-[70px] text-emsoft_dark-text'>
-            {PaginationOptions.RowsPerPage}
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              {RowsPerPageOptions.map((size) => (
-                <SelectItem
-                  key={size}
-                  value={String(size)}
-                  className='text-emsoft_dark-text'
-                >
-                  Mostrar {size}
-                </SelectItem>
-              ))}
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-        <Label>
-          <strong>{PaginationOptions.CurrentPage}</strong> de
-          <strong>{PaginationOptions.TotalPages}</strong>
-        </Label>
-      </div>
-      <div className='flex w-1/2 items-center justify-center space-x-2 py-4'>
-        <Button
-          variant='outline'
-          size='sm'
-          disabled={PaginationOptions.CurrentPage === 1}
-          onClick={() => GoToPrevPage()}
-        >
-          Previous
-        </Button>
-        <Button
-          variant='outline'
-          size='sm'
-          disabled={PaginationOptions.CurrentPage === 1}
-          onClick={() => GoToFirstPage()}
-        >
-          First
-        </Button>
+    <tfoot className='w-full table-fixed'>
+      <tr className='table-row'>
+        <td colSpan={rowsQtd}>
+          <div className='flex w-full px-4 justify-between'>
+            <div className='flex items-center gap-x-3 w-[50%] py-4'>
+              <Label>Registros por página</Label>
+              <Select
+                defaultValue={String(PaginationOptions.RowsPerPage)}
+                value={String(PaginationOptions.RowsPerPage)}
+                onValueChange={(e: any) => {
+                  const selected = Number(e);
+                  setPaginationOptions({
+                    ...PaginationOptions,
+                    RowsPerPage: selected,
+                  });
+                  ChangeRowsPerPage(selected);
+                }}
+              >
+                <SelectTrigger className='w-[70px] text-emsoft_dark-text'>
+                  {PaginationOptions.RowsPerPage}
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    {RowsPerPageOptions.map((size) => (
+                      <SelectItem
+                        key={size}
+                        value={String(size)}
+                        className='text-emsoft_dark-text'
+                      >
+                        Mostrar {size}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+              <Label className='flex gap-x-2'>
+                <strong>{PaginationOptions.CurrentPage}</strong> de
+                <strong>{PaginationOptions.TotalPages}</strong>
+              </Label>
+            </div>
+            <div className='flex items-center justify-end gap-x-2 w-[50%] py-4'>
+              <Button
+                variant='outline'
+                size='sm'
+                disabled={PaginationOptions.CurrentPage === 1}
+                onClick={() => GoToPrevPage()}
+              >
+                Previous
+              </Button>
+              <Button
+                variant='outline'
+                size='sm'
+                disabled={PaginationOptions.CurrentPage === 1}
+                onClick={() => GoToFirstPage()}
+              >
+                First
+              </Button>
 
-        <Button
-          variant='outline'
-          size='sm'
-          disabled={
-            PaginationOptions.CurrentPage === PaginationOptions.TotalPages
-          }
-          onClick={() => GoToLastPage()}
-        >
-          Last
-        </Button>
-        <Button
-          variant='outline'
-          size='sm'
-          disabled={
-            PaginationOptions.CurrentPage === PaginationOptions.TotalPages
-          }
-          onClick={() => GoToNextPage()}
-        >
-          Next
-        </Button>
-      </div>
-    </div>
+              <Button
+                variant='outline'
+                size='sm'
+                disabled={
+                  PaginationOptions.CurrentPage === PaginationOptions.TotalPages
+                }
+                onClick={() => GoToLastPage()}
+              >
+                Last
+              </Button>
+              <Button
+                variant='outline'
+                size='sm'
+                disabled={
+                  PaginationOptions.CurrentPage === PaginationOptions.TotalPages
+                }
+                onClick={() => GoToNextPage()}
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        </td>
+      </tr>
+    </tfoot>
   );
 }
 

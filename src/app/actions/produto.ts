@@ -6,7 +6,6 @@ import { iProduto, iTabelaVenda } from '@/@types/Produto';
 import { iDataResultTable } from '@/@types/Table';
 import { CustomFetch } from '@/services/api';
 import { getCookie } from '.';
-import axios from 'axios';
 
 interface iReqSuperBusca {
   Palavras: string;
@@ -49,7 +48,6 @@ export async function SuperFindProducts(
       },
     }
   );
-
   if (res.status !== 200) {
     return {
       value: undefined,
