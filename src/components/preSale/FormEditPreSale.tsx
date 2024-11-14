@@ -43,7 +43,7 @@ import { tableHeaders } from './columnsParcelas';
 interface iFormEditPreSale {
   orc: iOrcamento;
 }
-type iVeiculo = 'MOTO' | 'CARRO' | 'CAMINHÃO';
+type iVeiculo = 'MOTO' | 'CARRO';
 interface iTipoEntrega {
   id: iVeiculo;
   value: iVeiculo;
@@ -82,10 +82,6 @@ const FormEditPreSale: React.FC<iFormEditPreSale> = ({ orc }) => {
     {
       id: 'MOTO',
       value: 'MOTO',
-    },
-    {
-      id: 'CAMINHÃO',
-      value: 'CAMINHÃO',
     },
     {
       id: 'CARRO',
@@ -241,11 +237,10 @@ const FormEditPreSale: React.FC<iFormEditPreSale> = ({ orc }) => {
   }
 
   useEffect(() => {
-    return () => {
-      getCondicao();
-      getFormasPgto();
-      getTransport();
-    };
+    console.log('Pré-venda', orc);
+    getCondicao();
+    getFormasPgto();
+    getTransport();
   }, []);
 
   return (

@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  pedido-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pedido-web
+    ports:
+      - '3000:3000'
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+

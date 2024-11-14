@@ -1,40 +1,41 @@
+'use client';
 import { iOrcamento } from '@/@types/Orcamento';
-import {
-  Document,
-  Font,
-  Image,
-  Page,
-  PDFViewer,
-  Text,
-  View,
-} from '@react-pdf/renderer';
+import { useEffect, useState } from 'react';
 import { styles } from './style';
 
 export interface PdfViewerProps {
   orc: iOrcamento;
 }
 
-Font.register({
-  family: 'Montserrat',
-  fonts: [
-    {
-      src: `${window.location.protocol}//${window.location.host}/assets/fonts/montserrat/Montserrat-Regular.ttf`,
-    },
-    {
-      src: `${window.location.protocol}//${window.location.host}/assets/fonts/montserrat/Montserrat-Medium.ttf`,
-      fontStyle: 'normal',
-      fontWeight: 500,
-    },
-    {
-      src: `${window.location.protocol}//${window.location.host}/assets/fonts/montserrat/Montserrat-Bold.ttf`,
-      fontWeight: 700,
-    },
-  ],
-});
-
-// Create styles
-
 export function PdfViewer({ orc }: PdfViewerProps) {
+  const [PDFRenderer, setPDFRenderer] = useState<any>(null);
+
+  useEffect(() => {
+    const loadPDFRenderer = async () => {
+      const pdfRenderer = await import('@react-pdf/renderer');
+      setPDFRenderer(pdfRenderer);
+
+      pdfRenderer.Font.register({
+        family: 'Montserrat',
+        fonts: [
+          {
+            src: `${window.location.protocol}//${window.location.host}/assets/fonts/montserrat/Montserrat-Regular.ttf`,
+          },
+          {
+            src: `${window.location.protocol}//${window.location.host}/assets/fonts/montserrat/Montserrat-Medium.ttf`,
+            fontStyle: 'normal',
+            fontWeight: 500,
+          },
+          {
+            src: `${window.location.protocol}//${window.location.host}/assets/fonts/montserrat/Montserrat-Bold.ttf`,
+            fontWeight: 700,
+          },
+        ],
+      });
+    };
+    loadPDFRenderer();
+  }, []);
+
   const formatDate = (date: Date | number): string => {
     return new Intl.DateTimeFormat('pt-BR', {
       day: 'numeric',
@@ -44,6 +45,12 @@ export function PdfViewer({ orc }: PdfViewerProps) {
   };
 
   const DataAtual = formatDate(new Date());
+
+  if (!PDFRenderer) {
+    return <div>Loading...</div>;
+  }
+
+  const { Document, Page, Image, Text, View, PDFViewer } = PDFRenderer;
 
   return (
     <PDFViewer width={'100%'} height={'100%'} showToolbar={true}>

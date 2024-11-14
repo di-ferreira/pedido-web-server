@@ -27,7 +27,6 @@ export function TableRowCell<T>({
             `${column.isHideMobile ? 'max-sm:hidden' : ''}`,
             ` max-sm:w-1/2 max-sm:items-center`
           )}
-          //isHideMobile={column.isHideMobile} min_width={column.width}
         >
           {column.action ? (
             <span className='flex items-center justify-evenly'>

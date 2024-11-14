@@ -370,9 +370,7 @@ const SuperSearchProducts: React.FC<iProps> = ({ data, words, CallBack }) => {
   }
 
   useEffect(() => {
-    return () => {
-      setProducts(data);
-    };
+    setProducts(data);
   }, []);
   return (
     <div className='flex flex-col gap-4 w-full h-[95%] p-2'>
@@ -384,6 +382,7 @@ const SuperSearchProducts: React.FC<iProps> = ({ data, words, CallBack }) => {
         <Button
           className={`flex w-fit h-[35px] p-3 gap-3`}
           title='Buscar Produto'
+          onClick={() => findProduct({ top: 10, skip: 0 })}
         >
           <FontAwesomeIcon
             icon={faSearch}

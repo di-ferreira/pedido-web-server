@@ -64,11 +64,25 @@ const FormEdit: React.FC<iFormEditItem> = ({ item, budgetCode, CallBack }) => {
   async function saveItem(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
+    console.log('saveItem', {
+      pIdOrcamento: budgetCode,
+      pItemOrcamento: {
+        CodigoProduto: WordProducts,
+        Desconto: 0,
+        Frete: 0,
+        Qtd: budgetItem.QTD,
+        Tabela: budgetItem.TABELA,
+        Valor: budgetItem.VALOR,
+        SubTotal: budgetItem.SUBTOTAL,
+        Total: budgetItem.TOTAL,
+      },
+    });
+
     if (budgetItem.ORCAMENTO > 0) {
       const response = await updateItem({
         pIdOrcamento: budgetCode,
         pItemOrcamento: {
-          CodigoProduto: budgetItem.PRODUTO.PRODUTO,
+          CodigoProduto: WordProducts,
           Desconto: 0,
           Frete: 0,
           Qtd: budgetItem.QTD,
@@ -86,7 +100,7 @@ const FormEdit: React.FC<iFormEditItem> = ({ item, budgetCode, CallBack }) => {
       const response = await addItem({
         pIdOrcamento: budgetCode,
         pItemOrcamento: {
-          CodigoProduto: budgetItem.PRODUTO.PRODUTO,
+          CodigoProduto: WordProducts,
           Desconto: 0,
           Frete: 0,
           Qtd: budgetItem.QTD,
@@ -113,6 +127,8 @@ const FormEdit: React.FC<iFormEditItem> = ({ item, budgetCode, CallBack }) => {
           variant: 'destructive',
         });
       }
+
+      console.log('save item response', response);
     }
   }
 
@@ -146,6 +162,7 @@ const FormEdit: React.FC<iFormEditItem> = ({ item, budgetCode, CallBack }) => {
         })
     );
     await getTablesFromProducts(product);
+    setWordProducts(product.PRODUTO);
     OnCloseModal();
   }
 
@@ -407,7 +424,7 @@ const FormEdit: React.FC<iFormEditItem> = ({ item, budgetCode, CallBack }) => {
           <Button
             type='submit'
             className={`flex w-fit h-[35px] p-3 gap-3`}
-            title='Buscar Produto'
+            title='Salvar produto'
           >
             <FontAwesomeIcon
               icon={faSave}
