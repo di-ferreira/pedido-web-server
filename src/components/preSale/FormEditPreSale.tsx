@@ -6,12 +6,10 @@ import {
   iItemPreVenda,
   iParcelasPgto,
   iPreVenda,
-  iTransportadora,
 } from '@/@types/PreVenda';
 import {
   GetCondicaoPGTO,
   GetFormasPGTO,
-  GetTransport,
   SavePreVenda,
 } from '@/app/actions/preVenda';
 import { cn } from '@/lib/utils';
@@ -26,10 +24,8 @@ import { useRouter } from 'next/navigation';
 import React, { Suspense, useEffect, useState } from 'react';
 import { DataTable } from '../CustomDataTable';
 import { Button } from '../ui/button';
-import { Checkbox } from '../ui/checkbox';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
-import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import {
   Select,
   SelectContent,
@@ -43,10 +39,10 @@ import { tableHeaders } from './columnsParcelas';
 interface iFormEditPreSale {
   orc: iOrcamento;
 }
-type iVeiculo = 'MOTO' | 'CARRO';
+type iFrete = 'ENTREGA' | 'RETIRADA';
 interface iTipoEntrega {
-  id: iVeiculo;
-  value: iVeiculo;
+  id: iFrete;
+  value: iFrete;
 }
 
 const FormEditPreSale: React.FC<iFormEditPreSale> = ({ orc }) => {
@@ -77,23 +73,20 @@ const FormEditPreSale: React.FC<iFormEditPreSale> = ({ orc }) => {
   const [FormaPgto, setFormaPgto] = useState<iFormaPgto[]>([]);
   const [FormaPgtoSelected, setFormaPgtoSelected] = useState<iFormaPgto>();
   const [ParcelasPgto, setParcelasPgto] = useState<iParcelasPgto[]>([]);
-  const [transportadora, setTransportadora] = useState<iTransportadora[]>([]);
   const [TipoEntrega, _] = useState<iTipoEntrega[]>([
     {
-      id: 'MOTO',
-      value: 'MOTO',
+      id: 'ENTREGA',
+      value: 'ENTREGA',
     },
     {
-      id: 'CARRO',
-      value: 'CARRO',
+      id: 'RETIRADA',
+      value: 'RETIRADA',
     },
   ]);
   const [TipoEntregaSelected, setTipoEntregaSelected] = useState<iTipoEntrega>(
     TipoEntrega[0]
   );
-  const [transportadoraSelected, setTransportadoraSelected] =
-    useState<iTransportadora>();
-  const [idTransportadora, setIdTransportadora] = useState<number>(0);
+
   const [IsDelivery, setIsDelivery] = useState<boolean>(false);
 
   const [preSale, setPreSale] = useState<iPreVenda>({
@@ -118,20 +111,6 @@ const FormEditPreSale: React.FC<iFormEditPreSale> = ({ orc }) => {
     ValorFrete: 0,
   });
 
-  function ChangeTransportadoraID(e: React.ChangeEvent<HTMLInputElement>) {
-    e.preventDefault();
-    let inputValue = e.target.value;
-    setIdTransportadora(Number(e.target.value));
-    if (inputValue.length > 3) {
-      setTransportadoraSelected(
-        (old) =>
-          (old = transportadora.find(
-            (t) => t.FORNECEDOR === Number(inputValue)
-          ))
-      );
-    }
-  }
-
   function getCondicao() {
     if (orc.TOTAL > 0) {
       GetCondicaoPGTO(orc ? orc.TOTAL : 0).then((condicao) => {
@@ -149,15 +128,6 @@ const FormEditPreSale: React.FC<iFormEditPreSale> = ({ orc }) => {
       if (formas.value) {
         setFormaPgto(formas.value);
         setFormaPgtoSelected(formas.value[0]);
-      }
-    });
-  }
-  function getTransport() {
-    GetTransport().then((responseTransp) => {
-      if (responseTransp.value) {
-        setTransportadora(responseTransp.value);
-        setTransportadoraSelected(responseTransp.value[0]);
-        setIdTransportadora(responseTransp.value[0].FORNECEDOR);
       }
     });
   }
@@ -237,10 +207,8 @@ const FormEditPreSale: React.FC<iFormEditPreSale> = ({ orc }) => {
   }
 
   useEffect(() => {
-    console.log('Pré-venda', orc);
     getCondicao();
     getFormasPgto();
-    getTransport();
   }, []);
 
   return (
@@ -350,69 +318,11 @@ const FormEditPreSale: React.FC<iFormEditPreSale> = ({ orc }) => {
                 />
               </div>
             </div>
-            <div className='w-full mt-5 flex-wrap gap-x-3'>
-              <div className='w-[25%] flex items-center gap-x-3'>
-                <Label>ENTREGAR</Label>
-                <Checkbox
-                  checked={IsDelivery}
-                  onClick={() => setIsDelivery(!IsDelivery)}
-                />
-              </div>
-            </div>
-            <div
-              className={cn(
-                IsDelivery ? 'flex ' : 'hidden',
-                'w-full mt-5 flex-wrap'
-              )}
-            >
+            <div className={cn('flex ', 'w-full mt-5 flex-wrap')}>
               <div className='w-full'>
-                <h4>TRANSPORTADORA</h4>
+                <h4>FRETE</h4>
               </div>
               <div className='w-full flex flex-col items-start gap-x-3'>
-                <div className='flex gap-x-2 items-end  w-[40%]'>
-                  <div className='w-[20%]'>
-                    <Input
-                      name='ID_TRANSPORTADORA'
-                      value={idTransportadora}
-                      height='3.5rem'
-                      // disabled={SwitchEntrega === 'N'}
-                      onChange={ChangeTransportadoraID}
-                    />
-                  </div>
-                  <div className='w-[80%]'>
-                    <Select
-                      defaultValue={transportadoraSelected?.NOME}
-                      value={String(transportadoraSelected?.NOME)}
-                      onValueChange={(e: any) => {
-                        const selectedTransp = transportadora.find(
-                          (cp) => cp.NOME === e
-                        );
-                        if (selectedTransp) {
-                          setTransportadoraSelected(
-                            (old) => (old = selectedTransp)
-                          );
-                        }
-                      }}
-                    >
-                      <SelectTrigger className='w-full mb-2 text-emsoft_dark-text'>
-                        {transportadoraSelected?.NOME}
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          {transportadora.map((tranp, idx) => (
-                            <SelectItem
-                              key={idx}
-                              value={String(tranp.NOME)}
-                              className='text-emsoft_dark-text'
-                            >
-                              {tranp.NOME}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
                 <div className='w-[40%]'>
                   <Select
                     defaultValue={TipoEntregaSelected.value}
@@ -421,9 +331,18 @@ const FormEditPreSale: React.FC<iFormEditPreSale> = ({ orc }) => {
                       const entrega = TipoEntrega.find((cp) => cp.value === e);
                       if (entrega) {
                         setTipoEntregaSelected(entrega);
+                        setIsDelivery(false);
                         setPreSale({
                           ...preSale,
-                          TipoEntrega: String(entrega.value),
+                          Entrega: 'N',
+                        });
+                      }
+
+                      if (entrega?.value === 'ENTREGA') {
+                        setIsDelivery(true);
+                        setPreSale({
+                          ...preSale,
+                          Entrega: 'S',
                         });
                       }
                     }}
@@ -445,29 +364,6 @@ const FormEditPreSale: React.FC<iFormEditPreSale> = ({ orc }) => {
                       </SelectGroup>
                     </SelectContent>
                   </Select>
-                </div>
-                <div className='w-[40%] mt-5 flex-wrap gap-x-3'>
-                  <fieldset
-                    title='FRETE POR CONTA'
-                    className='border-2 border-gray-200 p-4 rounded-md'
-                  >
-                    <legend className='text-lg font-semibold'>
-                      FRETE POR CONTA
-                    </legend>
-                    <RadioGroup defaultValue='emitente'>
-                      <div className='flex items-center space-x-2'>
-                        <RadioGroupItem value='emitente' id='emitente' />
-                        <Label htmlFor='emitente'>EMITENTE</Label>
-                      </div>
-                      <div className='flex items-center space-x-2'>
-                        <RadioGroupItem
-                          value='destinatario'
-                          id='destinatario'
-                        />
-                        <Label htmlFor='destinatario'>DESTINATÁRIO</Label>
-                      </div>
-                    </RadioGroup>
-                  </fieldset>
                 </div>
               </div>
             </div>
@@ -509,35 +405,6 @@ const FormEditPreSale: React.FC<iFormEditPreSale> = ({ orc }) => {
                 currency: 'BRL',
               })}
               height='3.5rem'
-            />
-          </div>
-          <div className='w-[32.5%]'>
-            <Input
-              onChange={(e) =>
-                setPreSale(
-                  (old) =>
-                    (old = {
-                      ...preSale,
-                      ValorFrete: Number(e.target.value.replace(',', '.')),
-                    })
-                )
-              }
-              onBlur={(e) => {
-                setPreSale(
-                  (old) =>
-                    (old = {
-                      ...preSale,
-                      ValorFrete: Number(e.target.value),
-                      Total: preSale.SubTotal + Number(e.target.value),
-                    })
-                );
-              }}
-              labelText='FRETE R$'
-              labelPosition='top'
-              name='FRETE'
-              value={!IsDelivery ? 0 : preSale.ValorFrete}
-              height='3.5rem'
-              disabled={!IsDelivery}
             />
           </div>
           <div className='w-[32.99%]'>

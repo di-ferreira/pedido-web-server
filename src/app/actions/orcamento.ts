@@ -10,6 +10,7 @@ import {
 } from '@/@types/Orcamento';
 import { iDataResultTable } from '@/@types/Table';
 import { CustomFetch } from '@/services/api';
+import dayjs from 'dayjs';
 import { getCookie } from '.';
 const ROUTE_GET_ALL_ORCAMENTO = '/Orcamento';
 const ROUTE_SAVE_ORCAMENTO = '/ServiceVendas/NovoOrcamento';
@@ -19,10 +20,20 @@ const ROUTE_SAVE_ITEM_ORCAMENTO = '/ServiceVendas/NovoItemOrcamento';
 async function CreateFilter(filter: iFilter<iOrcamento>): Promise<string> {
   const VendedorLocal: string = await getCookie('user');
 
-  let ResultFilter: string = `$filter=VENDEDOR eq ${VendedorLocal}`;
+  let ResultFilter: string = `$filter=VENDEDOR eq ${VendedorLocal} and year(DATA) eq ${dayjs()
+    .subtract(1, 'day')
+    .format('YYYY')} and month(DATA) eq ${dayjs()
+    .subtract(1, 'day')
+    .format('MM')} and day(DATA) ge ${dayjs().subtract(1, 'day').format('DD')}`;
 
   if (filter.filter && filter.filter.length >= 1) {
-    ResultFilter = `$filter=VENDEDOR eq ${VendedorLocal}`;
+    ResultFilter = `$filter=VENDEDOR eq ${VendedorLocal} and year(DATA) eq ${dayjs()
+      .subtract(1, 'day')
+      .format('YYYY')} and month(DATA) eq ${dayjs()
+      .subtract(1, 'day')
+      .format('MM')} and day(DATA) ge ${dayjs()
+      .subtract(1, 'day')
+      .format('DD')}`;
     const andStr = ' AND ';
     filter.filter.map((itemFilter) => {
       if (itemFilter.typeSearch)
@@ -40,7 +51,9 @@ async function CreateFilter(filter: iFilter<iOrcamento>): Promise<string> {
     ResultFilter = ResultFilter.slice(0, -andStr.length);
   }
 
-  const ResultOrderBy = filter.orderBy ? `&$orderby=${filter.orderBy}` : '';
+  const ResultOrderBy = filter.orderBy
+    ? `&$orderby=${filter.orderBy}`
+    : '&$orderby=ORCAMENTO desc';
 
   const ResultSkip = filter.skip ? `&$skip=${filter.skip}` : '&$skip=0';
 
@@ -48,7 +61,7 @@ async function CreateFilter(filter: iFilter<iOrcamento>): Promise<string> {
 
   ResultFilter !== '' && (ResultTop = `&${ResultTop}`);
 
-  const ResultRoute: string = `?${ResultFilter}${ResultTop}${ResultSkip}${ResultOrderBy}&$orderby=ORCAMENTO desc&$expand=VENDEDOR,CLIENTE,
+  const ResultRoute: string = `?${ResultFilter}${ResultTop}${ResultSkip}${ResultOrderBy}&$expand=VENDEDOR,CLIENTE,
                                     ItensOrcamento/PRODUTO/FORNECEDOR,ItensOrcamento/PRODUTO/FABRICANTE,
                                     ItensOrcamento,ItensOrcamento/PRODUTO&$inlinecount=allpages`;
   return ResultRoute;
@@ -62,7 +75,15 @@ export async function GetOrcamentosFromVendedor(
 
   const FILTER = filter
     ? await CreateFilter(filter)
-    : `?$filter=VENDEDOR eq ${VendedorLocal}&$orderby=ORCAMENTO&$top=10&$expand=VENDEDOR,CLIENTE,ItensOrcamento/PRODUTO/FORNECEDOR,ItensOrcamento/PRODUTO/FABRICANTE,ItensOrcamento,ItensOrcamento/PRODUTO&$inlinecount=allpages`;
+    : `?$filter=VENDEDOR eq ${VendedorLocal} and year(DATA) eq ${dayjs()
+        .subtract(1, 'day')
+        .format('YYYY')} and month(DATA) eq ${dayjs()
+        .subtract(1, 'day')
+        .format('MM')} and day(DATA) ge ${dayjs()
+        .subtract(1, 'day')
+        .format(
+          'DD'
+        )}&$orderby=ORCAMENTO desc&$top=10&$expand=VENDEDOR,CLIENTE,ItensOrcamento/PRODUTO/FORNECEDOR,ItensOrcamento/PRODUTO/FABRICANTE,ItensOrcamento,ItensOrcamento/PRODUTO&$inlinecount=allpages`;
 
   const response = await CustomFetch<{
     '@xdata.count': number;
