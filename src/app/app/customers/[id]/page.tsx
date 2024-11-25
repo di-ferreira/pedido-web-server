@@ -1,7 +1,7 @@
 import { GetCliente } from '@/app/actions/cliente';
 import { Input } from '@/components/ui/input';
 import { MaskCnpjCpf } from '@/lib/utils';
-import { faArrowLeft, faTurnDown } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Link from 'next/link';
 import React from 'react';
@@ -138,6 +138,7 @@ const Customers: React.FC<iCustomerPage> = async ({ params }) => {
           Voltar
         </Link>
       </div>
+      <p>{JSON.stringify(customer.value)}</p>
     </section>
   );
 };

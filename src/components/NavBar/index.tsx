@@ -1,6 +1,5 @@
 'use client';
 import {
-  faCogs,
   faFileInvoiceDollar,
   faFileLines,
   faHomeAlt,
@@ -18,7 +17,7 @@ const NavBar: React.FC = () => {
     { icon: faFileLines, link: '/app/budgets', text: 'Orçamentos' },
     { icon: faFileInvoiceDollar, link: '/app/pre-sales', text: 'Pré-vendas' },
     { icon: faFileInvoiceDollar, link: '/app/sales', text: 'Vendas' },
-    { icon: faCogs, link: '/app/config', text: 'Configuração' },
+    // { icon: faCogs, link: '/app/config', text: 'Configuração' },
   ];
 
   return (

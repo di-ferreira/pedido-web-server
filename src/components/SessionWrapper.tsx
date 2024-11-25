@@ -1,3 +1,4 @@
+import { cn } from '@/lib/utils';
 import { getCookie } from 'cookies-next';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
@@ -6,9 +7,10 @@ import { Toaster } from './ui/toaster';
 
 interface Props {
   children: React.ReactNode;
+  classname?: string;
 }
 
-const SessionWrapper: React.FC<Props> = async ({ children }) => {
+const SessionWrapper: React.FC<Props> = async ({ children, classname }) => {
   const tokenCookie = getCookie('token', { cookies });
 
   if (tokenCookie === undefined) {
@@ -17,7 +19,12 @@ const SessionWrapper: React.FC<Props> = async ({ children }) => {
   return (
     <>
       <Toaster />
-      <main className='flex flex-col w-full overflow-hidden  min-h-full bg-light-surface'>
+      <main
+        className={cn(
+          'flex flex-col w-full overflow-hidden  min-h-full bg-light-surface',
+          classname
+        )}
+      >
         {children}
       </main>
     </>

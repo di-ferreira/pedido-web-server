@@ -8,6 +8,7 @@ export async function LoginUser(
   user: userLogin
 ): Promise<ResponseType<iVendedor>> {
   const resultVenda = await vendaLogin();
+
   if (resultVenda.value === undefined) {
     return { error: resultVenda.error };
   }
