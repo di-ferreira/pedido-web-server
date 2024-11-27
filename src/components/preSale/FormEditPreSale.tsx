@@ -113,13 +113,15 @@ const FormEditPreSale: React.FC<iFormEditPreSale> = ({ orc }) => {
 
   function getCondicao() {
     if (orc.TOTAL > 0) {
-      GetCondicaoPGTO(orc ? orc.TOTAL : 0).then((condicao) => {
-        if (condicao.value) {
-          setCondicaoPgto(condicao.value);
-          setCondicaoPgtoSelected(condicao.value[0]);
-          parcelasList(condicao.value[0]);
+      GetCondicaoPGTO(orc ? orc.TOTAL : 0, orc.CLIENTE.Tabela).then(
+        (condicao) => {
+          if (condicao.value) {
+            setCondicaoPgto(condicao.value);
+            setCondicaoPgtoSelected(condicao.value[0]);
+            parcelasList(condicao.value[0]);
+          }
         }
-      });
+      );
     }
   }
 

@@ -180,6 +180,14 @@ const DataTableItensBudget: React.FC<iItemBudgetTable> = ({ orc }) => {
     <section className='flex flex-col gap-x-5 w-full'>
       <div className='flex gap-4 w-full h-[20%] px-5 py-0 flex-wrap'>
         <Input
+          labelText='TABELA'
+          labelPosition='top'
+          name='TABELA'
+          value={data.CLIENTE.Tabela}
+          disabled={true}
+          className='w-[10%]'
+        />
+        <Input
           labelText='OBSERVAÇÃO 1'
           labelPosition='top'
           name='OBS1'
@@ -187,7 +195,7 @@ const DataTableItensBudget: React.FC<iItemBudgetTable> = ({ orc }) => {
           onChange={(e) => {
             setData((old) => (old = { ...data, OBS1: e.target.value }));
           }}
-          className='w-[45.5%]'
+          className='w-[40.5%]'
         />
 
         <Input
@@ -198,7 +206,7 @@ const DataTableItensBudget: React.FC<iItemBudgetTable> = ({ orc }) => {
           onChange={(e) => {
             setData((old) => (old = { ...data, OBS2: e.target.value }));
           }}
-          className='w-[46%]'
+          className='w-[41%]'
         />
       </div>
       <div className='flex w-full items-center px-5 mt-4 gap-x-4'>

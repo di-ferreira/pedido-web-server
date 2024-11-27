@@ -69,6 +69,8 @@ export interface iPendenciasList {
   CLIENTE: string;
 }
 
+type tTipoCliente = 'FIEL' | 'OURO' | 'PRATA' | 'BRONZE';
+
 export interface iCliente {
   CLIENTE: number;
   NOME: string;
@@ -138,7 +140,7 @@ export interface iCliente {
   GEO_LNG: string;
   DDA: string;
   V100: string;
-  TIPO_CLIENTE: string;
+  TIPO_CLIENTE: tTipoCliente;
   AtualizarRegiao: string;
   SENHA: string;
   EMAIL_VENDA_DIRETA: string;
@@ -153,3 +155,4 @@ export interface iCliente {
   AgendamentosList: iAgendamentosList[];
   PendenciasList: iPendenciasList[];
 }
+

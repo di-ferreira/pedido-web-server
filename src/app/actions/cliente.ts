@@ -1,12 +1,50 @@
 'use server';
 
-import { ResponseType } from '@/@types';
+import { iSelectSQL, ResponseType } from '@/@types';
 import { iCliente } from '@/@types/Cliente';
 import { iFilter } from '@/@types/Filter';
 import { iDataResultTable } from '@/@types/Table';
 import { CustomFetch } from '@/services/api';
+import dayjs from 'dayjs';
 import { getCookie } from '.';
 const ROUTE_CLIENTE = '/Clientes';
+const ROUTE_SELECT_SQL = '/ServiceSistema/SelectSQL';
+const SQL_PGTO_ATRAZO = `SELECT COUNT(R.REGISTRO) AS QTD, SUM(R.RESTA) AS VALOR
+FROM CTS R
+JOIN CAR C ON (C.CARTAO=R.TIPO)
+WHERE R.CONTA IN ('R','C') AND
+      R.RESTA>0 AND
+      R.VENCIMENTO<:DATA AND
+      R.CLIENTE=:CLIENTE AND
+      COALESCE(C.financeiro_cliente,'N')='S' AND
+      R.CANCELADO='N'`;
+
+const SQL_PGTO_NAO_VENCIDAS = `SELECT COUNT(R.REGISTRO) AS QTD, SUM(R.RESTA) AS VALOR
+FROM CTS R
+JOIN CAR C ON (C.CARTAO=R.TIPO)
+WHERE R.CONTA IN ('C','R') AND
+      R.RESTA>0 AND
+      R.VENCIMENTO>=:DATA AND
+      R.CLIENTE=:CLIENTE AND
+      COALESCE(C.financeiro_cliente,'N')='S' AND
+      R.CANCELADO='N'`;
+
+const SQL_CONTAS_ABERTAS = `select R.VENCIMENTO,
+       R.DATA,
+       R.TIPO,
+       R.HISTORICO,
+       cast('TODAY' as date) - R.VENCIMENTO as ATRASO,
+       R.RESTA,
+       R.DOC,
+       R.EMISSAO_BOLETO
+from CTS R
+LEFT OUTER JOIN CAR C ON (C.cartao=R.tipo)
+where R.CONTA in ('R', 'C') and
+      R.CANCELADO = 'N' and
+      COALESCE(C.financeiro_cliente,'N')='S' AND
+      R.CLIENTE = :CLIENTE and
+      R.RESTA <> 0
+order by 1`;
 
 async function CreateFilter(filter: iFilter<iCliente>): Promise<string> {
   const VendedorLocal: string = await getCookie('user');
@@ -116,6 +154,134 @@ export async function GetCliente(
 
   return {
     value: result,
+    error: undefined,
+  };
+}
+
+export async function GetPGTOsAtrazados(cliente: number) {
+  const tokenCookie = await getCookie('token');
+
+  const body: string = JSON.stringify({
+    pSQL: SQL_PGTO_ATRAZO,
+    pPar: [
+      {
+        ParamName: 'CLIENTE',
+        ParamType: 'ftInteger',
+        ParamValues: [cliente],
+      },
+      {
+        ParamName: 'DATA',
+        ParamType: 'ftString',
+        ParamValues: [String(dayjs().format('YYYY-MM-DD'))],
+      },
+    ],
+  } as iSelectSQL);
+
+  const response = await CustomFetch<any>(`${ROUTE_SELECT_SQL}`, {
+    method: 'POST',
+    body: body,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `bearer ${tokenCookie}`,
+    },
+  });
+
+  if (response.body.StatusCode !== 200) {
+    return {
+      value: undefined,
+      error: {
+        code: String(response.body.StatusCode),
+        message: String(response.body.StatusMessage),
+      },
+    };
+  }
+
+  return {
+    value: response.body.Data,
+    error: undefined,
+  };
+}
+
+export async function GetPGTOsNaoVencidos(cliente: number) {
+  const tokenCookie = await getCookie('token');
+
+  const body: string = JSON.stringify({
+    pSQL: SQL_PGTO_NAO_VENCIDAS,
+    pPar: [
+      {
+        ParamName: 'CLIENTE',
+        ParamType: 'ftInteger',
+        ParamValues: [cliente],
+      },
+      {
+        ParamName: 'DATA',
+        ParamType: 'ftString',
+        ParamValues: [String(dayjs().format('YYYY-MM-DD'))],
+      },
+    ],
+  } as iSelectSQL);
+
+  const response = await CustomFetch<any>(`${ROUTE_SELECT_SQL}`, {
+    method: 'POST',
+    body: body,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `bearer ${tokenCookie}`,
+    },
+  });
+
+  if (response.body.StatusCode !== 200) {
+    return {
+      value: undefined,
+      error: {
+        code: String(response.body.StatusCode),
+        message: String(response.body.StatusMessage),
+      },
+    };
+  }
+
+  return {
+    value: response.body.Data,
+    error: undefined,
+  };
+}
+
+export async function GetPGTOsEmAberto(cliente: number) {
+  const tokenCookie = await getCookie('token');
+
+  const body: string = JSON.stringify({
+    pSQL: SQL_CONTAS_ABERTAS,
+    pPar: [
+      {
+        ParamName: 'CLIENTE',
+        ParamType: 'ftInteger',
+        ParamValues: [cliente],
+      },
+    ],
+  } as iSelectSQL);
+
+  const response = await CustomFetch<any>(`${ROUTE_SELECT_SQL}`, {
+    method: 'POST',
+    body: body,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `bearer ${tokenCookie}`,
+    },
+  });
+  console.log('contas não vencidas', response.body);
+
+  if (response.body.StatusCode !== 200) {
+    return {
+      value: undefined,
+      error: {
+        code: String(response.body.StatusCode),
+        message: String(response.body.StatusMessage),
+      },
+    };
+  }
+
+  return {
+    value: response.body.Data,
     error: undefined,
   };
 }
