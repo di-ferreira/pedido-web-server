@@ -6,6 +6,15 @@ import {
   GetPGTOsNaoVencidos,
 } from '@/app/actions/cliente';
 import { Input } from '@/components/ui/input';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MaskCnpjCpf } from '@/lib/utils';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -16,15 +25,57 @@ import { RiMedalFill } from 'react-icons/ri';
 interface iCustomerPage {
   params: { id: number };
 }
+interface iCredito {
+  VENCIMENTO: string;
+  DATA: string;
+  TIPO: string;
+  HISTORICO: string;
+  ATRASO: number;
+  RESTA: number;
+  DOC: string;
+  EMISSAO_BOLETO: string;
+}
 
 const Customers: React.FC<iCustomerPage> = async ({ params }) => {
   const customer = await GetCliente(params.id);
   const emAtrazo = await GetPGTOsAtrazados(params.id);
   const naoVencidas = await GetPGTOsNaoVencidos(params.id);
   const emAberto = await GetPGTOsEmAberto(params.id);
-  console.log('em aberto', emAberto);
+
+  // console.log('em atrazo', emAtrazo);
+  console.log('em aberto', emAberto.value.Data);
+  // console.log('não vencidas', naoVencidas);
+
+  function parseCurrency(currency: number) {
+    return currency.toLocaleString('pt-br', {
+      style: 'currency',
+      currency: 'BRL',
+    });
+  }
 
   if (!customer.value) return <p>Failed to load customer.</p>;
+
+  const contasAtrazadas = emAtrazo.value[0]?.VALOR ?? 0;
+
+  const contasAVencer = naoVencidas.value?.Data[0]?.VALOR ?? 0;
+
+  const contasAbertas =
+    emAberto.value?.Data?.reduce(
+      (total: any, conta: { RESTA: any }) => total + conta.RESTA,
+      0
+    ) ?? 0;
+
+  const listaDebitos: iCredito[] =
+    emAberto.value?.Data?.filter((abertos: iCredito) => abertos.ATRASO > 0) ??
+    [];
+
+  const listaCreditos: iCredito[] =
+    emAberto.value?.Data?.filter((aberto: iCredito) => aberto.ATRASO <= 0) ??
+    [];
+
+  console.log('aberto', listaCreditos);
+  const saldoCompra =
+    customer.value.LIMITE - (contasAtrazadas + contasAVencer + contasAbertas);
 
   function verifyTypeCustomer(customer: iCliente) {
     if (customer.TIPO_CLIENTE == 'BRONZE') {
@@ -235,7 +286,144 @@ const Customers: React.FC<iCustomerPage> = async ({ params }) => {
       >
         Financeiro
       </h2>
-      <div className='flex gap-4 w-full h-full px-5 py-0 flex-wrap'></div>
+      <div className='flex gap-4 w-full h-[300px] overflow-x-hidden overflow-y-auto px-5 py-0 flex-wrap'>
+        <Tabs defaultValue='resumo' className='w-full'>
+          <TabsList>
+            <TabsTrigger value='resumo'>Resumo</TabsTrigger>
+            <TabsTrigger value='creditos'>Créditos</TabsTrigger>
+            <TabsTrigger value='vencidos'>Vencidos</TabsTrigger>
+            <TabsTrigger value='nao_vencidos'>Não Vencidos</TabsTrigger>
+          </TabsList>
+          <TabsContent value='resumo'>
+            <section className='w-full h-full flex flex-col'>
+              <header className='flex w-[40%] px-3 justify-between border border-b-slate-800'>
+                <span className='font-bold'>Descrição</span>
+                <span className='font-bold'>Valor</span>
+              </header>
+              <article className='flex w-[40%] px-3 justify-between border border-b-slate-400'>
+                <p>Limite de crédito</p>
+                <p>
+                  {customer.value.LIMITE
+                    ? customer.value.LIMITE.toLocaleString('pt-br', {
+                        style: 'currency',
+                        currency: 'BRL',
+                      })
+                    : Number(0).toLocaleString('pt-br', {
+                        style: 'currency',
+                        currency: 'BRL',
+                      })}
+                </p>
+              </article>
+              <article className='flex w-[40%] px-3 justify-between border border-b-slate-400'>
+                <p>Contas não vencidas</p>
+                <p>{parseCurrency(contasAVencer)}</p>
+              </article>
+              <article className='flex w-[40%] px-3 justify-between border border-b-slate-400'>
+                <p>Contas vencidas</p>
+                <p>{parseCurrency(contasAtrazadas)}</p>
+              </article>
+              <article className='flex w-[40%] px-3 justify-between border border-b-slate-400'>
+                <p>Total de Contas a receber</p>
+                <p>{parseCurrency(contasAbertas)}</p>
+              </article>
+              <article className='flex w-[40%] px-3 justify-between border border-b-slate-400'>
+                <p>Saldo para comprar</p>
+                <p>{parseCurrency(saldoCompra)}</p>
+              </article>
+            </section>
+          </TabsContent>
+          <TabsContent value='creditos'>
+            <Table className='w-[40%]'>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className='w-[150px]'>VENCIMENTO</TableHead>
+                  <TableHead>DOC</TableHead>
+                  <TableHead>HISTÓRICO</TableHead>
+                  <TableHead className='text-right'>A PAGAR</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {listaCreditos && listaCreditos.length <= 0 ? (
+                  <span>Não há Créditos</span>
+                ) : (
+                  listaCreditos.map((lc, idx) => (
+                    <TableRow key={idx}>
+                      <TableCell className='font-medium'>
+                        {lc.VENCIMENTO}
+                      </TableCell>
+                      <TableCell>{lc.DOC}</TableCell>
+                      <TableCell>{lc.HISTORICO}</TableCell>
+                      <TableCell className='text-right'>
+                        {parseCurrency(lc.RESTA)}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </TabsContent>
+          <TabsContent value='vencidos'>
+            <Table className='w-[40%]'>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className='w-[150px]'>VENCIMENTO</TableHead>
+                  <TableHead>DOC</TableHead>
+                  <TableHead>HISTÓRICO</TableHead>
+                  <TableHead className='text-right'>A PAGAR</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {listaDebitos.length <= 0 ? (
+                  <span>Não pagamentos vencidos</span>
+                ) : (
+                  listaDebitos.map((lc, idx) => (
+                    <TableRow key={idx}>
+                      <TableCell className='font-medium'>
+                        {lc.VENCIMENTO}
+                      </TableCell>
+                      <TableCell>{lc.DOC}</TableCell>
+                      <TableCell>{lc.HISTORICO}</TableCell>
+                      <TableCell className='text-right'>
+                        {parseCurrency(lc.RESTA)}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </TabsContent>
+          <TabsContent value='nao_vencidos'>
+            <Table className='w-[40%]'>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className='w-[150px]'>VENCIMENTO</TableHead>
+                  <TableHead>DOC</TableHead>
+                  <TableHead>HISTÓRICO</TableHead>
+                  <TableHead className='text-right'>A PAGAR</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {listaCreditos.length <= 0 ? (
+                  <span>Não pagamentos não vencidos</span>
+                ) : (
+                  listaCreditos.map((lc, idx) => (
+                    <TableRow key={idx}>
+                      <TableCell className='font-medium'>
+                        {lc.VENCIMENTO}
+                      </TableCell>
+                      <TableCell>{lc.DOC}</TableCell>
+                      <TableCell>{lc.HISTORICO}</TableCell>
+                      <TableCell className='text-right'>
+                        {parseCurrency(lc.RESTA)}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </TabsContent>
+        </Tabs>
+      </div>
 
       <div className='flex gap-4 w-full px-5 py-0 flex-wrap justify-end'>
         <Link

@@ -230,18 +230,18 @@ export async function GetPGTOsNaoVencidos(cliente: number) {
     },
   });
 
-  if (response.body.StatusCode !== 200) {
+  if (response.status !== 200) {
     return {
       value: undefined,
       error: {
-        code: String(response.body.StatusCode),
-        message: String(response.body.StatusMessage),
+        code: String(response.status),
+        message: String(response.statusText),
       },
     };
   }
 
   return {
-    value: response.body.Data,
+    value: response.body,
     error: undefined,
   };
 }
@@ -268,20 +268,19 @@ export async function GetPGTOsEmAberto(cliente: number) {
       Authorization: `bearer ${tokenCookie}`,
     },
   });
-  console.log('contas não vencidas', response.body);
 
-  if (response.body.StatusCode !== 200) {
+  if (response.status !== 200) {
     return {
       value: undefined,
       error: {
-        code: String(response.body.StatusCode),
-        message: String(response.body.StatusMessage),
+        code: String(response.status),
+        message: String(response.statusText),
       },
     };
   }
 
   return {
-    value: response.body.Data,
+    value: response.body,
     error: undefined,
   };
 }
