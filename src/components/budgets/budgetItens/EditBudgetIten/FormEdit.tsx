@@ -1,10 +1,14 @@
 'use client';
 import { ResponseType } from '@/@types';
 import { iItensOrcamento } from '@/@types/Orcamento';
-import { iProduto, iTabelaVenda } from '@/@types/Produto';
-import { iDataResultTable } from '@/@types/Table';
+import { iListaSimilare, iProduto, iTabelaVenda } from '@/@types/Produto';
+import { iColumnType, iDataResultTable } from '@/@types/Table';
 import { addItem, updateItem } from '@/app/actions/orcamento';
-import { SuperFindProducts, TableFromProduct } from '@/app/actions/produto';
+import {
+  GetProduct,
+  SuperFindProducts,
+  TableFromProduct,
+} from '@/app/actions/produto';
 import { DataTable } from '@/components/CustomDataTable';
 import SuperSearchProducts from '@/components/products/SuperSearchProduct';
 import { Button } from '@/components/ui/button';
@@ -20,9 +24,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/components/ui/use-toast';
 import useModal from '@/hooks/useModal';
 import { FormatToCurrency } from '@/lib/utils';
-import { faSave, faSearch, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import {
+  faPlus,
+  faSave,
+  faSearch,
+  faSpinner,
+} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useEffect, useState } from 'react';
+import dayjs from 'dayjs';
+import React, { useEffect, useRef, useState } from 'react';
 import { tableChavesHeaders } from './columns';
 
 interface iFormEditItem {
@@ -51,7 +61,11 @@ const FormEdit: React.FC<iFormEditItem> = ({ item, budgetCode, CallBack }) => {
     ORCAMENTO: 0,
     PRODUTO: {} as iProduto,
   });
+  const [productSelected, setProductSelected] = useState<iProduto>(
+    {} as iProduto
+  );
   const [Tables, setTables] = useState<iTabelaVenda[]>([]);
+  const [Similares, setSimilares] = useState<iListaSimilare[]>([]);
   let [SerachedProducts, setSerachedProducts] = useState<
     iDataResultTable<iProduto>
   >({
@@ -60,26 +74,17 @@ const FormEdit: React.FC<iFormEditItem> = ({ item, budgetCode, CallBack }) => {
   });
   const [WordProducts, setWordProducts] = useState<string>('');
   const [loading, setLoading] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
+  const inputProductRef = useRef<HTMLInputElement>(null);
+  const inputQTDRef = useRef<HTMLInputElement>(null);
 
   async function saveItem(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-
-    console.log('saveItem', {
-      pIdOrcamento: budgetCode,
-      pItemOrcamento: {
-        CodigoProduto: WordProducts,
-        Desconto: 0,
-        Frete: 0,
-        Qtd: budgetItem.QTD,
-        Tabela: budgetItem.TABELA,
-        Valor: budgetItem.VALOR,
-        SubTotal: budgetItem.SUBTOTAL,
-        Total: budgetItem.TOTAL,
-      },
-    });
+    let response;
+    let message = '';
 
     if (budgetItem.ORCAMENTO > 0) {
-      const response = await updateItem({
+      response = await updateItem({
         pIdOrcamento: budgetCode,
         pItemOrcamento: {
           CodigoProduto: WordProducts,
@@ -92,12 +97,9 @@ const FormEdit: React.FC<iFormEditItem> = ({ item, budgetCode, CallBack }) => {
           Total: budgetItem.TOTAL,
         },
       });
-
-      if (CallBack) {
-        CallBack();
-      }
+      message = 'Item editado com sucesso';
     } else {
-      const response = await addItem({
+      response = await addItem({
         pIdOrcamento: budgetCode,
         pItemOrcamento: {
           CodigoProduto: WordProducts,
@@ -110,26 +112,26 @@ const FormEdit: React.FC<iFormEditItem> = ({ item, budgetCode, CallBack }) => {
           Total: budgetItem.TOTAL,
         },
       });
-
-      if (response.value !== undefined && CallBack) {
-        toast({
-          title: 'Sucesso!',
-          description: 'Item adicionado com sucesso',
-          variant: 'success',
-        });
-        CallBack();
-      }
-
-      if (response.error !== undefined) {
-        toast({
-          title: 'Error!',
-          description: 'Erro ao adicionar item',
-          variant: 'destructive',
-        });
-      }
-
-      console.log('save item response', response);
+      message = 'Item adicionado com sucesso';
     }
+
+    if (response.value !== undefined) {
+    }
+
+    toast({
+      title: 'Sucesso!',
+      description: message,
+      variant: 'success',
+    });
+
+    if (response.error !== undefined) {
+      toast({
+        title: 'Error!',
+        description: 'Erro ao adicionar item',
+        variant: 'destructive',
+      });
+    }
+    if (CallBack) CallBack();
   }
 
   async function getTablesFromProducts(product: iProduto) {
@@ -150,20 +152,28 @@ const FormEdit: React.FC<iFormEditItem> = ({ item, budgetCode, CallBack }) => {
   }
 
   async function loadingProduct(product: iProduto) {
-    setBudgetItem(
-      (old) =>
-        (old = {
-          ...budgetItem,
-          PRODUTO: product,
-          VALOR: product.PRECO,
-          QTD: budgetItem.QTD,
-          SUBTOTAL: budgetItem.VALOR * budgetItem.QTD,
-          TOTAL: budgetItem.VALOR * budgetItem.QTD,
-        })
-    );
-    await getTablesFromProducts(product);
-    setWordProducts(product.PRODUTO);
-    OnCloseModal();
+    const prod = await GetProduct(product.PRODUTO);
+
+    if (prod.value !== undefined) {
+      setBudgetItem(
+        (old) =>
+          (old = {
+            ...budgetItem,
+            PRODUTO: prod.value,
+            VALOR: prod.value.PRECO,
+            QTD: handleCalcQTD(budgetItem.QTD, prod.value.MULTIPLO_COMPRA),
+            SUBTOTAL: budgetItem.VALOR * budgetItem.QTD,
+            TOTAL: budgetItem.VALOR * budgetItem.QTD,
+          })
+      );
+      setProductSelected(prod.value);
+      setSimilares((old) => [...prod.value.ListaSimilares]);
+      await getTablesFromProducts(prod.value);
+      setWordProducts(prod.value.PRODUTO);
+
+      OnCloseModal();
+      inputQTDRef.current?.focus();
+    }
   }
 
   async function findProduct() {
@@ -201,10 +211,42 @@ const FormEdit: React.FC<iFormEditItem> = ({ item, budgetCode, CallBack }) => {
       });
   }
 
+  const OnSearchProduto = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      findProduct();
+    }
+  };
+
+  const handleCalcQTD = (qtd: number, multiplo: number): number => {
+    let newQtd = 1;
+    newQtd = Math.ceil(qtd / multiplo) * multiplo;
+    return newQtd;
+  };
+
+  function onChangeQTD(e: React.ChangeEvent<HTMLInputElement>) {
+    let newQtd = Number(e.target.value);
+    if (isNaN(newQtd)) newQtd = 1;
+
+    setBudgetItem((prevBudgetItem) => ({
+      ...prevBudgetItem,
+      QTD: handleCalcQTD(newQtd, productSelected.MULTIPLO_COMPRA),
+      SUBTOTAL: prevBudgetItem.VALOR * newQtd,
+      TOTAL: prevBudgetItem.VALOR * newQtd,
+    }));
+  }
+
   useEffect(() => {
     return () => {
+      inputProductRef.current?.focus();
       if (item) {
         getTablesFromProducts(item.PRODUTO).finally(() => {
+          setProductSelected(
+            (old) =>
+              (old = {
+                ...item.PRODUTO,
+              })
+          );
           setBudgetItem(
             (old) =>
               (old = {
@@ -222,8 +264,63 @@ const FormEdit: React.FC<iFormEditItem> = ({ item, budgetCode, CallBack }) => {
     };
   }, []);
 
+  const tableSimilaresHeaders: iColumnType<iListaSimilare>[] = [
+    {
+      key: 'acoes',
+      title: 'AÇÕES',
+      width: '10%',
+      render: (_, item) => (
+        <span className='flex w-full items-center justify-center gap-x-5'>
+          <FontAwesomeIcon
+            icon={faPlus}
+            className='cursor-pointer text-emsoft_orange-main hover:text-emsoft_orange-light'
+            size='xl'
+            title='Adicionar'
+            onClick={() => {
+              loadingProduct(item.EXTERNO);
+            }}
+          />
+        </span>
+      ),
+    },
+    {
+      key: 'EXTERNO.PRODUTO',
+      title: 'PRODUTO',
+      width: '10%',
+    },
+    {
+      key: 'EXTERNO.NOME',
+      title: 'NOME',
+      width: '15%',
+    },
+    {
+      key: 'EXTERNO.REFERENCIA',
+      title: 'REFERÊNCIA',
+      width: '15%',
+    },
+    {
+      key: 'EXTERNO.EQUIVALENTE',
+      title: 'EQUIVALENTE',
+      width: '15%',
+    },
+    {
+      key: 'EXTERNO.DATA_ATUALIZACAO',
+      title: 'DATA ATUALIZAÇÃO',
+      width: '15%',
+      render: (_, item) => {
+        return dayjs(item.EXTERNO.DATA_ATUALIZACAO).format('DD/MM/YYYY');
+      },
+    },
+    {
+      key: 'EXTERNO.QTDATUAL',
+      title: 'QTD ATUAL',
+      width: '15%',
+    },
+  ];
+
   return (
     <form
+      ref={formRef}
       onSubmit={saveItem}
       method='POST'
       className={`flex flex-col overflow-x-hidden overflow-y-auto gap-y-3 w-full
@@ -239,9 +336,11 @@ const FormEdit: React.FC<iFormEditItem> = ({ item, budgetCode, CallBack }) => {
                 <Input
                   onChange={(e) => setWordProducts(e.target.value)}
                   value={WordProducts}
+                  ref={inputProductRef}
                   name='ProdutoPalavras'
                   labelText='PRODUTO'
                   labelPosition='top'
+                  onKeyDown={OnSearchProduto}
                   disabled={item !== undefined}
                 />
               </div>
@@ -336,6 +435,16 @@ const FormEdit: React.FC<iFormEditItem> = ({ item, budgetCode, CallBack }) => {
           />
         </div>
       </div>
+      <div
+        className={`flex flex-col w-full h-[150px] overflow-x-hidden overflow-y-auto`}
+      >
+        <DataTable
+          columns={tableSimilaresHeaders}
+          IsLoading={false}
+          TableData={Similares}
+          ErrorMessage='Nenhum Similar encontrado'
+        />
+      </div>
       <div className={`flex items-end pt-4 gap-x-4`}>
         <div className={`flex w-[10%]`}>
           <Input
@@ -350,14 +459,16 @@ const FormEdit: React.FC<iFormEditItem> = ({ item, budgetCode, CallBack }) => {
         <div className={`flex w-[10%]`}>
           <Input
             onChange={(e) => {
-              setBudgetItem({
-                ...budgetItem,
-                QTD: Number(e.target.value),
-                SUBTOTAL: budgetItem.VALOR * Number(e.target.value),
-                TOTAL: budgetItem.VALOR * Number(e.target.value),
-              });
+              let newQtd = Number(e.target.value);
+
+              setBudgetItem((prevBudgetItem) => ({
+                ...prevBudgetItem,
+                QTD: newQtd,
+              }));
             }}
+            onBlur={onChangeQTD}
             value={budgetItem.QTD}
+            ref={inputQTDRef}
             name='QTD'
             type='number'
             labelText='QTD'

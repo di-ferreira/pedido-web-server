@@ -1,9 +1,10 @@
 'use client';
 import { iListaChave } from '@/@types/Produto';
 import { iColumnType } from '@/@types/Table';
-import { faBan, faCheck } from '@fortawesome/free-solid-svg-icons';
+import { faBan, faCheck, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import dayjs from 'dayjs';
+import { iListaSimilare } from '../../../../@types/Produto';
 
 const RenderIconBloqueado = (value: string): JSX.Element => {
   if (value === 'S')
@@ -34,6 +35,51 @@ export const tableChavesHeaders: iColumnType<iListaChave>[] = [
     key: 'Chave',
     title: 'CHAVE',
     width: '25%',
+  },
+];
+export const tableSimilaresHeaders: iColumnType<iListaSimilare>[] = [
+  {
+    key: 'acoes',
+    title: 'AÇÕES',
+    width: '10%',
+    render: (_, item) => (
+      <span className='flex w-full items-center justify-center gap-x-5'>
+        <FontAwesomeIcon
+          icon={faPlus}
+          className='cursor-pointer text-emsoft_orange-main hover:text-emsoft_orange-light'
+          size='xl'
+          title='Adicionar'
+          onClick={() => {
+            // CallBack && CallBack(item);
+          }}
+        />
+      </span>
+    ),
+  },
+  {
+    key: 'EXTERNO.PRODUTO',
+    title: 'PRODUTO',
+    width: '10%',
+  },
+  {
+    key: 'EXTERNO.NOME',
+    title: 'NOME',
+    width: '15%',
+  },
+  {
+    key: 'EXTERNO.REFERENCIA',
+    title: 'REFERÊNCIA',
+    width: '15%',
+  },
+  {
+    key: 'EXTERNO.DATA_ATUALIZACAO',
+    title: 'DATA ATUALIZAÇÃO',
+    width: '15%',
+  },
+  {
+    key: 'EXTERNO.QTDATUAL',
+    title: 'QTD ATUAL',
+    width: '15%',
   },
 ];
 

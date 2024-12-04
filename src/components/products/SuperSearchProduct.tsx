@@ -369,6 +369,13 @@ const SuperSearchProducts: React.FC<iProps> = ({ data, words, CallBack }) => {
       });
   }
 
+  const OnSearchProduto = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      findProduct({ top: 10, skip: 0 });
+    }
+  };
+
   useEffect(() => {
     setProducts(data);
   }, []);
@@ -378,6 +385,7 @@ const SuperSearchProducts: React.FC<iProps> = ({ data, words, CallBack }) => {
         <Input
           value={WordProducts}
           onChange={(e) => setWordProducts(e.target.value)}
+          onKeyDown={OnSearchProduto}
         />
         <Button
           className={`flex w-fit h-[35px] p-3 gap-3`}

@@ -38,7 +38,7 @@ export async function SuperFindProducts(
   };
 
   const res = await CustomFetch<iApiResult<iProduto[]>>(
-    `${ROUTE_SUPER_BUSCA}?$expand=FABRICANTE,FORNECEDOR,GRUPO,ListaChaves`,
+    `${ROUTE_SUPER_BUSCA}?$expand=FABRICANTE,FORNECEDOR,GRUPO,ListaChaves,ListaSimilares`,
     {
       method: 'POST',
       body: JSON.stringify(bodyReq),
@@ -57,11 +57,41 @@ export async function SuperFindProducts(
       },
     };
   }
+
   return {
     value: {
       value: res.body.Data,
       Qtd_Registros: res.body.RecordCount,
     },
+    error: undefined,
+  };
+}
+
+export async function GetProduct(productCode: string) {
+  const tokenCookie = await getCookie('token');
+  const res = await CustomFetch<iProduto>(
+    `${ROUTE_GET_ALL_PRODUTO}(${productCode})?$expand=FABRICANTE,FORNECEDOR,GRUPO,ListaChaves,ListaSimilares,ListaSimilares/PRODUTO,ListaSimilares/EXTERNO`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `bearer ${tokenCookie}`,
+      },
+    }
+  );
+
+  if (res.status !== 200) {
+    return {
+      value: undefined,
+      error: {
+        code: String(res.status),
+        message: String(res.statusText),
+      },
+    };
+  }
+
+  return {
+    value: res.body,
     error: undefined,
   };
 }
@@ -129,75 +159,4 @@ export async function TableFromProduct(
     error: undefined,
   };
 }
-
-// export async function SetProduct(CodeProduct: string) {
-//   try {
-//     const product: iProduto = (
-//       await api.get<iProduto>(
-//         `${ROUTE_GET_ALL_PRODUTO}(${CodeProduct})?$expand=FABRICANTE,FORNECEDOR,GRUPO,ListaChaves,ListaOfertaProduto,ListaSimilares,ListaVendaCasada,NCM,TIPO_ITEM,UNIDADE`
-//       )
-//     ).data;
-
-//     let tabelas: iTabelaVenda[] = [];
-
-//     let sql: string = SQL_NORMAL;
-
-//     if (product.FAB_BRUTO > 0 && product.FABRICANTE?.NOME === 'MWM')
-//       sql = SQL_MWM;
-//     if (product.FAB_BRUTO > 0 && product.FABRICANTE?.NOME !== 'MWM')
-//       sql = SQL_2D;
-
-//     const tablesResult: iApiResult<any[]> = (
-//       await api.post<iApiResult<any[]>>(`${ROUTE_SELECT_SQL}`, {
-//         pSQL: sql,
-//         pPar: [
-//           {
-//             ParamName: 'PRODUTO',
-//             ParamType: 'ftString',
-//             ParamValues: [product.PRODUTO],
-//           },
-//         ],
-//       })
-//     ).data;
-
-//     const estoqueResult: iApiData<iEstoqueLoja> = (
-//       await api.get<iApiData<iEstoqueLoja>>(
-//         `${ROUTE_ESTOQUE_LOJAS}?$filter=PRODUTO eq '${product.PRODUTO}'`
-//       )
-//     ).data;
-
-//     const { Data, StatusCode, StatusMessage } = tablesResult;
-
-//     if (StatusCode !== 200) {
-//       return thunkAPI.rejectWithValue(`error: ${StatusMessage}`);
-//     }
-//     const newTables: iTabelaVenda[] = [];
-
-//     Data.map((tb) => {
-//       if ('NOVO_PRECO' in tb) {
-//         newTables.push({
-//           BLOQUEADO: tb.BLOQUEADO,
-//           PRECO: tb.NOVO_PRECO,
-//           TABELA: tb.TABELA,
-//         });
-//       } else {
-//         newTables.push(tb);
-//       }
-//     });
-//     tabelas = [...tabelas, ...newTables];
-
-//     const result: iProdutoWithTables = {
-//       produto: product,
-//       tables: tabelas,
-//       estoque_lojas: estoqueResult.value,
-//     };
-
-//     return result;
-//   } catch (error: unknown) {
-//     if (typeof error === 'string')
-//       return thunkAPI.rejectWithValue(`error: ${error}`);
-//     if (error instanceof Error)
-//       return thunkAPI.rejectWithValue(`error: ${error.message}`);
-//   }
-// }
 

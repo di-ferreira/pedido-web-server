@@ -160,8 +160,8 @@ export interface iTipoItem {
 export interface iListaSimilare {
   EQUIVALENTE: string;
   DATA_ATUALIZACAO: string;
-  PRODUTO: string;
-  EXTERNO: string;
+  PRODUTO: iProduto;
+  EXTERNO: iProduto;
 }
 
 export interface iListaVendaCasada {
@@ -365,3 +365,4 @@ export interface iProdutoWithTables {
   tables: iTabelaVenda[];
   estoque_lojas: iEstoqueLoja[];
 }
+
