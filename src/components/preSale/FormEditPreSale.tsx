@@ -115,6 +115,15 @@ const FormEditPreSale: React.FC<iFormEditPreSale> = ({ orc }) => {
     if (orc.TOTAL > 0) {
       GetCondicaoPGTO(orc ? orc.TOTAL : 0, orc.CLIENTE.Tabela).then(
         (condicao) => {
+          console.log('Condicao', condicao);
+
+          if (condicao.value === null) {
+            toast({
+              title: 'Error!',
+              description: 'não a condições para o total do orçamento!',
+              variant: 'destructive',
+            });
+          }
           if (condicao.value) {
             setCondicaoPgto(condicao.value);
             setCondicaoPgtoSelected(condicao.value[0]);
