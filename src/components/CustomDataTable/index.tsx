@@ -30,7 +30,11 @@ export function DataTable<T>({
         <TableHeader columns={columns} />
       </thead>
       <tbody className='w-full relative table-fixed overflow-x-hidden overflow-y-auto max-sm:overflow-auto'>
-        {IsLoading && <Loading />}
+        {IsLoading && (
+          <div className='w-[calc(100vw-10%)] relative'>
+            <Loading />
+          </div>
+        )}
 
         {!IsLoading && <TableRow data={TableData} columns={columns} />}
 

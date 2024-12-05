@@ -5,6 +5,8 @@ import { iMovimento } from '@/@types/PreVenda';
 import { iDataResultTable } from '@/@types/Table';
 import { GetPreVendas } from '@/app/actions/preVenda';
 import { DataTable } from '@/components/CustomDataTable';
+import ErrorMessage from '@/components/ErrorMessage';
+import { Loading } from '@/components/Loading';
 import { KEY_NAME_TABLE_PAGINATION } from '@/constants';
 import { removeStorage } from '@/lib/utils';
 import { Suspense, useCallback, useEffect, useState } from 'react';
@@ -36,22 +38,22 @@ function DataTablePreSale() {
     handleBudgets({ top: 10 });
   }, []);
 
-  if (loading) {
-    return <span>Carregando...</span>;
-  }
-
-  if (data.value === undefined) {
-    console.error('Erro ao carregar Pré-vendas:');
-    return <span>Erro ao carregar Pré-vendas: {data.error?.message}</span>;
+  if (data.error !== undefined) {
+    return (
+      <ErrorMessage
+        title='Erro ao carregar Pré-vendas'
+        message={`${data.error.message}`}
+      />
+    );
   }
 
   return (
     <section className='flex flex-col gap-x-5 w-full'>
-      <Suspense fallback={<span>Carregando...</span>}>
+      <Suspense fallback={<Loading />}>
         <DataTable
           columns={headers}
-          TableData={data.value.value}
-          QuantityRegiters={data.value.Qtd_Registros}
+          TableData={data.value?.value!}
+          QuantityRegiters={data.value?.Qtd_Registros}
           onFetchPagination={handleBudgets}
           IsLoading={loading}
         />

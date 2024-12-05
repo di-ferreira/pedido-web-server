@@ -1,14 +1,16 @@
 'use client';
 import { ResponseType } from '@/@types';
 import { iFilter } from '@/@types/Filter';
+import { iOrcamento } from '@/@types/Orcamento';
 import { iDataResultTable } from '@/@types/Table';
+import { GetOrcamentosFromVendedor } from '@/app/actions/orcamento';
+import { DataTable } from '@/components/CustomDataTable';
+import ErrorMessage from '@/components/ErrorMessage';
+import { Loading } from '@/components/Loading';
+import { KEY_NAME_TABLE_PAGINATION } from '@/constants';
+import { removeStorage } from '@/lib/utils';
 import { Suspense, useCallback, useEffect, useState } from 'react';
 import { headers } from './columns';
-import { removeStorage } from '@/lib/utils';
-import { KEY_NAME_TABLE_PAGINATION } from '@/constants';
-import { iOrcamento } from '@/@types/Orcamento';
-import { DataTable } from '@/components/CustomDataTable';
-import { GetOrcamentosFromVendedor } from '@/app/actions/orcamento';
 
 function DataTableBudget() {
   const [data, setData] = useState<ResponseType<iDataResultTable<iOrcamento>>>(
@@ -36,22 +38,22 @@ function DataTableBudget() {
     handleBudgets({ top: 10 });
   }, []);
 
-  if (loading) {
-    return <span>Carregando...</span>;
-  }
-
-  if (data.value === undefined) {
-    console.error('Erro ao carregar orçamentos:');
-    return <span>Erro ao carregar orçamento: {data.error?.message}</span>;
+  if (data.error !== undefined) {
+    return (
+      <ErrorMessage
+        title={`Erro ao carregar orçamentos`}
+        message={`${data.value?.Qtd_Registros}`}
+      />
+    );
   }
 
   return (
     <section className='flex flex-col gap-x-5 w-full'>
-      <Suspense fallback={<span>Carregando...</span>}>
+      <Suspense fallback={<Loading />}>
         <DataTable
           columns={headers}
-          TableData={data.value.value}
-          QuantityRegiters={data.value.Qtd_Registros}
+          TableData={data.value?.value!}
+          QuantityRegiters={data.value?.Qtd_Registros}
           onFetchPagination={handleBudgets}
           IsLoading={loading}
         />

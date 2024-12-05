@@ -28,6 +28,16 @@ function Filter<T, K>({ options, onSearch }: FilterProps<T, K>): JSX.Element {
 
   const [SearchInput, setSearchInput] = useState<string>('');
 
+  const OnSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      onSearch({
+        filterBy: FilterOptions.value,
+        value: SearchInput,
+      } as iSearch<T>);
+    }
+  };
+
   return (
     <div className='flex justify-center items-center w-full min-h-10 overflow-hidden'>
       {options && (
@@ -62,6 +72,7 @@ function Filter<T, K>({ options, onSearch }: FilterProps<T, K>): JSX.Element {
       <div className='w-96 mr-0 ml-2'>
         <Input
           onChange={(e) => setSearchInput((old) => (old = e.target.value))}
+          onKeyDown={OnSearchKeyDown}
           value={SearchInput}
           placeholder='Digite sua busca'
           className='w-full h-16'

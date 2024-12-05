@@ -8,7 +8,9 @@ import { iVendedor } from '@/@types/Vendedor';
 import { GetClienteFromVendedor } from '@/app/actions/cliente';
 import { NewOrcamento } from '@/app/actions/orcamento';
 import { DataTable } from '@/components/CustomDataTable';
+import ErrorMessage from '@/components/ErrorMessage';
 import Filter from '@/components/Filter';
+import { Loading } from '@/components/Loading';
 import { KEY_NAME_TABLE_PAGINATION } from '@/constants';
 import { removeStorage } from '@/lib/utils';
 import {
@@ -103,15 +105,14 @@ function DataTableCustomer() {
     handleCustomer({ top: 10 });
   }, []);
 
-  if (loading) {
-    return <span>Carregando...</span>;
+  if (data.error !== undefined) {
+    return (
+      <ErrorMessage
+        title='Erro ao carregar Clientes'
+        message={`${data.error.message}`}
+      />
+    );
   }
-
-  if (data.value === undefined) {
-    console.error('Erro ao carregar clientes:');
-    return <span>Carregando...</span>;
-  }
-
   const NewAddOrcamento: iOrcamento = {
     ORCAMENTO: 0,
     TOTAL: 0.0,
@@ -171,11 +172,11 @@ function DataTableCustomer() {
   return (
     <section className='flex flex-col gap-x-5 w-full'>
       <Filter options={filterValues} onSearch={handleCustomerSearch} />
-      <Suspense fallback={<span>Carregando...</span>}>
+      <Suspense fallback={<Loading />}>
         <DataTable
           columns={headersFull}
-          TableData={data.value.value}
-          QuantityRegiters={data.value.Qtd_Registros}
+          TableData={data.value?.value!}
+          QuantityRegiters={data.value?.Qtd_Registros}
           onFetchPagination={handleCustomer}
           IsLoading={loading}
         />

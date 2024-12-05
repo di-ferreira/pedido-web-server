@@ -77,10 +77,15 @@ const config = {
           from: { height: 'var(--radix-accordion-content-height)' },
           to: { height: '0' },
         },
+        colorChange: {
+          '0%, 100%': { color: '#F27318' },
+          '50%': { color: '#bf560b' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        colorChange: 'colorChange 1s linear infinite, spin 2s linear infinite',
       },
     },
   },
