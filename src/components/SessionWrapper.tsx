@@ -6,7 +6,7 @@ import React from 'react';
 import { Toaster } from './ui/toaster';
 
 interface Props {
-  children: React.ReactNode;
+  children: React.JSX.Element;
   classname?: string;
 }
 
