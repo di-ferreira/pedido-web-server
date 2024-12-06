@@ -19,7 +19,6 @@ import { MaskCnpjCpf } from '@/lib/utils';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Link from 'next/link';
-import React from 'react';
 import { RiMedalFill } from 'react-icons/ri';
 
 interface iCustomerPage {
@@ -36,15 +35,11 @@ interface iCredito {
   EMISSAO_BOLETO: string;
 }
 
-const Customers: React.FC<iCustomerPage> = async ({ params }) => {
+const Customers = async ({ params }: iCustomerPage) => {
   const customer = await GetCliente(params.id);
   const emAtrazo = await GetPGTOsAtrazados(params.id);
   const naoVencidas = await GetPGTOsNaoVencidos(params.id);
   const emAberto = await GetPGTOsEmAberto(params.id);
-
-  // console.log('em atrazo', emAtrazo);
-  console.log('em aberto', emAberto.value.Data);
-  // console.log('não vencidas', naoVencidas);
 
   function parseCurrency(currency: number) {
     return currency.toLocaleString('pt-br', {

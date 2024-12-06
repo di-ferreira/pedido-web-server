@@ -4,13 +4,12 @@ import { Input } from '@/components/ui/input';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Link from 'next/link';
-import React from 'react';
 
 interface iBudgetPage {
   params: { id: number };
 }
 
-const Budget: React.FC<iBudgetPage> = async ({ params }) => {
+const Budget = async ({ params }: iBudgetPage) => {
   let budget = await GetOrcamento(params.id);
 
   if (!budget.value) return <p>Failed to load budget.</p>;
