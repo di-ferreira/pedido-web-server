@@ -1,12 +1,12 @@
 import { cn } from '@/lib/utils';
-import React, { JSX } from 'react';
+import React from 'react';
 import { iColumnType } from '../../../@types/Table';
 
 interface iHeaderProps<T> {
   columns: iColumnType<T>[];
 }
 
-function TableHeader<T>({ columns }: iHeaderProps<T>): JSX.Element {
+function TableHeader<T>({ columns }: iHeaderProps<T>) {
   return (
     <tr
       className={cn(

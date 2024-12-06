@@ -1,18 +1,10 @@
 'use client';
 import { iListaChave } from '@/@types/Produto';
 import { iColumnType } from '@/@types/Table';
-import { faBan, faCheck, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import dayjs from 'dayjs';
 import { iListaSimilare } from '../../../../@types/Produto';
-
-const RenderIconBloqueado = (value: string): JSX.Element => {
-  if (value === 'S')
-    return <FontAwesomeIcon icon={faBan} className='text-red-700' size='xl' />;
-  return (
-    <FontAwesomeIcon icon={faCheck} className='text-green-800' size='xl' />
-  );
-};
 
 export const tableChavesHeaders: iColumnType<iListaChave>[] = [
   {

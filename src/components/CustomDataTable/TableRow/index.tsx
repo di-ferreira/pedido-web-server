@@ -1,16 +1,14 @@
 import { cn } from '@/lib/utils';
-import { JSX } from 'react';
 import { iColumnType } from '../../../@types/Table';
 import { TableRowCell } from '../TableRowCell';
 import { TableRowHeaderCell } from '../TableRowHeaderCell';
-import React from 'react';
 
 interface iTableRowProps<T> {
   data: T[];
   columns: iColumnType<T>[];
 }
 
-function TableRow<T>({ data, columns }: iTableRowProps<T>): JSX.Element {
+function TableRow<T>({ data, columns }: iTableRowProps<T>) {
   return (
     <>
       {data &&

@@ -2,7 +2,6 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { get } from 'lodash';
-import { JSX } from 'react';
 import { iButtonAction, iColumnType } from '../../../@types/Table';
 
 interface iTableCellProps<T> {
@@ -10,10 +9,7 @@ interface iTableCellProps<T> {
   column: iColumnType<T>;
 }
 
-export function TableRowCell<T>({
-  item,
-  column,
-}: iTableCellProps<T>): JSX.Element {
+export function TableRowCell<T>({ item, column }: iTableCellProps<T>) {
   const value = get(item, column.key);
   return (
     <>

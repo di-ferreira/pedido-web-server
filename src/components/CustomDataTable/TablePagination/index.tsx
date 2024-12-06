@@ -30,7 +30,7 @@ export function TablePagination<T>({
   QuantityRegiters,
   OnFetchData,
   rowsQtd,
-}: iDataTablePagination<T>): JSX.Element {
+}: iDataTablePagination<T>) {
   const RowsPerPageOptions = [10, 20, 50, 100];
   const [PaginationOptions, setPaginationOptions] =
     useState<tpPaginationValues>({

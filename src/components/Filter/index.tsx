@@ -20,7 +20,7 @@ interface iFilterOptions<T, K> {
   key: string;
 }
 
-function Filter<T, K>({ options, onSearch }: FilterProps<T, K>): JSX.Element {
+function Filter<T, K>({ options, onSearch }: FilterProps<T, K>) {
   const [FilterOptions, setFilterOptions] = useState<iFilterOptions<T, K>>({
     value: options[0].value,
     key: options[0].key,

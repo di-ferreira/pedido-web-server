@@ -1,21 +1,11 @@
 'use client';
 import { iCliente } from '@/@types/Cliente';
-import { iOrcamento } from '@/@types/Orcamento';
 import { iColumnType } from '@/@types/Table';
-import { iVendedor } from '@/@types/Vendedor';
-import { NewOrcamento } from '@/app/actions/orcamento';
 import { MaskCnpjCpf } from '@/lib/utils';
-import {
-  faBan,
-  faCheck,
-  faFileLines,
-  faUserAlt,
-} from '@fortawesome/free-solid-svg-icons';
+import { faBan, faCheck } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import Link from 'next/link';
-import React from 'react';
 
-const RenderIconBloqueado = (value: string): JSX.Element => {
+const RenderIconBloqueado = (value: string) => {
   if (value === 'S')
     return <FontAwesomeIcon icon={faBan} className='text-red-700' size='xl' />;
   return (

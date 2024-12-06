@@ -1,28 +1,10 @@
 'use client';
-import { iCliente } from '@/@types/Cliente';
 import { iOrcamento } from '@/@types/Orcamento';
 import { iColumnType } from '@/@types/Table';
-import { MaskCnpjCpf } from '@/lib/utils';
-import {
-  faBan,
-  faCheck,
-  faEdit,
-  faFileLines,
-  faUserAlt,
-} from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faFileLines } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import React from 'react';
 import dayjs from 'dayjs';
-
-const RenderIconBloqueado = (value: string): JSX.Element => {
-  if (value === 'S')
-    return <FontAwesomeIcon icon={faBan} className='text-red-700' size='xl' />;
-  return (
-    <FontAwesomeIcon icon={faCheck} className='text-green-800' size='xl' />
-  );
-};
+import Link from 'next/link';
 
 export const headers: iColumnType<iOrcamento>[] = [
   {

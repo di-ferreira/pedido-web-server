@@ -1,4 +1,3 @@
-import { JSX } from 'react';
 import { iColumnType } from '../../../@types/Table';
 
 interface iTableCellProps<T> {
@@ -6,9 +5,7 @@ interface iTableCellProps<T> {
   column: iColumnType<T>;
 }
 
-export function TableRowHeaderCell<T>({
-  column,
-}: iTableCellProps<T>): JSX.Element {
+export function TableRowHeaderCell<T>({ column }: iTableCellProps<T>) {
   return (
     <>
       {

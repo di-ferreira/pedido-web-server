@@ -1,6 +1,5 @@
 'use client';
 import { iFilter } from '@/@types/Filter';
-import { JSX } from 'react';
 import { iColumnType } from '../../@types/Table';
 import { Loading } from '../Loading';
 import TableHeader from './TableHeader';
@@ -23,7 +22,7 @@ export function DataTable<T>({
   onFetchPagination,
   QuantityRegiters,
   IsLoading,
-}: iTableDataProps<T>): JSX.Element {
+}: iTableDataProps<T>) {
   return (
     <table className='border-collapse border-none w-full table-fixed'>
       <thead className='w-full table-fixed'>
@@ -36,21 +35,28 @@ export function DataTable<T>({
           </div>
         )}
 
-        {!IsLoading && <TableRow data={TableData} columns={columns} />}
-
-        {ErrorMessage !== '' && (!TableData || TableData.length === 0) && (
+        {ErrorMessage !== '' && !TableData && (
           <div className='flex absolute w-[300px] top-5 left-[50%] translate-x-[-50%] items-center justify-center pl-14 pr-6'>
             <p>{ErrorMessage}</p>
           </div>
         )}
+        {TableData && TableData.length === 0 && (
+          <div className='flex absolute w-[300px] top-5 left-[50%] translate-x-[-50%] items-center justify-center pl-14 pr-6'>
+            <p>Não há registros</p>
+          </div>
+        )}
+
+        {!IsLoading && <TableRow data={TableData} columns={columns} />}
       </tbody>
-      {onFetchPagination && QuantityRegiters && (
-        <TablePagination
-          OnFetchData={onFetchPagination}
-          QuantityRegiters={QuantityRegiters}
-          rowsQtd={columns.length}
-        />
-      )}
+      {onFetchPagination &&
+        QuantityRegiters !== undefined &&
+        QuantityRegiters > 0 && (
+          <TablePagination
+            OnFetchData={onFetchPagination}
+            QuantityRegiters={QuantityRegiters}
+            rowsQtd={columns.length}
+          />
+        )}
     </table>
   );
 }
