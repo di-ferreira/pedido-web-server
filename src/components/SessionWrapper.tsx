@@ -6,11 +6,11 @@ import React from 'react';
 import { Toaster } from './ui/toaster';
 
 interface Props {
-  children: React.JSX.Element;
+  children: React.ReactNode;
   classname?: string;
 }
 
-const SessionWrapper = async ({ children, classname }: Props) => {
+const SessionWrapper = ({ children, classname }: Props) => {
   const tokenCookie = getCookie('token', { cookies });
 
   if (tokenCookie === undefined) {
