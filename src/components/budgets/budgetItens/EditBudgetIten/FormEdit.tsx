@@ -41,7 +41,7 @@ interface iFormEditItem {
   CallBack?: () => void;
 }
 
-const FormEdit: React.FC<iFormEditItem> = ({ item, budgetCode, CallBack }) => {
+const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
   const { Modal, OnCloseModal, showModal } = useModal();
   const [budgetItem, setBudgetItem] = useState<iItensOrcamento>({
     QTD: 1,

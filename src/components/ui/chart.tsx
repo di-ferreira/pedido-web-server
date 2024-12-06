@@ -1,7 +1,6 @@
 'use client';
 import { ApexOptions } from 'apexcharts';
 import dynamic from 'next/dynamic';
-import React from 'react';
 
 // Importação dinâmica para evitar problemas com SSR
 const ReactApexChart = dynamic(() => import('react-apexcharts'), {
@@ -18,7 +17,7 @@ interface LineChartProps {
   categories: string[]; // Categorias do eixo X
 }
 
-const LineChart: React.FC<LineChartProps> = ({ series, categories }) => {
+const LineChart = ({ series, categories }: LineChartProps) => {
   const options: ApexOptions = {
     chart: {
       type: 'line',

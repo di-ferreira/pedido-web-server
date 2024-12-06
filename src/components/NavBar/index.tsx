@@ -5,10 +5,10 @@ import {
   faHomeAlt,
   faUsers,
 } from '@fortawesome/free-solid-svg-icons';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import NavBarItem, { iNavItem } from './NavBarItem';
 
-const NavBar: React.FC = () => {
+const NavBar = () => {
   const [open, setOpen] = useState<boolean>(true);
 
   const linkList: iNavItem[] = [

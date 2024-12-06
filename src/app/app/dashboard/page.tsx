@@ -18,14 +18,13 @@ import {
   faFileInvoiceDollar,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React from 'react';
 
 type VendaDashboard = {
   CLIENTE: string;
   TOTAL_VENDAS: number;
 };
 
-const Dashboard: React.FC = async () => {
+const Dashboard = async () => {
   const Vendas = await getVendasDashboard();
   const lastSell = await getLastVenda();
   const dataTotalSell = await getDataTotalVenda();

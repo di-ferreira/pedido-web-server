@@ -10,7 +10,7 @@ interface Props {
   classname?: string;
 }
 
-const SessionWrapper: React.FC<Props> = async ({ children, classname }) => {
+const SessionWrapper = async ({ children, classname }: Props) => {
   const tokenCookie = getCookie('token', { cookies });
 
   if (tokenCookie === undefined) {

@@ -1,11 +1,11 @@
 import { cn } from '@/lib/utils';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { iModal, iModalRender } from '../../@types/Modal';
 
-const RenderLayout: React.FC<iModalRender> = ({
+const RenderLayout = ({
   Title,
   OnClose,
   OnCloseButtonClick,
@@ -13,7 +13,7 @@ const RenderLayout: React.FC<iModalRender> = ({
   bodyHeight,
   bodyWidth,
   containerStyle,
-}) => {
+}: iModalRender) => {
   const BtnClose = () => {
     OnClose();
     OnCloseButtonClick && OnCloseButtonClick();
@@ -79,14 +79,14 @@ const useModal = () => {
   const [isVisible, setIsVisible] = useState(false);
 
   const OnClose = () => setIsVisible(false);
-  const Modal: React.FC<iModal> = ({
+  const Modal = ({
     Title,
     children,
     OnCloseButtonClick,
     bodyHeight,
     bodyWidth,
     containerStyle,
-  }) =>
+  }: iModal) =>
     ReactDOM.createPortal(
       RenderLayout({
         Title,

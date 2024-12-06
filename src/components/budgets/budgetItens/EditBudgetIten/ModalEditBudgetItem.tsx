@@ -15,14 +15,14 @@ interface iModalEditBudgetItem {
   iconStyle?: string | undefined;
 }
 
-export const ModalEditBudgetItem: React.FC<iModalEditBudgetItem> = ({
+export const ModalEditBudgetItem = ({
   children,
   buttonText,
   buttonIcon,
   modalTitle,
   buttonStyle,
   iconStyle,
-}) => {
+}: iModalEditBudgetItem) => {
   const { Modal, OnCloseModal, showModal } = useModal();
 
   return (

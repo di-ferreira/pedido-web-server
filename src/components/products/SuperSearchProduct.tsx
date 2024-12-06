@@ -17,7 +17,7 @@ interface iProps {
   CallBack?: (product: iProduto) => void;
 }
 
-const SuperSearchProducts: React.FC<iProps> = ({ data, words, CallBack }) => {
+const SuperSearchProducts = ({ data, words, CallBack }: iProps) => {
   const [loading, setLoading] = useState(false);
   const [Products, setProducts] = useState<iDataResultTable<iProduto>>(data);
   const [WordProducts, setWordProducts] = useState<string>(words);

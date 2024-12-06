@@ -21,7 +21,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import dayjs from 'dayjs';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import React, { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { DataTable } from '../CustomDataTable';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -45,7 +45,7 @@ interface iTipoEntrega {
   value: iFrete;
 }
 
-const FormEditPreSale: React.FC<iFormEditPreSale> = ({ orc }) => {
+const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
   const router = useRouter();
   const [CondicaoPgto, setCondicaoPgto] = useState<iCondicaoPgto[]>([]);
   const [CondicaoPgtoSelected, setCondicaoPgtoSelected] =

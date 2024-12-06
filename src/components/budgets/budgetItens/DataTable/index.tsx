@@ -28,7 +28,7 @@ interface iItemBudgetTable {
   orc: iOrcamento;
 }
 
-const DataTableItensBudget: React.FC<iItemBudgetTable> = ({ orc }) => {
+const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
   const [data, setData] = useState<iOrcamento>(orc);
   const [loading, setLoading] = useState(false);
 

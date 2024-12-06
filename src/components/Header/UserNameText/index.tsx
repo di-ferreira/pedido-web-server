@@ -1,10 +1,9 @@
 'use client';
 import { iVendedor } from '@/@types';
 import { getVendedorAction } from '@/app/actions/user';
-import React from 'react';
 import useSWR from 'swr';
 
-const UserNameText: React.FC = () => {
+const UserNameText = () => {
   const { data: user, isLoading } = useSWR(
     'getVendedorAction',
     getVendedorAction

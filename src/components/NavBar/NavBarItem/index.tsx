@@ -1,7 +1,6 @@
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Link from 'next/link';
-import React from 'react';
 
 export interface iNavItem {
   icon: IconProp;
@@ -9,7 +8,7 @@ export interface iNavItem {
   link: string;
 }
 
-const NavBarItem: React.FC<iNavItem> = ({ icon, link, text }) => {
+const NavBarItem = ({ icon, link, text }: iNavItem) => {
   return (
     <li
       className='gap-3 my-1 transition-all hover:bg-emsoft_blue-light'
