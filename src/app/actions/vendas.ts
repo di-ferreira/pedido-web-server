@@ -96,7 +96,7 @@ export async function getVendasDashboard() {
   const tokenCookie = await getCookie('token');
 
   const sql: string = `SELECT c.NOME AS CLIENTE, SUM(m.TOTAL) AS TOTAL_VENDAS FROM MVE m JOIN CLI c ON m.CLIENTE = c.CLIENTE WHERE m.TIPOMOV = 'VENDA' AND m.VENDEDOR = ${VendedorLocal} AND m.CANCELADO = 'N' AND m.data >= cast('${String(
-    dayjs().subtract(3, 'month').format('YYYY-MM-DD')
+    dayjs().subtract(1, 'month').format('YYYY-MM-DD')
   )}' as DATE) GROUP BY c.NOME ORDER BY c.NOME`;
 
   const body: string = JSON.stringify({
@@ -140,7 +140,7 @@ FROM
     MVE M
 WHERE 
     M.VENDEDOR = ${VendedorLocal} 
-    AND M.data >= dateadd(month, -6, current_date)
+    AND M.data >= dateadd(month, -1, current_date)
     AND M.CANCELADO = 'N'
 GROUP BY 
     EXTRACT(YEAR FROM data),

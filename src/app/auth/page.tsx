@@ -12,9 +12,13 @@ export default function Page() {
   }
   return (
     <main className='flex flex-col  min-h-screen items-center justify-center bg-emsoft_light-surface'>
-      <section className='p-4 w-[400px] h-[500px] shadow-lg rounded-md bg-white'>
+      <section className='p-4 w-[400px] h-[500px] shadow-lg rounded-md bg-white tablet-portrait:w-[90vw] tablet-portrait:h-[60vh]'>
         <div className='flex flex-col items-center justify-center mt-5'>
-          <Image src={Logo} alt='Logo da Emsoft' className='my-6' />
+          <Image
+            src={Logo}
+            alt='Logo da Emsoft'
+            className='my-6 tablet-portrait:h-[10vh] tablet-portrait:w-auto'
+          />
           <AuthForm />
         </div>
       </section>

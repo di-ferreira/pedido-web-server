@@ -20,20 +20,19 @@ const ROUTE_SAVE_ITEM_ORCAMENTO = '/ServiceVendas/NovoItemOrcamento';
 async function CreateFilter(filter: iFilter<iOrcamento>): Promise<string> {
   const VendedorLocal: string = await getCookie('user');
 
-  let ResultFilter: string = `$filter=VENDEDOR eq ${VendedorLocal} and year(DATA) eq ${dayjs()
+  let DataSql: string = ` and year(DATA) eq ${dayjs()
     .subtract(1, 'day')
     .format('YYYY')} and month(DATA) eq ${dayjs()
     .subtract(1, 'day')
     .format('MM')} and day(DATA) ge ${dayjs().subtract(1, 'day').format('DD')}`;
 
+  if (filter.filter?.some((item) => item.key === 'PV' && item.value === 'S'))
+    DataSql = '';
+
+  let ResultFilter: string = `$filter=VENDEDOR eq ${VendedorLocal} ${DataSql}`;
+
   if (filter.filter && filter.filter.length >= 1) {
-    ResultFilter = `$filter=VENDEDOR eq ${VendedorLocal} and year(DATA) eq ${dayjs()
-      .subtract(1, 'day')
-      .format('YYYY')} and month(DATA) eq ${dayjs()
-      .subtract(1, 'day')
-      .format('MM')} and day(DATA) ge ${dayjs()
-      .subtract(1, 'day')
-      .format('DD')}`;
+    ResultFilter = `$filter=VENDEDOR eq ${VendedorLocal} ${DataSql}`;
     const andStr = ' AND ';
     filter.filter.map((itemFilter) => {
       if (itemFilter.typeSearch)
@@ -62,8 +61,8 @@ async function CreateFilter(filter: iFilter<iOrcamento>): Promise<string> {
   ResultFilter !== '' && (ResultTop = `&${ResultTop}`);
 
   const ResultRoute: string = `?${ResultFilter}${ResultTop}${ResultSkip}${ResultOrderBy}&$expand=VENDEDOR,CLIENTE,
-                                    ItensOrcamento/PRODUTO/FORNECEDOR,ItensOrcamento/PRODUTO/FABRICANTE,
-                                    ItensOrcamento,ItensOrcamento/PRODUTO&$inlinecount=allpages`;
+  ItensOrcamento/PRODUTO/FORNECEDOR,ItensOrcamento/PRODUTO/FABRICANTE,
+  ItensOrcamento,ItensOrcamento/PRODUTO&$inlinecount=allpages`;
   return ResultRoute;
 }
 

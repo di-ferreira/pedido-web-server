@@ -25,26 +25,26 @@ const Budget = async ({ params }: iBudgetPage) => {
       </h1>
 
       <div className='flex w-full h-[75vh] flex-col overflow-x-hidden overflow-y-auto'>
-        <div className='flex gap-3 w-full h-[20%] px-5 py-0 flex-wrap'>
+        <div className='flex gap-3 w-full h-[20%] px-5 py-0 flex-wrap tablet-portrait:h-auto tablet-portrait:gap-y-6'>
           <Input
             labelText='CÓDIGO'
             labelPosition='top'
             value={budget.value.CLIENTE.CLIENTE}
-            className='w-[10%]'
+            className='w-[10%] h-7'
             disabled
           />
           <Input
             labelText='NOME'
             labelPosition='top'
             value={budget.value.CLIENTE.NOME}
-            className='w-[40%]'
+            className='w-[40%] h-7'
             disabled
           />
           <Input
             labelText='CPF/CNPJ'
             labelPosition='top'
             value={budget.value.CLIENTE.CIC}
-            className='w-[20%]'
+            className='w-[20%] h-7'
             disabled
           />
 
@@ -53,7 +53,7 @@ const Budget = async ({ params }: iBudgetPage) => {
             labelPosition='top'
             name='TELEFONE'
             value={budget.value.CLIENTE.TELEFONE}
-            className='w-[20%]'
+            className='w-[20%] h-7'
             disabled
           />
 
@@ -62,7 +62,7 @@ const Budget = async ({ params }: iBudgetPage) => {
             labelPosition='top'
             name='CLIENTE.ENDERECO'
             value={budget.value.CLIENTE.ENDERECO}
-            className='w-[30%]'
+            className='w-[30%] h-7'
             disabled
           />
           <Input
@@ -70,7 +70,7 @@ const Budget = async ({ params }: iBudgetPage) => {
             labelPosition='top'
             name='CLIENTE.BAIRRO'
             value={budget.value.CLIENTE.BAIRRO}
-            className='w-[24%]'
+            className='w-[24%] h-7'
             disabled
           />
 
@@ -79,7 +79,7 @@ const Budget = async ({ params }: iBudgetPage) => {
             labelPosition='top'
             name='CLIENTE.CIDADE'
             value={budget.value.CLIENTE.CIDADE}
-            className='w-[15%]'
+            className='w-[15%] h-7'
             disabled
           />
           <Input
@@ -87,7 +87,7 @@ const Budget = async ({ params }: iBudgetPage) => {
             labelPosition='top'
             name='CLIENTE.UF'
             value={budget.value.CLIENTE.UF}
-            className='w-[10%]'
+            className='w-[10%] h-7'
             disabled
           />
           <Input
@@ -95,12 +95,12 @@ const Budget = async ({ params }: iBudgetPage) => {
             labelPosition='top'
             name='CLIENTE.CEP'
             value={budget.value.CLIENTE.CEP}
-            className='w-[10%]'
+            className='w-[10%] h-7'
             disabled
           />
         </div>
 
-        <div className='flex gap-4 w-full h-[70%] mt-[2%]'>
+        <div className='flex gap-4 w-full h-[70%] mt-[2%] tablet-portrait:h-[50%]'>
           <DataTableItensBudget orc={budget.value} />
         </div>
       </div>

@@ -14,13 +14,20 @@ import {
 interface FilterProps<T, K> {
   options: { key: string; value: K }[];
   onSearch: (params: iSearch<T>) => void;
+  button?: boolean;
+  input?: boolean;
 }
 interface iFilterOptions<T, K> {
   value: K;
   key: string;
 }
 
-function Filter<T, K>({ options, onSearch }: FilterProps<T, K>) {
+function Filter<T, K>({
+  options,
+  onSearch,
+  button = true,
+  input = true,
+}: FilterProps<T, K>) {
   const [FilterOptions, setFilterOptions] = useState<iFilterOptions<T, K>>({
     value: options[0].value,
     key: options[0].key,
@@ -69,29 +76,33 @@ function Filter<T, K>({ options, onSearch }: FilterProps<T, K>) {
           </SelectContent>
         </Select>
       )}
-      <div className='w-96 mr-0 ml-2'>
-        <Input
-          onChange={(e) => setSearchInput((old) => (old = e.target.value))}
-          onKeyDown={OnSearchKeyDown}
-          value={SearchInput}
-          placeholder='Digite sua busca'
-          className='w-full h-16'
-        />
-      </div>
+      {input && (
+        <div className='w-96 mr-0 ml-2'>
+          <Input
+            onChange={(e) => setSearchInput((old) => (old = e.target.value))}
+            onKeyDown={OnSearchKeyDown}
+            value={SearchInput}
+            placeholder='Digite sua busca'
+            className='w-full h-16'
+          />
+        </div>
+      )}
 
-      <Button
-        className='ml-3 h-10'
-        variant='secondary'
-        size='sm'
-        onClick={() =>
-          onSearch({
-            filterBy: FilterOptions.value,
-            value: SearchInput,
-          } as iSearch<T>)
-        }
-      >
-        Buscar
-      </Button>
+      {button && (
+        <Button
+          className='ml-3 h-10'
+          variant='secondary'
+          size='sm'
+          onClick={() =>
+            onSearch({
+              filterBy: FilterOptions.value,
+              value: SearchInput,
+            } as iSearch<T>)
+          }
+        >
+          Buscar
+        </Button>
+      )}
     </div>
   );
 }

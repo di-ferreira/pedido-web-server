@@ -10,7 +10,7 @@ function TableHeader<T>({ columns }: iHeaderProps<T>) {
   return (
     <tr
       className={cn(
-        'relative table-fixed w-screen h-8 max-sm:hidden max-sm:overflow-x-auto max-sm:overflow-y-hidden max-sm:h-full'
+        'relative table-fixed  w-screen h-8 tablet:overflow-x-auto tablet:overflow-y-hidden tablet:h-full'
       )}
     >
       {columns.map((column, idx) => (
@@ -18,11 +18,11 @@ function TableHeader<T>({ columns }: iHeaderProps<T>) {
           {
             <th
               className={cn(
-                `font-semibold table-fixed text-center text-base pr-5 pl-0 flex-grow`,
-                `max-sm:w-[${column.width ? column.width : 'auto'}]`,
+                column.isHideMobile && 'tablet:hidden',
+                `font-semibold table-fixed text-center text-base pr-5 pl-0`,
+                ` tablet:w-1/2`,
                 `overflow-hidden table-fixed border-b`,
-                `${column.isHideMobile ? 'max-sm:hidden' : ''}`,
-                ` max-sm:w-1/2 max-sm:items-center`
+                `${column.isHideMobile ? 'tablet:hidden' : ''}`
               )}
               key={`table-head-cell-${column.title}`}
               //   min_width={column.width}

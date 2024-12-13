@@ -1,7 +1,6 @@
-import { cn } from '@/lib/utils';
+import React from 'react';
 import { iColumnType } from '../../../@types/Table';
 import { TableRowCell } from '../TableRowCell';
-import { TableRowHeaderCell } from '../TableRowHeaderCell';
 
 interface iTableRowProps<T> {
   data: T[];
@@ -14,36 +13,15 @@ function TableRow<T>({ data, columns }: iTableRowProps<T>) {
       {data &&
         data.map((item, idx) => (
           <tr
-            className='relative w-screen cursor-auto max-sm:flex last:rounded-e odd:bg-gray-100 max-sm:flex-col  text-emsoft_dark-text h-14'
+            className={`relative table-fixed w-full  
+                       cursor-auto last:rounded-e odd:bg-gray-100 
+                      text-emsoft_dark-text h-14`}
             key={`table-row-${idx}`}
           >
             {columns.map((column, columnIndex) => (
-              <>
-                <TableRowCell
-                  key={`table-row-cell-${columnIndex}`}
-                  item={item}
-                  column={column}
-                />
-                <div
-                  className={cn(
-                    `hidden ${
-                      column.isHideMobile ? 'max-sm:hidden' : 'max-sm:flex'
-                    }`,
-                    'min-sm:pl-10 border-b last:border-b-0'
-                  )}
-                >
-                  <TableRowHeaderCell
-                    key={`table-row-header-cell-${columnIndex}`}
-                    item={item}
-                    column={column}
-                  />
-                  <TableRowCell
-                    key={`table-row-cell-${columnIndex}`}
-                    item={item}
-                    column={column}
-                  />
-                </div>
-              </>
+              <React.Fragment key={columnIndex}>
+                <TableRowCell item={item} column={column} />
+              </React.Fragment>
             ))}
           </tr>
         ))}

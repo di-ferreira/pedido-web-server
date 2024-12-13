@@ -115,8 +115,6 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
     if (orc.TOTAL > 0) {
       GetCondicaoPGTO(orc ? orc.TOTAL : 0, orc.CLIENTE.Tabela).then(
         (condicao) => {
-          console.log('Condicao', condicao);
-
           if (condicao.value === null) {
             toast({
               title: 'Error!',
@@ -232,12 +230,12 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
         Nova Pré-Venda
       </h1>
       <div className='flex flex-col w-full'>
-        <div className='w-[85%] flex gap-x-3'>
-          <div className='flex flex-col w-full px-4'>
+        <div className='w-[85%] flex gap-x-3 tablet:w-full tablet:px-3'>
+          <div className='flex flex-col w-[70%] px-4 tablet:w-[50%]'>
             <h4>CONDIÇÃO DE PAGAMENTO</h4>
             <div className='flex w-full mt-5 flex-wrap gap-x-3'>
-              <div className='flex w-full gap-x-3 items-end'>
-                <div className='w-[17.5%]'>
+              <div className='flex w-full gap-x-3 items-end tablet:flex-wrap'>
+                <div className='w-[17.5%] tablet:w-[20%]'>
                   <Input
                     name='ID_CONDICAO'
                     value={CondicaoPgtoSelected!.ID}
@@ -246,7 +244,7 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
                     disabled
                   />
                 </div>
-                <div className='w-[40%]'>
+                <div className='w-[40%] tablet:w-[76%]'>
                   <Select
                     defaultValue={CondicaoPgtoSelected.NOME}
                     value={String(CondicaoPgtoSelected.ID)}
@@ -280,7 +278,7 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className='w-[40%]'>
+                <div className='w-[40%] tablet:w-[100%]'>
                   <Label>Forma de pagamento:</Label>
                   <Select
                     defaultValue={FormaPgtoSelected?.CARTAO}
@@ -313,7 +311,7 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
                   </Select>
                 </div>
               </div>
-              <div className='w-full pr-3'>
+              <div className='w-full pr-3 tablet:pr-0'>
                 <Input
                   onChange={(e) =>
                     setPreSale(
@@ -334,7 +332,7 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
                 <h4>FRETE</h4>
               </div>
               <div className='w-full flex flex-col items-start gap-x-3'>
-                <div className='w-[40%]'>
+                <div className='w-[40%] tablet:w-full'>
                   <Select
                     defaultValue={TipoEntregaSelected.value}
                     value={String(TipoEntregaSelected.value)}
@@ -394,7 +392,7 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
               />
             </div>
           </div>
-          <div className='flex flex-col w-[30%]'>
+          <div className='flex flex-col w-[30%] tablet:w-[45%]'>
             <Suspense fallback={<span>Carregando parcelas...</span>}>
               <DataTable
                 columns={tableHeaders}
@@ -404,8 +402,8 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
             </Suspense>
           </div>
         </div>
-        <div className='w-[85%] flex mt-5 px-4 flex-wrap gap-3 items-end'>
-          <div className='w-[32.5%]'>
+        <div className='w-[85%] flex mt-5 px-4 flex-wrap gap-3 items-end tablet:w-full'>
+          <div className='w-[32.5%] tablet:w-[50%]'>
             <Input
               readOnly={true}
               labelText='SUBTOTAL'
@@ -418,7 +416,7 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
               height='3.5rem'
             />
           </div>
-          <div className='w-[32.99%]'>
+          <div className='w-[32.99%] tablet:w-[47%]'>
             <Input
               readOnly={true}
               labelText='TOTAL'

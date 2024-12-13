@@ -177,15 +177,15 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
   ];
 
   return (
-    <section className='flex flex-col gap-x-5 w-full'>
-      <div className='flex gap-4 w-full h-[20%] px-5 py-0 flex-wrap'>
+    <section className='flex flex-col gap-x-5 w-full mt-7 tablet-portrait:gap-y-6'>
+      <div className='flex gap-4 w-full h-[20%] px-5 py-0 flex-wrap tablet-portrait:h-auto tablet-portrait:gap-y-6 tablet:h-[30%]'>
         <Input
           labelText='TABELA'
           labelPosition='top'
           name='TABELA'
           value={data.CLIENTE.Tabela}
           disabled={true}
-          className='w-[10%]'
+          className='w-[10%] h-7'
         />
         <Input
           labelText='OBSERVAÇÃO 1'
@@ -195,7 +195,7 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
           onChange={(e) => {
             setData((old) => (old = { ...data, OBS1: e.target.value }));
           }}
-          className='w-[40.5%]'
+          className='w-[40.5%] h-7'
         />
 
         <Input
@@ -206,10 +206,10 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
           onChange={(e) => {
             setData((old) => (old = { ...data, OBS2: e.target.value }));
           }}
-          className='w-[41%]'
+          className='w-[41%] h-7'
         />
       </div>
-      <div className='flex w-full items-center px-5 mt-4 gap-x-4'>
+      <div className='flex w-full items-center px-5 mt-4 gap-x-4 tablet-portrait:h-auto tablet-portrait:gap-y-6'>
         <ModalEditBudgetItem
           modalTitle={'Novo Item'}
           buttonText={'Novo Item'}

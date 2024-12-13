@@ -21,7 +21,7 @@ const SessionWrapper = ({ children, classname }: Props) => {
       <Toaster />
       <main
         className={cn(
-          'flex flex-col w-full overflow-hidden  min-h-full bg-light-surface',
+          'flex flex-col w-full overflow-x-hidden overflow-y-auto  min-h-full bg-light-surface',
           classname
         )}
       >

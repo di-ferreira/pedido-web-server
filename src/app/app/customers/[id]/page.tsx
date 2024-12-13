@@ -68,7 +68,6 @@ const Customers = async ({ params }: iCustomerPage) => {
     emAberto.value?.Data?.filter((aberto: iCredito) => aberto.ATRASO <= 0) ??
     [];
 
-  console.log('aberto', listaCreditos);
   const saldoCompra =
     customer.value.LIMITE - (contasAtrazadas + contasAVencer + contasAbertas);
 
@@ -138,77 +137,77 @@ const Customers = async ({ params }: iCustomerPage) => {
           labelText='NOME'
           labelPosition='top'
           value={customer.value.NOME}
-          className='w-[35%]'
+          className='w-[35%] tablet-portrait:w-[45%]'
         />
         <Input
           labelText='EMAIL'
           labelPosition='top'
           value={customer.value.EMAIL}
-          className='w-[20%]'
+          className='w-[20%] tablet-portrait:w-[45%]'
         />
         <Input
           labelText='TELEFONE'
           labelPosition='top'
           value={customer.value.TELEFONE}
-          className='w-[15%]'
+          className='w-[15%] tablet-portrait:w-[45%]'
         />
 
         <Input
           labelText='CPF/CNPJ'
           labelPosition='top'
           value={MaskCnpjCpf(customer.value.CIC)}
-          className='w-[24%]'
+          className='w-[24%] tablet-portrait:w-[45%]'
         />
 
         <Input
           labelText='ENDEREÇO'
           labelPosition='top'
           value={customer.value.ENDERECO}
-          className='w-[37.5%]'
+          className='w-[37.5%] tablet-portrait:w-[45%]'
         />
         <Input
           labelText='BAIRRO'
           labelPosition='top'
           value={customer.value.BAIRRO}
-          className='w-[20%]'
+          className='w-[20%] tablet-portrait:w-[45%]'
         />
         <Input
           labelText='CIDADE'
           labelPosition='top'
           value={customer.value.CIDADE}
-          className='w-[20%]'
+          className='w-[20%] tablet-portrait:w-[25%]'
         />
         <Input
           labelText='CIDADE'
           labelPosition='top'
           value={customer.value.UF}
-          className='w-[5%]'
+          className='w-[5%] tablet-portrait:w-[10%]'
         />
         <Input
           labelText='CEP'
           labelPosition='top'
           value={customer.value.CEP}
-          className='w-[10%]'
+          className='w-[10%] tablet-portrait:w-[20%]'
         />
 
         <Input
           labelText='TIPO DE CLIENTE'
           labelPosition='top'
           value={customer.value.TIPO_CLIENTE}
-          className='w-[10%]'
+          className='w-[10%] tablet-portrait:w-[20%]'
         />
 
         <Input
           labelText='TABELA'
           labelPosition='top'
           value={customer.value.Tabela}
-          className='w-[10%]'
+          className='w-[10%] tablet-portrait:w-[20%]'
         />
         <Input
           labelText='USAR LIMITE'
           labelPosition='top'
           value={customer.value.USARLIMITE === 'S' ? 'SIM' : 'NÃO'}
-          className='w-[10%]'
+          className='w-[10%] tablet-portrait:w-[15%]'
         />
         <Input
           labelText='LIMITE CLIENTE'
@@ -224,7 +223,7 @@ const Customers = async ({ params }: iCustomerPage) => {
                   currency: 'BRL',
                 })
           }
-          className='w-[10%]'
+          className='w-[10%] tablet-portrait:w-[20%]'
         />
         <Input
           labelText='LIMITE CHEQUE'
@@ -240,38 +239,38 @@ const Customers = async ({ params }: iCustomerPage) => {
                   currency: 'BRL',
                 })
           }
-          className='w-[10%]'
+          className='w-[10%] tablet-portrait:w-[15%]'
         />
         <Input
           labelText='SOMENTE NFE'
           labelPosition='top'
           value={customer.value.SOMENTE_NFE === 'S' ? 'SIM' : 'NÃO'}
-          className='w-[10%]'
+          className='w-[10%] tablet-portrait:w-[15%]'
         />
         <Input
           labelText='CARTEIRA'
           labelPosition='top'
           value={customer.value.CARTEIRA === 'S' ? 'SIM' : 'NÃO'}
-          className='w-[10%]'
+          className='w-[10%] tablet-portrait:w-[15%]'
         />
         <Input
           labelText='DDA'
           labelPosition='top'
           value={customer.value.DDA === 'S' ? 'SIM' : 'NÃO'}
-          className='w-[10%]'
+          className='w-[10%] tablet-portrait:w-[15%]'
         />
 
         <Input
           labelText='BLOQUEADO'
           labelPosition='top'
           value={customer.value.BLOQUEADO === 'S' ? 'SIM' : 'NÃO'}
-          className='w-[25%]'
+          className='w-[25%] tablet-portrait:w-[20%]'
         />
         <Input
           labelText='MOTIVO BLOQUEIO'
           labelPosition='top'
           value={customer.value.MOTIVO}
-          className='w-[45%]'
+          className='w-[45%] tablet-portrait:w-[35%]'
         />
       </div>
       <h2

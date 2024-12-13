@@ -41,7 +41,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             `relative `,
             required &&
               labelText !== '' &&
-              `after:content-['*'] after:absolute after:ml-0.5 after:text-destructive`
+              `after:content-['*'] after:absolute after:ml-0.5 after:text-destructive tablet-portrait:text-2xl`
           )}
         >
           {labelText}
@@ -50,10 +50,15 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           className={cn(
             `absolute  flex items-center justify-center w-4 h-auto text-lg`,
             `left-4 top-2.5`,
-            labelText !== '' && `top-8`
+            labelText !== '' && `top-8 tablet-portrait:top-11`
           )}
         >
-          {icon && <FontAwesomeIcon icon={icon} className='text-slate-400' />}
+          {icon && (
+            <FontAwesomeIcon
+              icon={icon}
+              className='text-slate-400 tablet-portrait:text-2xl'
+            />
+          )}
         </span>
         <input
           type={type}
@@ -66,7 +71,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
                         file:font-medium placeholder:text-muted-foreground focus-visible:outline-none
                         focus-visible:ring-1 focus-visible:ring-emsoft_blue-light focus:invalid:ring-destructive
                         disabled:cursor-not-allowed disabled:opacity-50 placeholder:italic
-                        placeholder:text-slate-400`,
+                        placeholder:text-slate-400 tablet-portrait:placeholder:text-xl`,
             icon && `pl-8 pr-3`,
             icon && labelText !== '' && `pl-10 pr-3`
           )}

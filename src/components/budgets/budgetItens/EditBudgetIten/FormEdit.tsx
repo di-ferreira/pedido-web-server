@@ -302,11 +302,13 @@ const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
       key: 'EXTERNO.EQUIVALENTE',
       title: 'EQUIVALENTE',
       width: '15%',
+      isHideMobile: true,
     },
     {
       key: 'EXTERNO.DATA_ATUALIZACAO',
       title: 'DATA ATUALIZAÇÃO',
       width: '15%',
+      isHideMobile: true,
       render: (_, item) => {
         return dayjs(item.EXTERNO.DATA_ATUALIZACAO).format('DD/MM/YYYY');
       },
@@ -329,9 +331,11 @@ const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
       <div
         className={`flex w-full h-[60vh] gap-3 overflow-x-hidden overflow-y-auto`}
       >
-        <div className={`flex w-[70%] flex-col gap-y-3`}>
-          <div className={`flex gap-x-3 px-3`}>
-            <div className={`flex w-[30%] gap-x-1 items-end`}>
+        <div className={`flex w-[70%] flex-col gap-y-3 tablet:w-[60%]`}>
+          <div className={`flex gap-x-3 px-3  tablet:flex-wrap`}>
+            <div
+              className={`flex w-[30%] gap-x-1 items-end tablet:w-[50%] tablet-portrait:w-[100%]`}
+            >
               <div className={`flex w-[85%]`}>
                 <Input
                   onChange={(e) => setWordProducts(e.target.value)}
@@ -364,7 +368,9 @@ const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
                 </Button>
               </div>
             </div>
-            <div className={`flex w-[25%]`}>
+            <div
+              className={`flex w-[25%] tablet:w-[47%] tablet-portrait:w-[100%]`}
+            >
               <Input
                 disabled
                 value={budgetItem.PRODUTO?.REFERENCIA}
@@ -373,7 +379,9 @@ const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
                 labelPosition='top'
               />
             </div>
-            <div className={`flex w-[30%]`}>
+            <div
+              className={`flex w-[30%] tablet:w-[70%] tablet-portrait:w-[100%]`}
+            >
               <Input
                 disabled
                 value={budgetItem.PRODUTO?.FABRICANTE?.NOME}
@@ -382,7 +390,9 @@ const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
                 labelPosition='top'
               />
             </div>
-            <div className={`flex w-[15%]`}>
+            <div
+              className={`flex w-[15%] tablet:w-[27%] tablet-portrait:w-[100%]`}
+            >
               <Input
                 disabled
                 value={budgetItem.PRODUTO?.LOCAL?.toLocaleUpperCase()}
@@ -426,7 +436,7 @@ const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
             </div>
           </div>
         </div>
-        <div className={`flex flex-col w-[30%]`}>
+        <div className={`flex flex-col w-[30%] tablet:w-[40%]`}>
           <DataTable
             columns={tableChavesHeaders}
             IsLoading={false}

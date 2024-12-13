@@ -51,27 +51,45 @@ const Dashboard = async () => {
   );
 
   return (
-    <SessionWrapper classname='p-4'>
-      <section className='flex flex-row w-full gap-x-4'>
-        <Card className='w-[33%] max-h-[80%] p-3'>
-          <CardHeader className='text-lg text-gray-600 p-0 flex-row items-center gap-x-3'>
-            Número Total de Vendas <FontAwesomeIcon icon={faDollarSign} />
-          </CardHeader>
-          <CardDescription className='text-xs text-gray-500'>
-            Quantidade Total de vendas nos ultimos 90 dias
-          </CardDescription>
-          <CardContent className='font-bold mt-2'>
+    <SessionWrapper classname={`p-4 tablet:gap-y-4`}>
+      <section
+        className={`flex flex-row w-full gap-x-4 tablet:flex-col tablet:gap-y-4`}
+      >
+        <Card
+          className={`w-[33%] max-h-[80%] p-3 
+                      tablet-landscape:w-full tablet-landscape:flex tablet-landscape:items-center tablet-landscape:justify-evenly
+                      tablet-portrait:w-full tablet-portrait:flex tablet-portrait:items-center tablet-portrait:justify-evenly`}
+        >
+          <div>
+            <CardHeader className='text-lg text-gray-600 p-0 flex-row items-center gap-x-3'>
+              Número Total de Vendas <FontAwesomeIcon icon={faDollarSign} />
+            </CardHeader>
+            <CardDescription className='text-xs text-gray-500'>
+              Quantidade Total de vendas nos ultimos 30 dias
+            </CardDescription>
+          </div>
+          <CardContent
+            className={`font-bold mt-2 tablet-landscape:text-2xl tablet-landscape:mt-5`}
+          >
             {listaVendas ? listaVendas.length : 0}
           </CardContent>
         </Card>
-        <Card className='w-[33%] max-h-[80%] p-3'>
-          <CardHeader className='text-lg text-gray-600 p-0 flex-row items-center gap-x-3'>
-            Total de Vendas <FontAwesomeIcon icon={faDollarSign} />
-          </CardHeader>
-          <CardDescription className='text-xs text-gray-500'>
-            Total de vendas nos ultimos 90 dias
-          </CardDescription>
-          <CardContent className='font-bold mt-2'>
+        <Card
+          className={`w-[33%] max-h-[80%] p-3 
+                      tablet-landscape:w-full tablet-landscape:flex tablet-landscape:items-center tablet-landscape:justify-evenly
+                      tablet-portrait:w-full tablet-portrait:flex tablet-portrait:items-center tablet-portrait:justify-evenly`}
+        >
+          <div>
+            <CardHeader className='text-lg text-gray-600 p-0 flex-row items-center gap-x-3'>
+              Total de Vendas <FontAwesomeIcon icon={faDollarSign} />
+            </CardHeader>
+            <CardDescription className='text-xs text-gray-500'>
+              Total de vendas nos ultimos 30 dias
+            </CardDescription>
+          </div>
+          <CardContent
+            className={`font-bold mt-2 tablet-landscape:text-2xl tablet-landscape:mt-5`}
+          >
             {FormatToCurrency(
               String(
                 listaVendas
@@ -84,33 +102,47 @@ const Dashboard = async () => {
             )}
           </CardContent>
         </Card>
-        <Card className='w-[31%] max-h-[80%] p-3'>
-          <CardHeader className='text-lg text-gray-600 p-0 flex-row items-center gap-x-3'>
-            Última Venda <FontAwesomeIcon icon={faFileInvoiceDollar} />
-          </CardHeader>
-          <CardDescription className='text-xs text-gray-500'>
-            Útima Venda realizada no dia
-          </CardDescription>
-          <CardContent className='font-bold mt-2'>
+        <Card
+          className={`w-[31%] max-h-[80%] p-3 
+                      tablet-landscape:w-full tablet-landscape:flex tablet-landscape:items-center tablet-landscape:justify-evenly
+                      tablet-portrait:w-full tablet-portrait:flex tablet-portrait:items-center tablet-portrait:justify-evenly`}
+        >
+          <div className=''>
+            <CardHeader className='text-lg text-gray-600 p-0 flex-row items-center gap-x-3'>
+              Última Venda <FontAwesomeIcon icon={faFileInvoiceDollar} />
+            </CardHeader>
+            <CardDescription className='text-xs text-gray-500'>
+              Útima Venda realizada no dia
+            </CardDescription>
+          </div>
+          <CardContent
+            className={`font-bold mt-2 tablet-landscape:text-2xl tablet-landscape:mt-5`}
+          >
             {FormatToCurrency(String(lastSell.value.value[0].TOTAL))}
           </CardContent>
         </Card>
       </section>
-      <section className='flex flex-row w-full gap-x-4'>
-        <Card className='w-[60%] h-min p-3'>
+      <section
+        className={`flex flex-row w-full gap-x-4 tablet:flex-col tablet:gap-y-4`}
+      >
+        <Card
+          className={`w-[60%] h-min p-3 tablet:w-full tablet:flex tablet:flex-col tablet:items-center`}
+        >
           <CardHeader className='text-lg text-gray-600 p-0 flex-row items-center gap-x-3'>
             Gráfico de venda Mensal <FontAwesomeIcon icon={faDollarSign} />
           </CardHeader>
           <CardDescription className='text-xs text-gray-500'>
-            Gráfico de vendas do vendedor dos últimos 6 meses
+            Gráfico de vendas do vendedor dos últimos 30 dias
           </CardDescription>
 
-          <CardContent className='font-bold mt-2 p-0'>
+          <CardContent className='font-bold mt-2 p-0 w-full'>
             <LineChart series={singleSeries} categories={categories} />
           </CardContent>
           <CardFooter></CardFooter>
         </Card>
-        <Card className='w-[40%]  p-3  h-min'>
+        <Card
+          className={`w-[40%]  p-3  h-min tablet:w-full tablet:flex tablet:flex-col tablet:items-center`}
+        >
           <CardHeader className='text-lg text-gray-600 p-0 flex-row items-center gap-x-3'>
             Venda Mensal por Cliente
             <FontAwesomeIcon icon={faDollarSign} />

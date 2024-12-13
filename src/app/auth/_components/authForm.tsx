@@ -70,7 +70,11 @@ export function AuthForm() {
         className='mt-8'
       />
 
-      <Button className='w-full mt-8' type='submit' disabled={isPendding}>
+      <Button
+        className='w-full mt-8 tablet-portrait:h-14 tablet-portrait:text-2xl'
+        type='submit'
+        disabled={isPendding}
+      >
         <FontAwesomeIcon
           icon={isPendding ? faSpinner : faRightToBracket}
           spinPulse={isPendding}

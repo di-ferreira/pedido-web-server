@@ -24,11 +24,11 @@ export function DataTable<T>({
   IsLoading,
 }: iTableDataProps<T>) {
   return (
-    <table className='border-collapse border-none w-full table-fixed'>
+    <table className='border-collapse relative border-none w-full table-fixed'>
       <thead className='w-full table-fixed'>
         <TableHeader columns={columns} />
       </thead>
-      <tbody className='w-full relative table-fixed overflow-x-hidden overflow-y-auto max-sm:overflow-auto'>
+      <tbody className='w-full table-fixed overflow-x-hidden overflow-y-auto tablet:overflow-auto'>
         {IsLoading && (
           <div className='w-[calc(100vw-10%)] relative'>
             <Loading />
@@ -36,13 +36,13 @@ export function DataTable<T>({
         )}
 
         {ErrorMessage !== '' && !TableData && (
-          <div className='flex absolute w-[300px] top-5 left-[50%] translate-x-[-50%] items-center justify-center pl-14 pr-6'>
-            <p>{ErrorMessage}</p>
+          <div className='flex absolute w-[300px] top-[100%] left-[50%] translate-x-[-50%] items-center justify-center pl-14 pr-6'>
+            <p className='mt-5'>{ErrorMessage}</p>
           </div>
         )}
         {TableData && TableData.length === 0 && (
-          <div className='flex absolute w-[300px] top-5 left-[50%] translate-x-[-50%] items-center justify-center pl-14 pr-6'>
-            <p>Não há registros</p>
+          <div className='flex absolute w-[300px] top-[100%] left-[50%] translate-x-[-50%] items-center justify-center pl-14 pr-6'>
+            <p className='mt-5'>Não há registros</p>
           </div>
         )}
 

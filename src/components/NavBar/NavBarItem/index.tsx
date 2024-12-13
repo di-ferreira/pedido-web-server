@@ -20,7 +20,7 @@ const NavBarItem = ({ icon, link, text }: iNavItem) => {
       >
         <span
           className={
-            'flex items-center justify-center w-5 h-auto pr-1 ml-1 mr-[18px]'
+            'flex items-center justify-center w-5 h-auto pr-1 ml-1 mr-[18px] md:ml-2'
           }
         >
           <FontAwesomeIcon

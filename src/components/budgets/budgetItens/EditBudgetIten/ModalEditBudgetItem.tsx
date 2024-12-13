@@ -13,6 +13,7 @@ interface iModalEditBudgetItem {
   buttonIcon?: IconProp;
   buttonStyle?: string | undefined;
   iconStyle?: string | undefined;
+  titleButton?: string | undefined;
 }
 
 export const ModalEditBudgetItem = ({
@@ -22,12 +23,17 @@ export const ModalEditBudgetItem = ({
   modalTitle,
   buttonStyle,
   iconStyle,
+  titleButton = '',
 }: iModalEditBudgetItem) => {
   const { Modal, OnCloseModal, showModal } = useModal();
 
   return (
     <>
-      <Button className={cn(`gap-2`, buttonStyle)} onClick={() => showModal()}>
+      <Button
+        className={cn(`gap-2`, buttonStyle)}
+        onClick={() => showModal()}
+        title={titleButton}
+      >
         {buttonIcon && (
           <FontAwesomeIcon
             icon={buttonIcon}

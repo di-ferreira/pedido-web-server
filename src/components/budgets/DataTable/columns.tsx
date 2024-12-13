@@ -1,16 +1,22 @@
 'use client';
 import { iOrcamento } from '@/@types/Orcamento';
 import { iColumnType } from '@/@types/Table';
-import { faEdit, faFileLines } from '@fortawesome/free-solid-svg-icons';
+import {
+  faEdit,
+  faFileLines,
+  faFilePdf,
+} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import dayjs from 'dayjs';
 import Link from 'next/link';
+import { ModalEditBudgetItem } from '../budgetItens/EditBudgetIten/ModalEditBudgetItem';
+import { PdfViewer } from '../PdfViewer/PdfViewer';
 
 export const headers: iColumnType<iOrcamento>[] = [
   {
     key: 'ORCAMENTO',
     title: 'ORCAMENTO',
-    width: '10%',
+    width: '150px',
   },
   {
     key: 'CLIENTE.NOME',
@@ -65,6 +71,15 @@ export const headers: iColumnType<iOrcamento>[] = [
             title='Editar'
           />
         </Link>
+        <ModalEditBudgetItem
+          modalTitle={`Orçamento ${item.ORCAMENTO}`}
+          buttonIcon={faFilePdf}
+          buttonStyle='bg-transparent hover:bg-transparent m-0 p-0'
+          iconStyle='text-emsoft_danger-dark hover:text-emsoft_danger-main'
+          titleButton='Gerar PDF'
+        >
+          <PdfViewer orc={item} />
+        </ModalEditBudgetItem>
       </span>
     ),
   },
