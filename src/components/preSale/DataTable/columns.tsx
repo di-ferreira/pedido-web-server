@@ -1,10 +1,7 @@
 'use client';
 import { iMovimento } from '@/@types/PreVenda';
 import { iColumnType } from '@/@types/Table';
-import { faFileLines } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import dayjs from 'dayjs';
-import Link from 'next/link';
 
 export const headers: iColumnType<iMovimento>[] = [
   {

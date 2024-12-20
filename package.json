@@ -2,9 +2,11 @@
   "name": "pedido-web-server",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "analyze": "ANALYZE=true next build",
     "start": "next start",
     "lint": "next lint",
     "format": "dprint fmt"
@@ -50,6 +52,7 @@
     "zustand": "^4.5.5"
   },
   "devDependencies": {
+    "@next/bundle-analyzer": "^15.1.2",
     "@types/axios": "^0.14.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/js-cookie": "^3.0.6",

@@ -1,11 +1,11 @@
-'use client';
-import { StyleSheet } from '@react-pdf/renderer';
-
-export const styles = StyleSheet.create({
+export const styles = {
   page: {
     flexDirection: 'column',
-    marginHorizontal: 25,
-    marginVertical: 20,
+    marginLeft: 25,
+    marginRight: 25,
+    marginTop: 20,
+    marginBottom: 20,
+    fontFamily: 'Montserrat',
   },
   default: {
     width: '90%',
@@ -103,5 +103,5 @@ export const styles = StyleSheet.create({
     fontSize: '14px',
     padding: 5,
   },
-});
+};
 

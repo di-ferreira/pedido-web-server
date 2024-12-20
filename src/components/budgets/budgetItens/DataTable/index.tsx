@@ -13,14 +13,14 @@ import { toast } from '@/components/ui/use-toast';
 import {
   faEdit,
   faFileInvoiceDollar,
-  faFileLines,
+  faFilePdf,
   faPlusCircle,
   faTrashAlt,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Link from 'next/link';
 import { Suspense, useCallback, useState } from 'react';
-import { PdfViewer } from '../../PdfViewer/PdfViewer';
+import GeneratePDF from '../../PdfViewer/PdfButton';
 import FormEdit from '../EditBudgetIten/FormEdit';
 import { ModalEditBudgetItem } from '../EditBudgetIten/ModalEditBudgetItem';
 
@@ -220,9 +220,11 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
         <ModalEditBudgetItem
           modalTitle={`Orçamento ${data.ORCAMENTO}`}
           buttonText={'Gerar PDF'}
-          buttonIcon={faFileLines}
+          buttonIcon={faFilePdf}
         >
-          <PdfViewer orc={data} />
+          <div className='w-full h-full'>
+            <GeneratePDF orc={data} />
+          </div>
         </ModalEditBudgetItem>
         <Button>
           <Link href={`/app/pre-sales/${data.ORCAMENTO}`}>

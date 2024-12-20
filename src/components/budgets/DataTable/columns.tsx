@@ -10,7 +10,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import dayjs from 'dayjs';
 import Link from 'next/link';
 import { ModalEditBudgetItem } from '../budgetItens/EditBudgetIten/ModalEditBudgetItem';
-import { PdfViewer } from '../PdfViewer/PdfViewer';
+import GeneratePDF from '../PdfViewer/PdfButton';
 
 export const headers: iColumnType<iOrcamento>[] = [
   {
@@ -78,7 +78,9 @@ export const headers: iColumnType<iOrcamento>[] = [
           iconStyle='text-emsoft_danger-dark hover:text-emsoft_danger-main'
           titleButton='Gerar PDF'
         >
-          <PdfViewer orc={item} />
+          <div className='w-full h-full'>
+            <GeneratePDF orc={item} />
+          </div>
         </ModalEditBudgetItem>
       </span>
     ),
