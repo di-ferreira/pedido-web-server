@@ -445,16 +445,6 @@ const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
           />
         </div>
       </div>
-      <div
-        className={`flex flex-col w-full h-[150px] overflow-x-hidden overflow-y-auto`}
-      >
-        <DataTable
-          columns={tableSimilaresHeaders}
-          IsLoading={false}
-          TableData={Similares}
-          ErrorMessage='Nenhum Similar encontrado'
-        />
-      </div>
       <div className={`flex items-end pt-4 gap-x-4`}>
         <div className={`flex w-[10%]`}>
           <Input
@@ -539,6 +529,16 @@ const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
             disabled
           />
         </div>
+      </div>
+      <div
+        className={`flex flex-col w-full h-[150px] overflow-x-hidden overflow-y-auto`}
+      >
+        <DataTable
+          columns={tableSimilaresHeaders}
+          IsLoading={false}
+          TableData={Similares}
+          ErrorMessage='Nenhum Similar encontrado'
+        />
       </div>
       <footer className='flex gap-x-2'>
         <div className='w-fit'>
