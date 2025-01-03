@@ -4,16 +4,14 @@ import { StyleSheet } from '@react-pdf/renderer';
 export const styles = StyleSheet.create({
   page: {
     flexDirection: 'column',
-    marginHorizontal: 25,
-    marginVertical: 20,
-  },
-  default: {
-    width: '90%',
-    height: '95%',
-    fontWeight: 'medium',
+    paddingTop: 35,
+    paddingBottom: 35,
     color: '#111',
     border: '1px solid #000',
-    position: 'relative',
+    fontWeight: 'medium',
+  },
+  default: {
+    width: '100%',
   },
   logo: {
     width: '130px',
@@ -23,6 +21,8 @@ export const styles = StyleSheet.create({
     marginLeft: '5px',
   },
   header: {
+    marginLeft: 20,
+    marginRight: 20,
     columnGap: '15px',
     flexDirection: 'row',
     fontSize: '12px',
@@ -59,14 +59,20 @@ export const styles = StyleSheet.create({
     display: 'flex',
     width: 'auto',
   },
+  tableBody: {
+    height: '90%',
+  },
   tableRow: {
     flexDirection: 'row',
     borderBottom: 'solid 1px #000',
     maxHeight: '35px',
     overflow: 'hidden',
+    marginLeft: 20,
+    marginRight: 20,
+    fontSize: 12,
   },
   tableColProd: {
-    width: '25%',
+    width: '15%',
     padding: 5,
     textAlign: 'center',
   },
@@ -91,7 +97,8 @@ export const styles = StyleSheet.create({
     textAlign: 'right',
   },
   tableCell: {
-    fontSize: 12,
+    fontSize: 10,
+    textOverflow: 'ellipsis',
   },
   tableHeader: {
     backgroundColor: '#f0f0f0',
@@ -101,7 +108,18 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     fontSize: '14px',
+    marginLeft: 20,
+    marginRight: 20,
     padding: 5,
+  },
+  pageNumber: {
+    position: 'absolute',
+    fontSize: 12,
+    bottom: 15,
+    left: 0,
+    right: 0,
+    textAlign: 'center',
+    color: '#111',
   },
 });
 

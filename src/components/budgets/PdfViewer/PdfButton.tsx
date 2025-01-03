@@ -29,10 +29,10 @@ const GeneratePDF: React.FC<iGeneratePDF> = ({ orc }) => {
   const DataAtual = formatDate(new Date());
 
   return (
-    <main className='flex flex-col min-h-screen mx-6 my-5 font-montserrat'>
+    <main className='flex flex-col min-h-[50%] h-full mx-6 my-5 font-montserrat'>
       <section
         ref={printRef}
-        className='w-full h-full font-medium text-gray-900 border-solid border-black'
+        className='w-full h-[85%] font-medium text-gray-900 border-solid border-black overflow-hidden'
       >
         {/* header  */}
         <header className='w-full'>
@@ -82,7 +82,7 @@ const GeneratePDF: React.FC<iGeneratePDF> = ({ orc }) => {
           ></div>
         </header>
         {/* body */}
-        <section className='w-full h-full min-h-[50vh] flex flex-col justify-between'>
+        <section className='w-full h-full min-h-[50vh] flex flex-col justify-between overflow-x-hidden overflow-y-auto'>
           {/* Tabela */}
           <div className='flex flex-grow flex-col w-auto'>
             {/* Cabeçalho da Tabela */}

@@ -193,7 +193,7 @@ export function TablePagination<T>({
                 disabled={PaginationOptions.CurrentPage === 1}
                 onClick={() => GoToPrevPage()}
               >
-                Previous
+                Anterior
               </Button>
               <Button
                 variant='outline'
@@ -201,7 +201,7 @@ export function TablePagination<T>({
                 disabled={PaginationOptions.CurrentPage === 1}
                 onClick={() => GoToFirstPage()}
               >
-                First
+                Primeiro
               </Button>
 
               <Button
@@ -212,7 +212,7 @@ export function TablePagination<T>({
                 }
                 onClick={() => GoToLastPage()}
               >
-                Last
+                Último
               </Button>
               <Button
                 variant='outline'
@@ -222,7 +222,7 @@ export function TablePagination<T>({
                 }
                 onClick={() => GoToNextPage()}
               >
-                Next
+                Próximo
               </Button>
             </div>
           </div>
