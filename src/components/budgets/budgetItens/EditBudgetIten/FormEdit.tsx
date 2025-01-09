@@ -178,37 +178,64 @@ const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
 
   async function findProduct() {
     setLoading(true);
-    SuperFindProducts({
-      filter: [{ key: 'PRODUTO', value: WordProducts }],
-    })
-      .then(async (products: ResponseType<iDataResultTable<iProduto>>) => {
-        if (products.value !== undefined) {
-          if (products.value.Qtd_Registros === 1) {
-            loadingProduct(products.value.value[0]);
-          } else {
-            setSerachedProducts((old) => (old = products.value!));
-            showModal();
-          }
-        }
+    const resultProduct = await GetProduct(WordProducts);
 
-        if (products.error !== undefined) {
+    if (resultProduct.value !== undefined) {
+      setBudgetItem(
+        (old) =>
+          (old = {
+            ...budgetItem,
+            PRODUTO: resultProduct.value,
+            VALOR: resultProduct.value.PRECO,
+            QTD: handleCalcQTD(
+              budgetItem.QTD,
+              resultProduct.value.MULTIPLO_COMPRA
+            ),
+            SUBTOTAL: budgetItem.VALOR * budgetItem.QTD,
+            TOTAL: budgetItem.VALOR * budgetItem.QTD,
+          })
+      );
+      setProductSelected(resultProduct.value);
+      setSimilares((old) => [...resultProduct.value.ListaSimilares]);
+      await getTablesFromProducts(resultProduct.value);
+      setWordProducts(resultProduct.value.PRODUTO);
+
+      inputQTDRef.current?.focus();
+    }
+
+    if (resultProduct.error !== undefined) {
+      SuperFindProducts({
+        filter: [{ key: 'PRODUTO', value: WordProducts }],
+      })
+        .then(async (products: ResponseType<iDataResultTable<iProduto>>) => {
+          if (products.value !== undefined) {
+            if (products.value.Qtd_Registros === 1) {
+              loadingProduct(products.value.value[0]);
+            } else {
+              setSerachedProducts((old) => (old = products.value!));
+              showModal();
+            }
+          }
+
+          if (products.error !== undefined) {
+            toast({
+              title: 'Error!',
+              description: `Erro: ${products.error.message}`,
+              variant: 'destructive',
+            });
+          }
+        })
+        .catch((e) => {
           toast({
             title: 'Error!',
-            description: `Erro: ${products.error.message}`,
+            description: `Erro: ${e.message}`,
             variant: 'destructive',
           });
-        }
-      })
-      .catch((e) => {
-        toast({
-          title: 'Error!',
-          description: `Erro: ${e.message}`,
-          variant: 'destructive',
+        })
+        .finally(() => {
+          setLoading(false);
         });
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+    }
   }
 
   const OnSearchProduto = (e: React.KeyboardEvent<HTMLInputElement>) => {
