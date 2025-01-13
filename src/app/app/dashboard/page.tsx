@@ -43,7 +43,7 @@ const Dashboard = async () => {
   singleSeries.data = [];
   categories = [];
 
-  dataTotalSell.value.map(
+  dataTotalSell.value?.map(
     (value: { TOTAL_MENSAL: number; MES: string; ANO: string }) => {
       singleSeries.data.push(value.TOTAL_MENSAL);
       categories.push(`${value.MES}/${value.ANO}`);

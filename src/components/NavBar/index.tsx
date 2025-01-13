@@ -26,7 +26,7 @@ const NavBar = () => {
                   ${open ? ' w-52 ' : ' w-14  '} 
                   h-screen  
                   bg-emsoft_blue-main
-                  border-t-4 border-r-2 border-emsoft_orange-main
+                  border-t-0 border-r-2 border-emsoft_orange-main
                   md:w-14 md:hover:w-52`}
       onMouseOver={() => setOpen((curr) => true)}
       onMouseOut={() => setOpen((curr) => false)}

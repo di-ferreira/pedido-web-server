@@ -12,7 +12,12 @@ interface iReqSuperBusca {
   PularRegistros?: number;
   QuantidadeRegistros?: number;
 }
-
+const SQL_NEW_PRICE_FROM_TABLE = `select 
+                                  E.PRODUTO,
+                                  E.PRECO, cast(E.PRECO * ((T.PERCENTUAL / 100) + 1) as numeric(10,2)) as NOVO_PRECO
+                                  from EST E
+                                  join TAB T on (T.TABELA = :TABELA)
+                                  where E.PRODUTO = :PRODUTO `;
 const SQL_MWM =
   "select TRIM(T.TABELA) AS TABELA, CAST((E.fab_bruto - ((E.fab_bruto*T.PERCENTUAL)/100)) AS NUMERIC(10,2)) AS NOVO_PRECO, T.bloqueada AS BLOQUEADO from tabela_mwm T, EST E WHERE E.PRODUTO=:PRODUTO AND TRIM(T.TABELA) <> '%%'";
 const SQL_NORMAL =
@@ -156,6 +161,55 @@ export async function TableFromProduct(
 
   return {
     value: newTables,
+    error: undefined,
+  };
+}
+
+export async function GetNewPriceFromTable(
+  product: iProduto,
+  table: string
+): Promise<ResponseType<number>> {
+  const tokenCookie = await getCookie('token');
+
+  const body: string = JSON.stringify({
+    pSQL: SQL_NEW_PRICE_FROM_TABLE,
+    pPar: [
+      {
+        ParamName: 'PRODUTO',
+        ParamType: 'ftString',
+        ParamValues: [product.PRODUTO],
+      },
+      {
+        ParamName: 'TABELA',
+        ParamType: 'ftString',
+        ParamValues: [table],
+      },
+    ],
+  });
+
+  const res = await CustomFetch<any>(`${ROUTE_SELECT_SQL}`, {
+    method: 'POST',
+    body: body,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `bearer ${tokenCookie}`,
+    },
+  });
+
+  if (res.status !== 200) {
+    return {
+      value: product.PRECO,
+      // error: {
+      //   code: String(res.status),
+      //   message: String(res.statusText),
+      // },
+      error: undefined,
+    };
+  }
+  console.log('res.body', res.body);
+
+  return {
+    value: res.body.Data[0].NOVO_PRECO,
     error: undefined,
   };
 }

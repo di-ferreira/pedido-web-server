@@ -1,10 +1,12 @@
 'use client';
 import { ResponseType } from '@/@types';
-import { iItensOrcamento } from '@/@types/Orcamento';
+import { iCliente } from '@/@types/Cliente';
+import { iItensOrcamento, iOrcamento } from '@/@types/Orcamento';
 import { iListaSimilare, iProduto, iTabelaVenda } from '@/@types/Produto';
 import { iColumnType, iDataResultTable } from '@/@types/Table';
-import { addItem, updateItem } from '@/app/actions/orcamento';
+import { addItem, GetOrcamento, updateItem } from '@/app/actions/orcamento';
 import {
+  GetNewPriceFromTable,
   GetProduct,
   SuperFindProducts,
   TableFromProduct,
@@ -13,13 +15,6 @@ import { DataTable } from '@/components/CustomDataTable';
 import SuperSearchProducts from '@/components/products/SuperSearchProduct';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/components/ui/use-toast';
 import useModal from '@/hooks/useModal';
@@ -61,6 +56,7 @@ const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
     ORCAMENTO: 0,
     PRODUTO: {} as iProduto,
   });
+  const [Budget, setBudget] = useState<iOrcamento>({} as iOrcamento);
   const [productSelected, setProductSelected] = useState<iProduto>(
     {} as iProduto
   );
@@ -153,6 +149,10 @@ const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
 
   async function loadingProduct(product: iProduto) {
     const prod = await GetProduct(product.PRODUTO);
+    const new_price = await GetNewPriceFromTable(
+      product,
+      Budget.CLIENTE.Tabela
+    );
 
     if (prod.value !== undefined) {
       setBudgetItem(
@@ -160,15 +160,15 @@ const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
           (old = {
             ...budgetItem,
             PRODUTO: prod.value,
-            VALOR: prod.value.PRECO,
+            VALOR: new_price.value!,
             QTD: handleCalcQTD(budgetItem.QTD, prod.value.MULTIPLO_COMPRA),
-            SUBTOTAL: budgetItem.VALOR * budgetItem.QTD,
-            TOTAL: budgetItem.VALOR * budgetItem.QTD,
+            SUBTOTAL: new_price.value! * budgetItem.QTD,
+            TOTAL: new_price.value! * budgetItem.QTD,
           })
       );
       setProductSelected(prod.value);
       setSimilares((old) => [...prod.value.ListaSimilares]);
-      await getTablesFromProducts(prod.value);
+      // await getTablesFromProducts(prod.value);
       setWordProducts(prod.value.PRODUTO);
 
       OnCloseModal();
@@ -181,26 +181,32 @@ const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
     const resultProduct = await GetProduct(WordProducts);
 
     if (resultProduct.value !== undefined) {
+      const new_price = await GetNewPriceFromTable(
+        resultProduct.value,
+        Budget.CLIENTE.Tabela
+      );
+
       setBudgetItem(
         (old) =>
           (old = {
             ...budgetItem,
             PRODUTO: resultProduct.value,
-            VALOR: resultProduct.value.PRECO,
+            VALOR: new_price.value!,
             QTD: handleCalcQTD(
               budgetItem.QTD,
               resultProduct.value.MULTIPLO_COMPRA
             ),
-            SUBTOTAL: budgetItem.VALOR * budgetItem.QTD,
-            TOTAL: budgetItem.VALOR * budgetItem.QTD,
+            SUBTOTAL: new_price.value! * budgetItem.QTD,
+            TOTAL: new_price.value! * budgetItem.QTD,
           })
       );
       setProductSelected(resultProduct.value);
       setSimilares((old) => [...resultProduct.value.ListaSimilares]);
-      await getTablesFromProducts(resultProduct.value);
+      // await getTablesFromProducts(resultProduct.value);
       setWordProducts(resultProduct.value.PRODUTO);
 
       inputQTDRef.current?.focus();
+      setLoading(false);
     }
 
     if (resultProduct.error !== undefined) {
@@ -251,43 +257,68 @@ const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
     return newQtd;
   };
 
-  function onChangeQTD(e: React.ChangeEvent<HTMLInputElement>) {
+  async function onChangeQTD(e: React.ChangeEvent<HTMLInputElement>) {
     let newQtd = Number(e.target.value);
     if (isNaN(newQtd)) newQtd = 1;
+
+    const new_price = await GetNewPriceFromTable(
+      productSelected,
+      Budget.CLIENTE.Tabela
+    );
 
     setBudgetItem((prevBudgetItem) => ({
       ...prevBudgetItem,
       QTD: handleCalcQTD(newQtd, productSelected.MULTIPLO_COMPRA),
-      SUBTOTAL: prevBudgetItem.VALOR * newQtd,
-      TOTAL: prevBudgetItem.VALOR * newQtd,
+      SUBTOTAL: new_price.value! * newQtd,
+      TOTAL: new_price.value! * newQtd,
     }));
   }
+  async function LoadItem(cliente: iCliente) {
+    if (item) {
+      const new_price = await GetNewPriceFromTable(
+        item.PRODUTO,
+        cliente.Tabela
+      );
+      setProductSelected(
+        (old) =>
+          (old = {
+            ...item.PRODUTO,
+          })
+      );
 
+      setBudgetItem(
+        (old) =>
+          (old = {
+            ...item,
+            PRODUTO: item.PRODUTO,
+            VALOR: new_price.value!,
+            QTD: item.QTD,
+            SUBTOTAL: item.SUBTOTAL,
+            TOTAL: item.TOTAL,
+          })
+      );
+      setWordProducts(item.PRODUTO.PRODUTO);
+    }
+  }
   useEffect(() => {
     return () => {
       inputProductRef.current?.focus();
-      if (item) {
-        getTablesFromProducts(item.PRODUTO).finally(() => {
-          setProductSelected(
-            (old) =>
-              (old = {
-                ...item.PRODUTO,
-              })
-          );
-          setBudgetItem(
-            (old) =>
-              (old = {
-                ...item,
-                PRODUTO: item.PRODUTO,
-                VALOR: item.PRODUTO.PRECO,
-                QTD: item.QTD,
-                SUBTOTAL: item.SUBTOTAL,
-                TOTAL: item.TOTAL,
-              })
-          );
-          setWordProducts(item.PRODUTO.PRODUTO);
+
+      GetOrcamento(budgetCode)
+        .then((res) => {
+          if (res.value !== undefined) {
+            setBudget(res.value!);
+            LoadItem(res.value!.CLIENTE);
+          }
+        })
+        .catch((err) => {
+          console.error('Erro ao carregar orcamento:', err);
+          toast({
+            title: 'Error!',
+            description: err.message,
+            variant: 'destructive',
+          });
         });
-      }
     };
   }, []);
 
@@ -504,7 +535,7 @@ const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
           />
         </div>
 
-        <div className={`flex w-[40%]`}>
+        {/* <div className={`flex w-[40%] z-[1000]`}>
           <Select
             defaultValue={budgetItem.TABELA}
             value={String(budgetItem.VALOR)}
@@ -518,7 +549,7 @@ const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
               }
             }}
           >
-            <SelectTrigger className='w-full mb-2 text-emsoft_dark-text'>
+            <SelectTrigger className='w-full mb-2 text-emsoft_dark-text z-[1000]'>
               {budgetItem.TABELA}
             </SelectTrigger>
             <SelectContent>
@@ -535,7 +566,8 @@ const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
               </SelectGroup>
             </SelectContent>
           </Select>
-        </div>
+        </div> */}
+
         <div className={`flex w-[20%]`}>
           <Input
             value={FormatToCurrency(budgetItem.VALOR.toString())}

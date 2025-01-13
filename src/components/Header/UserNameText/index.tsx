@@ -29,7 +29,7 @@ const UserNameText = () => {
   };
 
   return (
-    <div className='flex flex-1 items-center mr-4 justify-center'>
+    <div className='flex flex-1 items-center mr-4 justify-center text-emsoft_light-main font-bold'>
       <span>{vendedor.NOME}</span>
     </div>
   );
