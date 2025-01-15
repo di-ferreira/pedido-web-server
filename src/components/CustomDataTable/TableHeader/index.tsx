@@ -10,7 +10,7 @@ function TableHeader<T>({ columns }: iHeaderProps<T>) {
   return (
     <tr
       className={cn(
-        'relative table-fixed  w-screen h-8 tablet:overflow-x-auto tablet:overflow-y-hidden tablet:h-full'
+        'relative table-fixed  w-screen h-8 tablet:overflow-x-auto tablet:overflow-y-hidden tablet:h-full bg-white border-b-2 border-gray-400'
       )}
     >
       {columns.map((column, idx) => (

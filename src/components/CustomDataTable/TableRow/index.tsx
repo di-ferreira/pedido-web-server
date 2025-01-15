@@ -14,7 +14,7 @@ function TableRow<T>({ data, columns }: iTableRowProps<T>) {
         data.map((item, idx) => (
           <tr
             className={`relative table-fixed w-full  
-                       cursor-auto last:rounded-e odd:bg-gray-100 
+                       cursor-auto last:rounded-e even:bg-gray-50  odd:bg-gray-100 
                       text-emsoft_dark-text h-14`}
             key={`table-row-${idx}`}
           >

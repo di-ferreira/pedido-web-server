@@ -67,10 +67,10 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           required={required}
           className={cn(
             `flex h-10 w-full  rounded-md border border-input bg-background p-3 py-2 
-                        text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm
+                        text-sm text-black ring-offset-background file:border-0 file:bg-transparent file:text-sm
                         file:font-medium placeholder:text-muted-foreground focus-visible:outline-none
                         focus-visible:ring-1 focus-visible:ring-emsoft_blue-light focus:invalid:ring-destructive
-                        disabled:cursor-not-allowed disabled:opacity-50 placeholder:italic
+                        disabled:cursor-not-allowed  placeholder:italic
                         placeholder:text-slate-400 tablet-portrait:placeholder:text-xl`,
             icon && `pl-8 pr-3`,
             icon && labelText !== '' && `pl-10 pr-3`

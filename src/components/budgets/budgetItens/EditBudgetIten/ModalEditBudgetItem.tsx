@@ -45,7 +45,7 @@ export const ModalEditBudgetItem = ({
         {buttonText}
       </Button>
       {Modal && (
-        <Modal Title={modalTitle} containerStyle='w-[80%] h-[95%]'>
+        <Modal Title={modalTitle} containerStyle='w-[80%] h-[95%] bg-gray-200'>
           {children}
         </Modal>
       )}

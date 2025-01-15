@@ -2,14 +2,13 @@
 import { ResponseType } from '@/@types';
 import { iCliente } from '@/@types/Cliente';
 import { iItensOrcamento, iOrcamento } from '@/@types/Orcamento';
-import { iListaSimilare, iProduto, iTabelaVenda } from '@/@types/Produto';
+import { iListaSimilare, iProduto } from '@/@types/Produto';
 import { iColumnType, iDataResultTable } from '@/@types/Table';
 import { addItem, GetOrcamento, updateItem } from '@/app/actions/orcamento';
 import {
   GetNewPriceFromTable,
   GetProduct,
   SuperFindProducts,
-  TableFromProduct,
 } from '@/app/actions/produto';
 import { DataTable } from '@/components/CustomDataTable';
 import SuperSearchProducts from '@/components/products/SuperSearchProduct';
@@ -60,7 +59,6 @@ const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
   const [productSelected, setProductSelected] = useState<iProduto>(
     {} as iProduto
   );
-  const [Tables, setTables] = useState<iTabelaVenda[]>([]);
   const [Similares, setSimilares] = useState<iListaSimilare[]>([]);
   let [SerachedProducts, setSerachedProducts] = useState<
     iDataResultTable<iProduto>
@@ -128,23 +126,6 @@ const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
       });
     }
     if (CallBack) CallBack();
-  }
-
-  async function getTablesFromProducts(product: iProduto) {
-    const tablesResult: ResponseType<iTabelaVenda[]> = await TableFromProduct(
-      product
-    );
-
-    if (tablesResult.value !== undefined) {
-      setTables(tablesResult.value);
-      setBudgetItem({
-        ...budgetItem,
-        TABELA: tablesResult.value[0].TABELA,
-        VALOR: tablesResult.value[0].PRECO,
-        SUBTOTAL: tablesResult.value[0].PRECO * budgetItem.QTD,
-        TOTAL: tablesResult.value[0].PRECO * budgetItem.QTD,
-      });
-    }
   }
 
   async function loadingProduct(product: iProduto) {
@@ -384,7 +365,7 @@ const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
       onSubmit={saveItem}
       method='POST'
       className={`flex flex-col overflow-x-hidden overflow-y-auto gap-y-3 w-full
-                                                            h-full py-0 px-2`}
+                                                            h-full py-0 px-2 `}
     >
       <div
         className={`flex w-full h-[60vh] gap-3 overflow-x-hidden overflow-y-auto`}
