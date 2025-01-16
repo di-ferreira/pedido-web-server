@@ -199,14 +199,9 @@ export async function GetNewPriceFromTable(
   if (res.status !== 200) {
     return {
       value: product.PRECO,
-      // error: {
-      //   code: String(res.status),
-      //   message: String(res.statusText),
-      // },
       error: undefined,
     };
   }
-  console.log('res.body', res.body);
 
   return {
     value: res.body.Data[0].NOVO_PRECO,

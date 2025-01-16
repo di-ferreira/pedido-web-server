@@ -345,8 +345,6 @@ export async function GetClientesPgtoEmAberto() {
     }
   );
 
-  console.log('response', response);
-
   if (response.status !== 200) {
     return {
       value: undefined,

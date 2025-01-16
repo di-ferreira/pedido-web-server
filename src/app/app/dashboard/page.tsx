@@ -41,8 +41,6 @@ const Dashboard = async () => {
     return <h1>Erro ao carregar dados</h1>;
   }
 
-  console.log('clientes em debito', customerListDebit.value);
-
   const listaVendas: VendaDashboard[] = Vendas.value;
   singleSeries.data = [];
   categories = [];
