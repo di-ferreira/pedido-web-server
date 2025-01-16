@@ -1,3 +1,4 @@
+import { GetClientesPgtoEmAberto } from '@/app/actions/cliente';
 import {
   getDataTotalVenda,
   getLastVenda,
@@ -28,6 +29,7 @@ const Dashboard = async () => {
   const Vendas = await getVendasDashboard();
   const lastSell = await getLastVenda();
   const dataTotalSell = await getDataTotalVenda();
+  const customerListDebit = await GetClientesPgtoEmAberto();
   let singleSeries = { name: 'Vendas', data: [10, 41, 35, 51, 49, 62, 69] };
   let categories = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'];
 
@@ -38,6 +40,8 @@ const Dashboard = async () => {
   ) {
     return <h1>Erro ao carregar dados</h1>;
   }
+
+  console.log('clientes em debito', customerListDebit.value);
 
   const listaVendas: VendaDashboard[] = Vendas.value;
   singleSeries.data = [];
@@ -51,7 +55,7 @@ const Dashboard = async () => {
   );
 
   return (
-    <SessionWrapper classname={`p-4 tablet:gap-y-4`}>
+    <SessionWrapper classname={`p-4 gap-y-4`}>
       <section
         className={`flex flex-row w-full gap-x-4 tablet:flex-col tablet:gap-y-4`}
       >
@@ -123,10 +127,10 @@ const Dashboard = async () => {
         </Card>
       </section>
       <section
-        className={`flex flex-row w-full gap-x-4 tablet:flex-col tablet:gap-y-4`}
+        className={`flex flex-row w-full gap-x-4 tablet:flex-col tablet:gap-y-4 mt-[-1.5rem]`}
       >
         <Card
-          className={`w-[60%] h-min p-3 tablet:w-full tablet:flex tablet:flex-col tablet:items-center`}
+          className={`w-[59%] h-min p-3 tablet:w-full tablet:flex tablet:flex-col tablet:items-center`}
         >
           <CardHeader className='text-lg text-gray-600 p-0 flex-row items-center gap-x-3'>
             Gráfico de venda Mensal <FontAwesomeIcon icon={faDollarSign} />
@@ -141,7 +145,7 @@ const Dashboard = async () => {
           <CardFooter></CardFooter>
         </Card>
         <Card
-          className={`w-[40%]  p-3  h-min tablet:w-full tablet:flex tablet:flex-col tablet:items-center`}
+          className={`w-[39%]  p-3  h-min tablet:w-full tablet:flex tablet:flex-col tablet:items-center`}
         >
           <CardHeader className='text-lg text-gray-600 p-0 flex-row items-center gap-x-3'>
             Venda Mensal por Cliente
@@ -163,6 +167,39 @@ const Dashboard = async () => {
                   </p>
                   <span className='flex items-end justify-end text-sm w-[40%] h-full overflow-hidden'>
                     {FormatToCurrency(String(v.TOTAL_VENDAS))}
+                  </span>
+                </div>
+              ))}
+          </CardContent>
+          <CardFooter></CardFooter>
+        </Card>
+      </section>
+      <section
+        className={`flex flex-row w-full gap-x-4 tablet:flex-col tablet:gap-y-4`}
+      >
+        <Card
+          className={`w-[99%] p-3 h-min tablet:flex tablet:flex-col tablet:items-center`}
+        >
+          <CardHeader className='text-lg text-gray-600 p-0 flex-row items-center gap-x-3'>
+            Clientes com boletos em aberto
+            <FontAwesomeIcon icon={faDollarSign} />
+          </CardHeader>
+          <CardDescription className='text-xs text-gray-500'>
+            Lista de clientes com boletos em aberto
+          </CardDescription>
+
+          <CardContent className='flex flex-col mt-2 p-2 gap-y-2 w-full h-full'>
+            {customerListDebit &&
+              customerListDebit.value?.map((v, idx) => (
+                <div
+                  key={idx}
+                  className='flex justify-around items-end gap-x-3 h-5 odd:bg-gray-100 even:bg-gray-200'
+                >
+                  <p className='text-ellipsis items-end text-sm w-[60%] h-full overflow-hidden'>
+                    {v.NOME_CLIENTE}
+                  </p>
+                  <span className='flex items-end justify-end text-sm w-[40%] h-full overflow-hidden'>
+                    {FormatToCurrency(String(v.VALOR))}
                   </span>
                 </div>
               ))}

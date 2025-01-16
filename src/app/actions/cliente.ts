@@ -7,6 +7,18 @@ import { iDataResultTable } from '@/@types/Table';
 import { CustomFetch } from '@/services/api';
 import dayjs from 'dayjs';
 import { getCookie } from '.';
+
+interface iCustomersDebit {
+  NOME_CLIENTE: string;
+  VALOR: number;
+}
+
+interface iCustomersDebitResponse {
+  StatusCode: number;
+  StatusMessage: string;
+  Data: iCustomersDebit[];
+}
+
 const ROUTE_CLIENTE = '/Clientes';
 const ROUTE_SELECT_SQL = '/ServiceSistema/SelectSQL';
 const SQL_PGTO_ATRAZO = `SELECT COUNT(R.REGISTRO) AS QTD, SUM(R.RESTA) AS VALOR
@@ -45,6 +57,22 @@ where R.CONTA in ('R', 'C') and
       R.CLIENTE = :CLIENTE and
       R.RESTA <> 0
 order by 1`;
+
+const SQL_CLIENTES_EM_ABERTO = `select
+    CL.nome as NOME_CLIENTE,
+    sum(R.RESTA) as VALOR
+from CTS R
+join CAR C on (C.CARTAO = R.TIPO)
+join CLI CL on (CL.cliente = R.cliente)
+where R.CONTA in ('R', 'C') and
+      (R.id_vendedor1 = :VENDEDOR or
+      R.id_vendedor2 = :VENDEDOR) and
+      R.RESTA > 0 and
+      R.VENCIMENTO < :DATA and
+      coalesce(C.FINANCEIRO_CLIENTE, 'N') = 'S' and
+      R.CANCELADO = 'N'   
+      group by NOME_CLIENTE
+      order by 2 desc`;
 
 async function CreateFilter(filter: iFilter<iCliente>): Promise<string> {
   const VendedorLocal: string = await getCookie('user');
@@ -281,6 +309,56 @@ export async function GetPGTOsEmAberto(cliente: number) {
 
   return {
     value: response.body,
+    error: undefined,
+  };
+}
+
+export async function GetClientesPgtoEmAberto() {
+  const tokenCookie = await getCookie('token');
+  const VendedorLocal: string = await getCookie('user');
+
+  const body: string = JSON.stringify({
+    pSQL: SQL_CLIENTES_EM_ABERTO,
+    pPar: [
+      {
+        ParamName: 'VENDEDOR',
+        ParamType: 'ftInteger',
+        ParamValues: [VendedorLocal],
+      },
+      {
+        ParamName: 'DATA',
+        ParamType: 'ftString',
+        ParamValues: [String(dayjs().format('YYYY-MM-DD'))],
+      },
+    ],
+  } as iSelectSQL);
+
+  const response = await CustomFetch<iCustomersDebitResponse>(
+    `${ROUTE_SELECT_SQL}`,
+    {
+      method: 'POST',
+      body: body,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `bearer ${tokenCookie}`,
+      },
+    }
+  );
+
+  console.log('response', response);
+
+  if (response.status !== 200) {
+    return {
+      value: undefined,
+      error: {
+        code: String(response.status),
+        message: String(response.statusText),
+      },
+    };
+  }
+
+  return {
+    value: response.body.Data,
     error: undefined,
   };
 }

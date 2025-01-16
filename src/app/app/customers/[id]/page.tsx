@@ -18,6 +18,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MaskCnpjCpf } from '@/lib/utils';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import dayjs from 'dayjs';
 import Link from 'next/link';
 import { RiMedalFill } from 'react-icons/ri';
 
@@ -343,7 +344,7 @@ const Customers = async ({ params }: iCustomerPage) => {
                   listaCreditos.map((lc, idx) => (
                     <TableRow key={idx}>
                       <TableCell className='font-medium'>
-                        {lc.VENCIMENTO}
+                        {dayjs(lc.VENCIMENTO).format('DD/MM/YYYY')}
                       </TableCell>
                       <TableCell>{lc.DOC}</TableCell>
                       <TableCell>{lc.HISTORICO}</TableCell>
@@ -373,7 +374,7 @@ const Customers = async ({ params }: iCustomerPage) => {
                   listaDebitos.map((lc, idx) => (
                     <TableRow key={idx}>
                       <TableCell className='font-medium'>
-                        {lc.VENCIMENTO}
+                        {dayjs(lc.VENCIMENTO).format('DD/MM/YYYY')}
                       </TableCell>
                       <TableCell>{lc.DOC}</TableCell>
                       <TableCell>{lc.HISTORICO}</TableCell>
@@ -403,7 +404,7 @@ const Customers = async ({ params }: iCustomerPage) => {
                   listaCreditos.map((lc, idx) => (
                     <TableRow key={idx}>
                       <TableCell className='font-medium'>
-                        {lc.VENCIMENTO}
+                        {dayjs(lc.VENCIMENTO).format('DD/MM/YYYY')}
                       </TableCell>
                       <TableCell>{lc.DOC}</TableCell>
                       <TableCell>{lc.HISTORICO}</TableCell>
