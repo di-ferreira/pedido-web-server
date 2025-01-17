@@ -1,5 +1,6 @@
 'use client';
 import {
+  faBoxArchive,
   faFileInvoiceDollar,
   faFileLines,
   faHomeAlt,
@@ -14,6 +15,7 @@ const NavBar = () => {
   const linkList: iNavItem[] = [
     { icon: faHomeAlt, link: '/app/dashboard', text: 'Dashboard' },
     { icon: faUsers, link: '/app/customers', text: 'Clientes' },
+    { icon: faBoxArchive, link: '/app/products', text: 'Produtos' },
     { icon: faFileLines, link: '/app/budgets', text: 'Orçamentos' },
     { icon: faFileInvoiceDollar, link: '/app/pre-sales', text: 'Pré-vendas' },
     { icon: faFileInvoiceDollar, link: '/app/sales', text: 'Vendas' },

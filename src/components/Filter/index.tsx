@@ -12,7 +12,7 @@ import {
 } from '../ui/select';
 
 interface FilterProps<T, K> {
-  options: { key: string; value: K }[];
+  options?: { key: string; value: K }[];
   onSearch: (params: iSearch<T>) => void;
   button?: boolean;
   input?: boolean;
@@ -29,8 +29,8 @@ function Filter<T, K>({
   input = true,
 }: FilterProps<T, K>) {
   const [FilterOptions, setFilterOptions] = useState<iFilterOptions<T, K>>({
-    value: options[0].value,
-    key: options[0].key,
+    value: options ? options[0].value : ('' as K),
+    key: options ? options[0].key : '',
   });
 
   const [SearchInput, setSearchInput] = useState<string>('');
