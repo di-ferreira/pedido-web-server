@@ -1,4 +1,4 @@
-import DataTableProducts from '@/components/Products/DataTable';
+import DataTableProducts from '@/components/products/DataTable';
 
 const Products = () => {
   return (
