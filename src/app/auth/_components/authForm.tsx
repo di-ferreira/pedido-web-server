@@ -1,5 +1,6 @@
 'use client';
 import { LoginUser } from '@/app/actions/user';
+import ToastNotify from '@/components/ToastNotify';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { generateHash } from '@/lib/utils';
@@ -13,8 +14,22 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { Flip, toast } from 'react-toastify';
 
 export function AuthForm() {
+  const notify = (message: string) => {
+    toast(message, {
+      position: 'bottom-right',
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: false,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: 'colored',
+      transition: Flip,
+    });
+  };
   const router = useRouter();
   const vendedorUser = useUser();
   const [isPendding, setIsPendding] = useState<boolean>(false);
@@ -37,7 +52,11 @@ export function AuthForm() {
     });
 
     if (login.value === undefined) {
-      setErrorMessage('Erro ao efetuar login:' + login.error?.message);
+      ToastNotify({
+        message: `Erro ao efetuar login: ${login.error?.message}`,
+        type: 'error',
+      });
+      // setErrorMessage('Erro ao efetuar login:' + login.error?.message);
     }
 
     if (login.value !== undefined) {
@@ -82,9 +101,9 @@ export function AuthForm() {
         />
         Login
       </Button>
-      <span className='text-red-700 w-full py-4 flex items-center justify-center'>
+      {/* <span className='text-red-700 w-full py-4 flex items-center justify-center'>
         {ErrorMessage}
-      </span>
+      </span> */}
     </form>
   );
 }

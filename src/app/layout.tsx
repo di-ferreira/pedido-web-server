@@ -1,6 +1,7 @@
 import { cn } from '@/lib/utils';
 import type { Metadata } from 'next';
 import { Open_Sans } from 'next/font/google';
+import { ToastContainer } from 'react-toastify';
 import './globals.css';
 const openSans = Open_Sans({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -25,6 +26,7 @@ export default function RootLayout({
         )}
       >
         {children}
+        <ToastContainer />
       </body>
     </html>
   );

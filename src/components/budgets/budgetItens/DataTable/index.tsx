@@ -209,7 +209,7 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
           className='w-[41%] h-7'
         />
       </div>
-      <div className='flex w-full items-center px-5 mt-4 gap-x-4 tablet-portrait:h-auto tablet-portrait:gap-y-6'>
+      <div className='flex w-full items-center px-5 mt-8 gap-x-4 tablet-portrait:h-auto tablet-portrait:gap-y-6'>
         <ModalEditBudgetItem
           modalTitle={'Novo Item'}
           buttonText={'Novo Item'}

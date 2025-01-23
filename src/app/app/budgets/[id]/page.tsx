@@ -100,7 +100,7 @@ const Budget = async ({ params }: iBudgetPage) => {
           />
         </div>
 
-        <div className='flex gap-4 w-full h-[70%] mt-[2%] tablet-portrait:h-[50%]'>
+        <div className='flex gap-4 w-full h-[80%] mt-[2%] tablet-portrait:h-[50%]'>
           <DataTableItensBudget orc={budget.value} />
         </div>
       </div>

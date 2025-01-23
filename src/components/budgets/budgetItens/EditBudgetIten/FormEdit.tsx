@@ -12,18 +12,14 @@ import {
 } from '@/app/actions/produto';
 import { DataTable } from '@/components/CustomDataTable';
 import SuperSearchProducts from '@/components/products/SuperSearchProduct';
+import ToastNotify from '@/components/ToastNotify';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/components/ui/use-toast';
 import useModal from '@/hooks/useModal';
 import { FormatToCurrency } from '@/lib/utils';
-import {
-  faPlus,
-  faSave,
-  faSearch,
-  faSpinner,
-} from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faSave } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import dayjs from 'dayjs';
 import React, { useEffect, useRef, useState } from 'react';
@@ -71,6 +67,7 @@ const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
   const formRef = useRef<HTMLFormElement>(null);
   const inputProductRef = useRef<HTMLInputElement>(null);
   const inputQTDRef = useRef<HTMLInputElement>(null);
+  const inputBtnSalvarRef = useRef<HTMLButtonElement>(null);
 
   async function saveItem(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -110,21 +107,19 @@ const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
     }
 
     if (response.value !== undefined) {
-    }
-
-    toast({
-      title: 'Sucesso!',
-      description: message,
-      variant: 'success',
-    });
-
-    if (response.error !== undefined) {
-      toast({
-        title: 'Error!',
-        description: 'Erro ao adicionar item',
-        variant: 'destructive',
+      ToastNotify({
+        message: message,
+        type: 'success',
       });
     }
+
+    if (response.error !== undefined) {
+      ToastNotify({
+        message: 'Erro ao adicionar item',
+        type: 'error',
+      });
+    }
+
     if (CallBack) CallBack();
   }
 
@@ -142,14 +137,13 @@ const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
             ...budgetItem,
             PRODUTO: prod.value,
             VALOR: new_price.value!,
-            QTD: handleCalcQTD(budgetItem.QTD, prod.value.MULTIPLO_COMPRA),
+            QTD: handleCalcQTD(budgetItem.QTD, prod.value),
             SUBTOTAL: new_price.value! * budgetItem.QTD,
             TOTAL: new_price.value! * budgetItem.QTD,
           })
       );
       setProductSelected(prod.value);
       setSimilares((old) => [...prod.value.ListaSimilares]);
-      // await getTablesFromProducts(prod.value);
       setWordProducts(prod.value.PRODUTO);
 
       OnCloseModal();
@@ -161,7 +155,11 @@ const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
     setLoading(true);
     const resultProduct = await GetProduct(WordProducts);
 
-    if (resultProduct.value !== undefined) {
+    if (
+      resultProduct.value !== undefined &&
+      resultProduct.value?.ATIVO !== 'N' &&
+      resultProduct.value?.VENDA !== 'N'
+    ) {
       const new_price = await GetNewPriceFromTable(
         resultProduct.value,
         Budget.CLIENTE.Tabela
@@ -173,24 +171,23 @@ const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
             ...budgetItem,
             PRODUTO: resultProduct.value,
             VALOR: new_price.value!,
-            QTD: handleCalcQTD(
-              budgetItem.QTD,
-              resultProduct.value.MULTIPLO_COMPRA
-            ),
+            QTD: handleCalcQTD(budgetItem.QTD, resultProduct.value),
             SUBTOTAL: new_price.value! * budgetItem.QTD,
             TOTAL: new_price.value! * budgetItem.QTD,
           })
       );
       setProductSelected(resultProduct.value);
       setSimilares((old) => [...resultProduct.value.ListaSimilares]);
-      // await getTablesFromProducts(resultProduct.value);
       setWordProducts(resultProduct.value.PRODUTO);
 
       inputQTDRef.current?.focus();
       setLoading(false);
     }
 
-    if (resultProduct.error !== undefined) {
+    if (
+      resultProduct.error !== undefined ||
+      (resultProduct.value?.ATIVO !== 'S' && resultProduct.value?.VENDA !== 'S')
+    ) {
       SuperFindProducts({
         filter: [{ key: 'PRODUTO', value: WordProducts }],
       })
@@ -220,6 +217,7 @@ const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
           });
         })
         .finally(() => {
+          inputQTDRef.current?.focus();
           setLoading(false);
         });
     }
@@ -232,8 +230,12 @@ const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
     }
   };
 
-  const handleCalcQTD = (qtd: number, multiplo: number): number => {
+  const handleCalcQTD = (qtd: number, product: iProduto): number => {
     let newQtd = 1;
+    let multiplo = product.MULTIPLO_COMPRA;
+
+    if (product.QTD_VENDA > 1) multiplo = product.QTD_VENDA;
+
     newQtd = Math.ceil(qtd / multiplo) * multiplo;
     return newQtd;
   };
@@ -249,7 +251,7 @@ const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
 
     setBudgetItem((prevBudgetItem) => ({
       ...prevBudgetItem,
-      QTD: handleCalcQTD(newQtd, productSelected.MULTIPLO_COMPRA),
+      QTD: handleCalcQTD(newQtd, productSelected),
       SUBTOTAL: new_price.value! * newQtd,
       TOTAL: new_price.value! * newQtd,
     }));
@@ -375,9 +377,11 @@ const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
             <div
               className={`flex w-[30%] gap-x-1 items-end tablet:w-[50%] tablet-portrait:w-[100%]`}
             >
-              <div className={`flex w-[85%]`}>
+              <div className={`flex w-[100%]`}>
                 <Input
-                  onChange={(e) => setWordProducts(e.target.value)}
+                  onChange={(e) =>
+                    setWordProducts(e.target.value.toUpperCase())
+                  }
                   value={WordProducts}
                   ref={inputProductRef}
                   name='ProdutoPalavras'
@@ -387,7 +391,7 @@ const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
                   disabled={item !== undefined}
                 />
               </div>
-              <div className={`flex w-[10%] mb-2`}>
+              {/* <div className={`flex w-[10%] mb-2`}>
                 <Button
                   type='button'
                   onClick={() => {
@@ -405,7 +409,7 @@ const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
                     className='text-white'
                   />
                 </Button>
-              </div>
+              </div> */}
             </div>
             <div
               className={`flex w-[25%] tablet:w-[47%] tablet-portrait:w-[100%]`}
@@ -506,6 +510,12 @@ const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
               }));
             }}
             onBlur={onChangeQTD}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                inputBtnSalvarRef.current?.focus();
+              }
+            }}
             value={budgetItem.QTD}
             ref={inputQTDRef}
             name='QTD'
@@ -515,39 +525,6 @@ const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
             className='text-right'
           />
         </div>
-
-        {/* <div className={`flex w-[40%] z-[1000]`}>
-          <Select
-            defaultValue={budgetItem.TABELA}
-            value={String(budgetItem.VALOR)}
-            onValueChange={(e: any) => {
-              const selectedTable = Tables.find((tb) => tb.TABELA === e);
-              if (selectedTable) {
-                setBudgetItem(
-                  (old) =>
-                    (old = { ...budgetItem, TABELA: selectedTable.TABELA })
-                );
-              }
-            }}
-          >
-            <SelectTrigger className='w-full mb-2 text-emsoft_dark-text z-[1000]'>
-              {budgetItem.TABELA}
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                {Tables.map((tb) => (
-                  <SelectItem
-                    key={tb.TABELA}
-                    value={String(tb.PRECO)}
-                    className='text-emsoft_dark-text'
-                  >
-                    {tb.TABELA}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        </div> */}
 
         <div className={`flex w-[20%]`}>
           <Input
@@ -586,6 +563,7 @@ const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
             type='submit'
             className={`flex w-fit h-[35px] p-3 gap-3`}
             title='Salvar produto'
+            ref={inputBtnSalvarRef}
           >
             <FontAwesomeIcon
               icon={faSave}
