@@ -165,6 +165,8 @@ const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
         Budget.CLIENTE.Tabela
       );
 
+      console.log('new price', new_price);
+
       setBudgetItem(
         (old) =>
           (old = {

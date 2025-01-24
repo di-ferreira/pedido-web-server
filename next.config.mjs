@@ -5,6 +5,11 @@ const nextConfig = withBundleAnalyzer({
     enabled: process.env.ANALYZE === 'true', // Ativa análise somente quando ANALYZE=true
 })({
     output: 'standalone', // Mantém a configuração de standalone
+    experimental: {
+        serverActions: {
+            bodySizeLimit: '5mb', // Limite de tamanho do corpo da requisição
+        }
+    }
 });
 
 export default nextConfig;
