@@ -84,7 +84,6 @@ export async function GetProduct(productCode: string) {
       },
     }
   );
-  console.log('product', res);
 
   if (res.status !== 200) {
     return {

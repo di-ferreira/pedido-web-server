@@ -27,11 +27,11 @@ import { tableChavesHeaders } from './columns';
 
 interface iFormEditItem {
   item?: iItensOrcamento;
-  budgetCode: number;
+  budget: iOrcamento;
   CallBack?: () => void;
 }
 
-const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
+const FormEdit = ({ item, budget, CallBack }: iFormEditItem) => {
   const { Modal, OnCloseModal, showModal } = useModal();
   const [budgetItem, setBudgetItem] = useState<iItensOrcamento>({
     QTD: 1,
@@ -51,7 +51,7 @@ const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
     ORCAMENTO: 0,
     PRODUTO: {} as iProduto,
   });
-  const [Budget, setBudget] = useState<iOrcamento>({} as iOrcamento);
+  const [Budget, setBudget] = useState<iOrcamento>(budget);
   const [productSelected, setProductSelected] = useState<iProduto>(
     {} as iProduto
   );
@@ -76,7 +76,7 @@ const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
 
     if (budgetItem.ORCAMENTO > 0) {
       response = await updateItem({
-        pIdOrcamento: budgetCode,
+        pIdOrcamento: budget.ORCAMENTO,
         pItemOrcamento: {
           CodigoProduto: WordProducts,
           Desconto: 0,
@@ -91,7 +91,7 @@ const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
       message = 'Item editado com sucesso';
     } else {
       response = await addItem({
-        pIdOrcamento: budgetCode,
+        pIdOrcamento: budget.ORCAMENTO,
         pItemOrcamento: {
           CodigoProduto: WordProducts,
           Desconto: 0,
@@ -125,6 +125,7 @@ const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
 
   async function loadingProduct(product: iProduto) {
     const prod = await GetProduct(product.PRODUTO);
+    console.log('tabela loadingProduto', Budget.CLIENTE.Tabela);
     const new_price = await GetNewPriceFromTable(
       product,
       Budget.CLIENTE.Tabela
@@ -153,6 +154,8 @@ const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
 
   async function findProduct() {
     setLoading(true);
+    console.log('tabela findProduct', budget.CLIENTE.Tabela);
+
     const resultProduct = await GetProduct(WordProducts);
 
     if (
@@ -162,10 +165,8 @@ const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
     ) {
       const new_price = await GetNewPriceFromTable(
         resultProduct.value,
-        Budget.CLIENTE.Tabela
+        budget.CLIENTE.Tabela
       );
-
-      console.log('new price', new_price);
 
       setBudgetItem(
         (old) =>
@@ -245,6 +246,7 @@ const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
   async function onChangeQTD(e: React.ChangeEvent<HTMLInputElement>) {
     let newQtd = Number(e.target.value);
     if (isNaN(newQtd)) newQtd = 1;
+    console.log('tabela onchange', Budget.CLIENTE.Tabela);
 
     const new_price = await GetNewPriceFromTable(
       productSelected,
@@ -260,6 +262,7 @@ const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
   }
   async function LoadItem(cliente: iCliente) {
     if (item) {
+      console.log('tabela load item', Budget.CLIENTE.Tabela);
       const new_price = await GetNewPriceFromTable(
         item.PRODUTO,
         cliente.Tabela
@@ -289,7 +292,8 @@ const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
     return () => {
       inputProductRef.current?.focus();
 
-      GetOrcamento(budgetCode)
+      console.log('tabela useEffect', budget.CLIENTE.Tabela);
+      GetOrcamento(budget.ORCAMENTO)
         .then((res) => {
           if (res.value !== undefined) {
             setBudget(res.value!);
@@ -298,11 +302,7 @@ const FormEdit = ({ item, budgetCode, CallBack }: iFormEditItem) => {
         })
         .catch((err) => {
           console.error('Erro ao carregar orcamento:', err);
-          toast({
-            title: 'Error!',
-            description: err.message,
-            variant: 'destructive',
-          });
+          ToastNotify({ message: err.message, type: 'error' });
         });
     };
   }, []);
