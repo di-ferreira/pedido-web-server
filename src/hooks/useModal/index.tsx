@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { iModal, iModalRender } from '../../@types/Modal';
 
@@ -78,38 +78,47 @@ const RenderLayout = ({
 const useModal = () => {
   const [isVisible, setIsVisible] = useState(false);
 
-  const OnClose = () => setIsVisible(false);
-  const Modal = ({
-    Title,
-    children,
-    OnCloseButtonClick,
-    bodyHeight,
-    bodyWidth,
-    containerStyle,
-  }: iModal) =>
-    ReactDOM.createPortal(
-      RenderLayout({
-        Title,
-        children,
-        OnClose,
-        OnCloseButtonClick,
-        bodyHeight,
-        bodyWidth,
-        containerStyle,
-      }),
-      document.body
-    );
+  const OnClose = () => {
+    console.log('close modal');
+    setIsVisible(false);
+  };
+  const Modal = useCallback(
+    ({
+      Title,
+      children,
+      OnCloseButtonClick,
+      bodyHeight,
+      bodyWidth,
+      containerStyle,
+    }: iModal) =>
+      ReactDOM.createPortal(
+        <RenderLayout
+          Title={Title}
+          OnClose={OnClose}
+          OnCloseButtonClick={OnCloseButtonClick}
+          bodyHeight={bodyHeight}
+          bodyWidth={bodyWidth}
+          containerStyle={containerStyle}
+        >
+          {children}
+        </RenderLayout>,
+        document.body
+      ),
+    [OnClose]
+  );
 
-  const ResultModal = useMemo(() => {
-    return isVisible ? Modal : null;
-  }, [isVisible]);
+  const ShowModal = useCallback(() => {
+    setIsVisible(true);
+  }, []);
 
-  const ShowModal = useCallback(() => setIsVisible(true), [isVisible]);
+  const OnCloseModal = useCallback(() => {
+    setIsVisible(false); // Atualiza o estado diretamente
+  }, []);
 
   return {
-    Modal: ResultModal,
-    showModal: () => ShowModal(),
-    OnCloseModal: OnClose,
+    Modal: isVisible ? Modal : null,
+    showModal: ShowModal,
+    OnCloseModal,
   };
 };
 

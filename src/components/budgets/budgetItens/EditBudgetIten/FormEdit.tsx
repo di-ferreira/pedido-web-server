@@ -90,6 +90,7 @@ const FormEdit = ({ item, budget, CallBack }: iFormEditItem) => {
           Total: budgetItem.TOTAL,
         },
       });
+      OnCloseModal();
       message = 'Item editado com sucesso';
     } else {
       response = await addItem({
@@ -105,6 +106,7 @@ const FormEdit = ({ item, budget, CallBack }: iFormEditItem) => {
           Total: budgetItem.TOTAL,
         },
       });
+      OnCloseModal();
       message = 'Item adicionado com sucesso';
     }
 
@@ -127,7 +129,6 @@ const FormEdit = ({ item, budget, CallBack }: iFormEditItem) => {
 
   async function loadingProduct(product: iProduto) {
     const prod = await GetProduct(product.PRODUTO);
-    console.log('tabela loadingProduto', Budget.CLIENTE.Tabela);
     const new_price = await GetNewPriceFromTable(
       product,
       Budget.CLIENTE.Tabela
@@ -149,14 +150,12 @@ const FormEdit = ({ item, budget, CallBack }: iFormEditItem) => {
       setSimilares((old) => [...prod.value.ListaSimilares]);
       setWordProducts(prod.value.PRODUTO);
 
-      OnCloseModal();
       inputQTDRef.current?.focus();
     }
   }
 
   async function findProduct() {
     setLoading(true);
-    console.log('tabela findProduct', budget.CLIENTE.Tabela);
 
     const resultProduct = await GetProduct(WordProducts);
 
@@ -583,15 +582,11 @@ const FormEdit = ({ item, budget, CallBack }: iFormEditItem) => {
             </Button>
           </div>
         </footer>
-        {Modal && (
-          <Modal Title={'BUSCAR PRODUTO'} containerStyle='w-[75%] h-[80%]'>
-            <SuperSearchProducts
-              words={WordProducts}
-              data={SerachedProducts}
-              CallBack={loadingProduct}
-            />
-          </Modal>
-        )}
+        <SuperSearchProducts
+          words={WordProducts}
+          data={SerachedProducts}
+          CallBack={loadingProduct}
+        />
       </form>
       {loading && <Loading />}
     </div>
