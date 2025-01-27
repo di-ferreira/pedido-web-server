@@ -7,6 +7,7 @@ import {
   UpdateOrcamento,
 } from '@/app/actions/orcamento';
 import { DataTable } from '@/components/CustomDataTable';
+import { Loading } from '@/components/Loading';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/components/ui/use-toast';
@@ -249,7 +250,7 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
 
       <div className='flex flex-col gap-4 w-full h-[70%] px-5 py-2 mt-5 border-t-2 border-emsoft_orange-main'>
         {loading ? (
-          <span>Carregando...</span>
+          <Loading />
         ) : (
           <Suspense fallback={<span>Carregando...</span>}>
             <DataTable
