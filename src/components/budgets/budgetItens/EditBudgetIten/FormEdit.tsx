@@ -64,6 +64,7 @@ const FormEdit = ({ item, budget, CallBack }: iFormEditItem) => {
     value: [],
   });
   const [WordProducts, setWordProducts] = useState<string>('');
+  const [QtdItem, setQtdItem] = useState<string>('1');
   const [loading, setLoading] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const inputProductRef = useRef<HTMLInputElement>(null);
@@ -264,7 +265,6 @@ const FormEdit = ({ item, budget, CallBack }: iFormEditItem) => {
 
   async function LoadItem(cliente: iCliente) {
     if (item) {
-      console.log('tabela load item', Budget.CLIENTE.Tabela);
       const new_price = await GetNewPriceFromTable(
         item.PRODUTO,
         cliente.Tabela
@@ -288,13 +288,14 @@ const FormEdit = ({ item, budget, CallBack }: iFormEditItem) => {
           })
       );
       setWordProducts(item.PRODUTO.PRODUTO);
+      setQtdItem(item.QTD.toString());
     }
   }
+
   useEffect(() => {
     return () => {
       inputProductRef.current?.focus();
 
-      console.log('tabela useEffect', budget.CLIENTE.Tabela);
       GetOrcamento(budget.ORCAMENTO)
         .then((res) => {
           if (res.value !== undefined) {
@@ -507,7 +508,10 @@ const FormEdit = ({ item, budget, CallBack }: iFormEditItem) => {
           <div className={`flex w-[10%]`}>
             <Input
               onChange={(e) => {
-                let newQtd = Number(e.target.value);
+                let newQtdText = e.target.value;
+                let newQtd = Number(newQtdText);
+
+                setQtdItem(newQtdText);
 
                 setBudgetItem((prevBudgetItem) => ({
                   ...prevBudgetItem,
@@ -521,10 +525,9 @@ const FormEdit = ({ item, budget, CallBack }: iFormEditItem) => {
                   inputBtnSalvarRef.current?.focus();
                 }
               }}
-              value={budgetItem.QTD}
+              value={QtdItem}
               ref={inputQTDRef}
               name='QTD'
-              type='number'
               labelText='QTD'
               labelPosition='top'
               className='text-right'
