@@ -11,6 +11,7 @@ import {
   SuperFindProducts,
 } from '@/app/actions/produto';
 import { DataTable } from '@/components/CustomDataTable';
+import { Loading } from '@/components/Loading';
 import SuperSearchProducts from '@/components/products/SuperSearchProduct';
 import ToastNotify from '@/components/ToastNotify';
 import { Button } from '@/components/ui/button';
@@ -260,6 +261,7 @@ const FormEdit = ({ item, budget, CallBack }: iFormEditItem) => {
       TOTAL: new_price.value! * newQtd,
     }));
   }
+
   async function LoadItem(cliente: iCliente) {
     if (item) {
       console.log('tabela load item', Budget.CLIENTE.Tabela);
@@ -364,36 +366,37 @@ const FormEdit = ({ item, budget, CallBack }: iFormEditItem) => {
   ];
 
   return (
-    <form
-      ref={formRef}
-      onSubmit={saveItem}
-      method='POST'
-      className={`flex flex-col overflow-x-hidden overflow-y-auto gap-y-3 w-full
+    <div className='relative w-full h-full'>
+      <form
+        ref={formRef}
+        onSubmit={saveItem}
+        method='POST'
+        className={`flex flex-col overflow-x-hidden overflow-y-auto gap-y-3 w-full
                                                             h-full py-0 px-2 `}
-    >
-      <div
-        className={`flex w-full h-[60vh] gap-3 overflow-x-hidden overflow-y-auto`}
       >
-        <div className={`flex w-[70%] flex-col gap-y-3 tablet:w-[60%]`}>
-          <div className={`flex gap-x-3 px-3  tablet:flex-wrap`}>
-            <div
-              className={`flex w-[30%] gap-x-1 items-end tablet:w-[50%] tablet-portrait:w-[100%]`}
-            >
-              <div className={`flex w-[100%]`}>
-                <Input
-                  onChange={(e) =>
-                    setWordProducts(e.target.value.toUpperCase())
-                  }
-                  value={WordProducts}
-                  ref={inputProductRef}
-                  name='ProdutoPalavras'
-                  labelText='PRODUTO'
-                  labelPosition='top'
-                  onKeyDown={OnSearchProduto}
-                  disabled={item !== undefined}
-                />
-              </div>
-              {/* <div className={`flex w-[10%] mb-2`}>
+        <div
+          className={`flex w-full h-[60vh] gap-3 overflow-x-hidden overflow-y-auto`}
+        >
+          <div className={`flex w-[70%] flex-col gap-y-3 tablet:w-[60%]`}>
+            <div className={`flex gap-x-3 px-3  tablet:flex-wrap`}>
+              <div
+                className={`flex w-[30%] gap-x-1 items-end tablet:w-[50%] tablet-portrait:w-[100%]`}
+              >
+                <div className={`flex w-[100%]`}>
+                  <Input
+                    onChange={(e) =>
+                      setWordProducts(e.target.value.toUpperCase())
+                    }
+                    value={WordProducts}
+                    ref={inputProductRef}
+                    name='ProdutoPalavras'
+                    labelText='PRODUTO'
+                    labelPosition='top'
+                    onKeyDown={OnSearchProduto}
+                    disabled={item !== undefined}
+                  />
+                </div>
+                {/* <div className={`flex w-[10%] mb-2`}>
                 <Button
                   type='button'
                   onClick={() => {
@@ -412,181 +415,183 @@ const FormEdit = ({ item, budget, CallBack }: iFormEditItem) => {
                   />
                 </Button>
               </div> */}
+              </div>
+              <div
+                className={`flex w-[25%] tablet:w-[47%] tablet-portrait:w-[100%]`}
+              >
+                <Input
+                  disabled
+                  value={budgetItem.PRODUTO?.REFERENCIA}
+                  name='REFERÊNCIA'
+                  labelText='REFERÊNCIA'
+                  labelPosition='top'
+                />
+              </div>
+              <div
+                className={`flex w-[30%] tablet:w-[70%] tablet-portrait:w-[100%]`}
+              >
+                <Input
+                  disabled
+                  value={budgetItem.PRODUTO?.FABRICANTE?.NOME}
+                  name='FABRICANTE'
+                  labelText='FABRICANTE'
+                  labelPosition='top'
+                />
+              </div>
+              <div
+                className={`flex w-[15%] tablet:w-[27%] tablet-portrait:w-[100%]`}
+              >
+                <Input
+                  disabled
+                  value={budgetItem.PRODUTO?.LOCAL?.toLocaleUpperCase()}
+                  name='LOCALIZAÇÃO'
+                  labelText='LOCALIZAÇÃO'
+                  labelPosition='top'
+                />
+              </div>
             </div>
-            <div
-              className={`flex w-[25%] tablet:w-[47%] tablet-portrait:w-[100%]`}
-            >
-              <Input
-                disabled
-                value={budgetItem.PRODUTO?.REFERENCIA}
-                name='REFERÊNCIA'
-                labelText='REFERÊNCIA'
-                labelPosition='top'
-              />
-            </div>
-            <div
-              className={`flex w-[30%] tablet:w-[70%] tablet-portrait:w-[100%]`}
-            >
-              <Input
-                disabled
-                value={budgetItem.PRODUTO?.FABRICANTE?.NOME}
-                name='FABRICANTE'
-                labelText='FABRICANTE'
-                labelPosition='top'
-              />
-            </div>
-            <div
-              className={`flex w-[15%] tablet:w-[27%] tablet-portrait:w-[100%]`}
-            >
-              <Input
-                disabled
-                value={budgetItem.PRODUTO?.LOCAL?.toLocaleUpperCase()}
-                name='LOCALIZAÇÃO'
-                labelText='LOCALIZAÇÃO'
-                labelPosition='top'
-              />
+            <div className={`flex flex-col gap-y-3 px-3`}>
+              <div className={`flex grow`}>
+                <Input
+                  disabled
+                  value={budgetItem.PRODUTO?.NOME}
+                  name='NOME DO PRODUTO'
+                  labelText='NOME DO PRODUTO'
+                  labelPosition='top'
+                />
+              </div>
+              <div>
+                <Textarea
+                  rows={6}
+                  labelText='APLICAÇÃO PRODUTO'
+                  labelPosition='top'
+                  disabled
+                  name='APLICACAO'
+                  className='resize-none'
+                  value={budgetItem.PRODUTO?.APLICACOES}
+                />
+              </div>
+              <div>
+                <Textarea
+                  rows={6}
+                  labelPosition='top'
+                  labelText='INFORMACOES'
+                  disabled
+                  name='INFORMACOES.PRODUTO'
+                  className='resize-none'
+                  value={budgetItem.PRODUTO?.INSTRUCOES?.toString()}
+                />
+              </div>
             </div>
           </div>
-          <div className={`flex flex-col gap-y-3 px-3`}>
-            <div className={`flex grow`}>
-              <Input
-                disabled
-                value={budgetItem.PRODUTO?.NOME}
-                name='NOME DO PRODUTO'
-                labelText='NOME DO PRODUTO'
-                labelPosition='top'
-              />
-            </div>
-            <div>
-              <Textarea
-                rows={6}
-                labelText='APLICAÇÃO PRODUTO'
-                labelPosition='top'
-                disabled
-                name='APLICACAO'
-                className='resize-none'
-                value={budgetItem.PRODUTO?.APLICACOES}
-              />
-            </div>
-            <div>
-              <Textarea
-                rows={6}
-                labelPosition='top'
-                labelText='INFORMACOES'
-                disabled
-                name='INFORMACOES.PRODUTO'
-                className='resize-none'
-                value={budgetItem.PRODUTO?.INSTRUCOES?.toString()}
-              />
-            </div>
-          </div>
-        </div>
-        <div className={`flex flex-col w-[30%] tablet:w-[40%]`}>
-          <DataTable
-            columns={tableChavesHeaders}
-            IsLoading={false}
-            TableData={budgetItem.PRODUTO.ListaChaves}
-            ErrorMessage='Nenhuma Chave encontrada'
-          />
-        </div>
-      </div>
-      <div className={`flex items-end pt-4 gap-x-4`}>
-        <div className={`flex w-[10%]`}>
-          <Input
-            disabled
-            value={budgetItem.PRODUTO?.QTDATUAL}
-            name='ESTOQUE'
-            type='number'
-            labelText='ESTOQUE'
-            labelPosition='top'
-          />
-        </div>
-        <div className={`flex w-[10%]`}>
-          <Input
-            onChange={(e) => {
-              let newQtd = Number(e.target.value);
-
-              setBudgetItem((prevBudgetItem) => ({
-                ...prevBudgetItem,
-                QTD: newQtd,
-              }));
-            }}
-            onBlur={onChangeQTD}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                inputBtnSalvarRef.current?.focus();
-              }
-            }}
-            value={budgetItem.QTD}
-            ref={inputQTDRef}
-            name='QTD'
-            type='number'
-            labelText='QTD'
-            labelPosition='top'
-            className='text-right'
-          />
-        </div>
-
-        <div className={`flex w-[20%]`}>
-          <Input
-            value={FormatToCurrency(budgetItem.VALOR.toString())}
-            name='VALOR (R$)'
-            labelText='VALOR'
-            labelPosition='top'
-            className='text-right'
-            disabled
-          />
-        </div>
-        <div className={`flex w-[20%]`}>
-          <Input
-            value={FormatToCurrency(budgetItem.TOTAL.toString())}
-            name='TOTAL'
-            labelText='TOTAL'
-            labelPosition='top'
-            className='text-right'
-            disabled
-          />
-        </div>
-      </div>
-      <div
-        className={`flex flex-col w-full h-[150px] overflow-x-hidden overflow-y-auto`}
-      >
-        <DataTable
-          columns={tableSimilaresHeaders}
-          IsLoading={false}
-          TableData={Similares}
-          ErrorMessage='Nenhum Similar encontrado'
-        />
-      </div>
-      <footer className='flex gap-x-2'>
-        <div className='w-fit'>
-          <Button
-            type='submit'
-            className={`flex w-fit h-[35px] p-3 gap-3`}
-            title='Salvar produto'
-            ref={inputBtnSalvarRef}
-          >
-            <FontAwesomeIcon
-              icon={faSave}
-              size='xl'
-              title='SALVAR'
-              className='text-white'
+          <div className={`flex flex-col w-[30%] tablet:w-[40%]`}>
+            <DataTable
+              columns={tableChavesHeaders}
+              IsLoading={false}
+              TableData={budgetItem.PRODUTO.ListaChaves}
+              ErrorMessage='Nenhuma Chave encontrada'
             />
-            SALVAR
-          </Button>
+          </div>
         </div>
-      </footer>
-      {Modal && (
-        <Modal Title={'BUSCAR PRODUTO'} containerStyle='w-[75%] h-[80%]'>
-          <SuperSearchProducts
-            words={WordProducts}
-            data={SerachedProducts}
-            CallBack={loadingProduct}
+        <div className={`flex items-end pt-4 gap-x-4`}>
+          <div className={`flex w-[10%]`}>
+            <Input
+              disabled
+              value={budgetItem.PRODUTO?.QTDATUAL}
+              name='ESTOQUE'
+              type='number'
+              labelText='ESTOQUE'
+              labelPosition='top'
+            />
+          </div>
+          <div className={`flex w-[10%]`}>
+            <Input
+              onChange={(e) => {
+                let newQtd = Number(e.target.value);
+
+                setBudgetItem((prevBudgetItem) => ({
+                  ...prevBudgetItem,
+                  QTD: newQtd,
+                }));
+              }}
+              onBlur={onChangeQTD}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  inputBtnSalvarRef.current?.focus();
+                }
+              }}
+              value={budgetItem.QTD}
+              ref={inputQTDRef}
+              name='QTD'
+              type='number'
+              labelText='QTD'
+              labelPosition='top'
+              className='text-right'
+            />
+          </div>
+
+          <div className={`flex w-[20%]`}>
+            <Input
+              value={FormatToCurrency(budgetItem.VALOR.toString())}
+              name='VALOR (R$)'
+              labelText='VALOR'
+              labelPosition='top'
+              className='text-right'
+              disabled
+            />
+          </div>
+          <div className={`flex w-[20%]`}>
+            <Input
+              value={FormatToCurrency(budgetItem.TOTAL.toString())}
+              name='TOTAL'
+              labelText='TOTAL'
+              labelPosition='top'
+              className='text-right'
+              disabled
+            />
+          </div>
+        </div>
+        <div
+          className={`flex flex-col w-full h-[150px] overflow-x-hidden overflow-y-auto`}
+        >
+          <DataTable
+            columns={tableSimilaresHeaders}
+            IsLoading={false}
+            TableData={Similares}
+            ErrorMessage='Nenhum Similar encontrado'
           />
-        </Modal>
-      )}
-    </form>
+        </div>
+        <footer className='flex gap-x-2'>
+          <div className='w-fit'>
+            <Button
+              type='submit'
+              className={`flex w-fit h-[35px] p-3 gap-3`}
+              title='Salvar produto'
+              ref={inputBtnSalvarRef}
+            >
+              <FontAwesomeIcon
+                icon={faSave}
+                size='xl'
+                title='SALVAR'
+                className='text-white'
+              />
+              SALVAR
+            </Button>
+          </div>
+        </footer>
+        {Modal && (
+          <Modal Title={'BUSCAR PRODUTO'} containerStyle='w-[75%] h-[80%]'>
+            <SuperSearchProducts
+              words={WordProducts}
+              data={SerachedProducts}
+              CallBack={loadingProduct}
+            />
+          </Modal>
+        )}
+      </form>
+      {loading && <Loading />}
+    </div>
   );
 };
 
