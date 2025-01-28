@@ -79,7 +79,6 @@ const useModal = () => {
   const [isVisible, setIsVisible] = useState(false);
 
   const OnClose = () => {
-    console.log('close modal');
     setIsVisible(false);
   };
   const Modal = useCallback(

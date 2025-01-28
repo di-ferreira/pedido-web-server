@@ -39,12 +39,6 @@ function DataTableProducts() {
   const handleProductSearch = (filter: iSearch<iProduto>) => {
     setLoading(true);
     setWordProducts(filter.value);
-    console.log('handleProductSearch', {
-      top: 15,
-      skip: 0,
-      orderBy: 'PRODUTO',
-      filter: MountQueryFilter(filter),
-    });
 
     SuperFindProducts({
       top: 15,
@@ -70,13 +64,6 @@ function DataTableProducts() {
 
   const handleProduct = (filter: iFilter<iProduto>) => {
     setLoading(true);
-    console.log('filter', {
-      top: filter.top,
-      skip: filter.skip,
-      orderBy: 'PRODUTO',
-      filter: [{ key: 'PRODUTO', value: WordProducts }],
-    });
-    console.log('filter 2', filter);
 
     SuperFindProducts({
       top: filter.top,
