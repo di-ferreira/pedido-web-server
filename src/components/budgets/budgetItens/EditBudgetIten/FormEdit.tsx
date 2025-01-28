@@ -247,7 +247,6 @@ const FormEdit = ({ item, budget, CallBack }: iFormEditItem) => {
   async function onChangeQTD(e: React.ChangeEvent<HTMLInputElement>) {
     let newQtd = Number(e.target.value);
     if (isNaN(newQtd)) newQtd = 1;
-    console.log('tabela onchange', Budget.CLIENTE.Tabela);
 
     const new_price = await GetNewPriceFromTable(
       productSelected,
