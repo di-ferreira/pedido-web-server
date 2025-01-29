@@ -186,9 +186,7 @@ const FormEdit = ({ item, budget, CallBack }: iFormEditItem) => {
 
       inputQTDRef.current?.focus();
       setLoading(false);
-    }
-
-    if (
+    } else if (
       resultProduct.error !== undefined ||
       (resultProduct.value?.ATIVO !== 'S' && resultProduct.value?.VENDA !== 'S')
     ) {
@@ -206,10 +204,9 @@ const FormEdit = ({ item, budget, CallBack }: iFormEditItem) => {
           }
 
           if (products.error !== undefined) {
-            toast({
-              title: 'Error!',
-              description: `Erro: ${products.error.message}`,
-              variant: 'destructive',
+            ToastNotify({
+              message: `Erro: ${products.error.message}`,
+              type: 'error',
             });
           }
         })
@@ -224,6 +221,13 @@ const FormEdit = ({ item, budget, CallBack }: iFormEditItem) => {
           inputQTDRef.current?.focus();
           setLoading(false);
         });
+    } else {
+      ToastNotify({
+        message: `Erro: Produto não disponível para venda`,
+        type: 'error',
+      });
+
+      setLoading(false);
     }
   }
 
@@ -247,6 +251,9 @@ const FormEdit = ({ item, budget, CallBack }: iFormEditItem) => {
   async function onChangeQTD(e: React.ChangeEvent<HTMLInputElement>) {
     let newQtd = Number(e.target.value);
     if (isNaN(newQtd)) newQtd = 1;
+    const finalQtd = handleCalcQTD(newQtd, productSelected);
+
+    setQtdItem(finalQtd.toString());
 
     const new_price = await GetNewPriceFromTable(
       productSelected,
@@ -255,7 +262,7 @@ const FormEdit = ({ item, budget, CallBack }: iFormEditItem) => {
 
     setBudgetItem((prevBudgetItem) => ({
       ...prevBudgetItem,
-      QTD: handleCalcQTD(newQtd, productSelected),
+      QTD: finalQtd,
       SUBTOTAL: new_price.value! * newQtd,
       TOTAL: new_price.value! * newQtd,
     }));
