@@ -290,22 +290,30 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
   }
 
   useEffect(() => {
-    return () => {
-      inputProductRef.current?.focus();
+    // Foco no input ao abrir o modal
+    inputProductRef.current?.focus();
 
-      GetOrcamento(budget.ORCAMENTO)
-        .then((res) => {
-          if (res.value !== undefined) {
-            setBudget(res.value!);
-            LoadItem(res.value!.CLIENTE);
-          }
-        })
-        .catch((err) => {
-          console.error('Erro ao carregar orcamento:', err);
-          ToastNotify({ message: err.message, type: 'error' });
-        });
+    // Carrega o item quando o componente monta ou o 'item' prop muda
+    const loadData = async () => {
+      try {
+        const res = await GetOrcamento(budget.ORCAMENTO);
+        if (res.value) {
+          setBudget(res.value);
+          LoadItem(res.value.CLIENTE);
+        }
+      } catch (err: any) {
+        console.error('Erro ao carregar orçamento:', err);
+        ToastNotify({ message: err.message, type: 'error' });
+      }
     };
-  }, []);
+
+    loadData();
+
+    // Cleanup opcional se necessário
+    return () => {
+      // Código de limpeza aqui (se aplicável)
+    };
+  }, [budget.ORCAMENTO, item?.PRODUTO.PRODUTO]);
 
   const tableSimilaresHeaders: iColumnType<iListaSimilare>[] = [
     {

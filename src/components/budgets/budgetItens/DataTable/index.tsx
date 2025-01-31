@@ -114,6 +114,7 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
             }}
           />
           <ModalEditBudgetItem
+            key={item.ITEM}
             modalTitle={`Item Orçamento ${item.ORCAMENTO}`}
             buttonIcon={faEdit}
             iconStyle='cursor-pointer text-emsoft_orange-main hover:text-emsoft_orange-light'
