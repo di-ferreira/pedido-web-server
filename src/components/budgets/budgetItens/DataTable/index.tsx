@@ -8,9 +8,9 @@ import {
 } from '@/app/actions/orcamento';
 import { DataTable } from '@/components/CustomDataTable';
 import { Loading } from '@/components/Loading';
+import ToastNotify from '@/components/ToastNotify';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { toast } from '@/components/ui/use-toast';
 import {
   faEdit,
   faFileInvoiceDollar,
@@ -41,20 +41,18 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
           setData(res.value);
         }
         if (res.error !== undefined) {
-          toast({
-            title: `Error ${res.error.code}`,
-            description: res.error.message,
-            variant: 'destructive',
+          ToastNotify({
+            message: `Erro: ${res.error.message}`,
+            type: 'error',
           });
         }
         setLoading(false);
       })
       .catch((err) => {
         console.error('Erro ao carregar clientes:', err);
-        toast({
-          title: 'Error!',
-          description: err.message,
-          variant: 'destructive',
+        ToastNotify({
+          message: `Erro: ${err.message}`,
+          type: 'error',
         });
       })
       .finally(() => {
@@ -71,26 +69,23 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
       .then((res) => {
         if (res.value !== undefined) {
           setData(res.value);
-          toast({
-            title: 'Sucesso!',
-            description: 'Orçamento salvo com sucesso',
-            variant: 'success',
+          ToastNotify({
+            message: `Sucesso: Orçamento salvo!`,
+            type: 'success',
           });
         }
         if (res.error !== undefined) {
-          toast({
-            title: `Error ${res.error.code}`,
-            description: res.error.message,
-            variant: 'destructive',
+          ToastNotify({
+            message: `Erro: ${res.error.message}`,
+            type: 'error',
           });
         }
         handleItensBudgets();
       })
       .catch((err) => {
-        toast({
-          title: 'Error!',
-          description: err.message,
-          variant: 'destructive',
+        ToastNotify({
+          message: `Erro: ${err.message}`,
+          type: 'error',
         });
       })
       .finally(() => {

@@ -1,7 +1,7 @@
 'use client';
 import { ResponseType } from '@/@types';
 import { iCliente } from '@/@types/Cliente';
-import { iItensOrcamento, iOrcamento } from '@/@types/Orcamento';
+import { iItemInserir, iItensOrcamento, iOrcamento } from '@/@types/Orcamento';
 import { iListaSimilare, iProduto } from '@/@types/Produto';
 import { iColumnType, iDataResultTable } from '@/@types/Table';
 import { addItem, GetOrcamento, updateItem } from '@/app/actions/orcamento';
@@ -30,10 +30,11 @@ interface iFormEditItem {
   item?: iItensOrcamento;
   budget: iOrcamento;
   CallBack?: () => void;
+  onCloseModal?: () => void; // Adicione esta linha
 }
 
-const FormEdit = ({ item, budget, CallBack }: iFormEditItem) => {
-  const { Modal, OnCloseModal, showModal } = useModal();
+const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
+  const { showModal } = useModal();
   const [budgetItem, setBudgetItem] = useState<iItensOrcamento>({
     QTD: 1,
     VALOR: 0,
@@ -75,38 +76,26 @@ const FormEdit = ({ item, budget, CallBack }: iFormEditItem) => {
     e.preventDefault();
     let response;
     let message = '';
-
+    const itemSave: iItemInserir = {
+      pIdOrcamento: budget.ORCAMENTO,
+      pItemOrcamento: {
+        CodigoProduto: WordProducts,
+        Desconto: 0,
+        Frete: 0,
+        Qtd: budgetItem.QTD,
+        Tabela: budgetItem.TABELA,
+        Valor: budgetItem.VALOR,
+        SubTotal: budgetItem.SUBTOTAL,
+        Total: budgetItem.TOTAL,
+      },
+    };
     if (budgetItem.ORCAMENTO > 0) {
-      response = await updateItem({
-        pIdOrcamento: budget.ORCAMENTO,
-        pItemOrcamento: {
-          CodigoProduto: WordProducts,
-          Desconto: 0,
-          Frete: 0,
-          Qtd: budgetItem.QTD,
-          Tabela: budgetItem.TABELA,
-          Valor: budgetItem.VALOR,
-          SubTotal: budgetItem.SUBTOTAL,
-          Total: budgetItem.TOTAL,
-        },
-      });
-      OnCloseModal();
+      response = await updateItem(itemSave);
+      // OnCloseModal();
       message = 'Item editado com sucesso';
     } else {
-      response = await addItem({
-        pIdOrcamento: budget.ORCAMENTO,
-        pItemOrcamento: {
-          CodigoProduto: WordProducts,
-          Desconto: 0,
-          Frete: 0,
-          Qtd: budgetItem.QTD,
-          Tabela: budgetItem.TABELA,
-          Valor: budgetItem.VALOR,
-          SubTotal: budgetItem.SUBTOTAL,
-          Total: budgetItem.TOTAL,
-        },
-      });
-      OnCloseModal();
+      response = await addItem(itemSave);
+      // OnCloseModal();
       message = 'Item adicionado com sucesso';
     }
 
@@ -124,7 +113,10 @@ const FormEdit = ({ item, budget, CallBack }: iFormEditItem) => {
       });
     }
 
-    if (CallBack) CallBack();
+    if (CallBack) {
+      CallBack();
+    }
+    if (onCloseModal) onCloseModal();
   }
 
   async function loadingProduct(product: iProduto) {

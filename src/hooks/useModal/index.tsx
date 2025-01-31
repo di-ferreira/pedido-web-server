@@ -106,13 +106,13 @@ const useModal = () => {
     [OnClose]
   );
 
-  const ShowModal = useCallback(() => {
+  const ShowModal = () => {
     setIsVisible(true);
-  }, []);
+  };
 
-  const OnCloseModal = useCallback(() => {
-    setIsVisible(false); // Atualiza o estado diretamente
-  }, []);
+  const OnCloseModal = () => {
+    setIsVisible(false);
+  };
 
   return {
     Modal: isVisible ? Modal : null,

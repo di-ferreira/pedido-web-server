@@ -7,7 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 
 interface iModalEditBudgetItem {
-  children: React.ReactNode;
+  children: React.ReactElement<{ onCloseModal?: () => void }>; // Adicione esta tipagem
   modalTitle: string;
   buttonText?: string;
   buttonIcon?: IconProp;
@@ -46,7 +46,7 @@ export const ModalEditBudgetItem = ({
       </Button>
       {Modal && (
         <Modal Title={modalTitle} containerStyle='w-[80%] h-[95%] bg-gray-200'>
-          {children}
+          {React.cloneElement(children, { onCloseModal: OnCloseModal })}
         </Modal>
       )}
     </>
