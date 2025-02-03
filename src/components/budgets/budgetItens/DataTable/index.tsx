@@ -244,7 +244,7 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
         </Button>
       </div>
 
-      <div className='flex flex-col gap-4 w-full h-[70%] px-5 py-2 mt-5 border-t-2 border-emsoft_orange-main'>
+      <div className='flex flex-col gap-4 w-full h-[70%] px-5 py-2 mt-5 border-t-2 border-emsoft_orange-main overflow-x-hidden overflow-y-scroll'>
         {loading ? (
           <Loading />
         ) : (
