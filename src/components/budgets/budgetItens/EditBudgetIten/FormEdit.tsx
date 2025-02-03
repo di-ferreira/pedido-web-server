@@ -119,31 +119,36 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
     if (onCloseModal) onCloseModal();
   }
 
-  async function loadingProduct(product: iProduto) {
-    const prod = await GetProduct(product.PRODUTO);
-    const new_price = await GetNewPriceFromTable(
-      product,
-      Budget.CLIENTE.Tabela
-    );
-
-    if (prod.value !== undefined) {
+  async function UpdateProduct(prod: iProduto) {
+    const new_price = await GetNewPriceFromTable(prod, Budget.CLIENTE.Tabela);
+    let newQtd = 1;
+    if (prod !== undefined) {
+      newQtd = handleCalcQTD(budgetItem.QTD, prod);
       setBudgetItem(
         (old) =>
           (old = {
             ...budgetItem,
-            PRODUTO: prod.value,
+            PRODUTO: prod,
             VALOR: new_price.value!,
-            QTD: handleCalcQTD(budgetItem.QTD, prod.value),
+            QTD: newQtd,
             SUBTOTAL: new_price.value! * budgetItem.QTD,
             TOTAL: new_price.value! * budgetItem.QTD,
           })
       );
-      setProductSelected(prod.value);
-      setSimilares((old) => [...prod.value.ListaSimilares]);
-      setWordProducts(prod.value.PRODUTO);
+      console.log('newQtd', newQtd.toString());
+
+      setQtdItem((old) => (old = newQtd.toString()));
+      setProductSelected(prod);
+      setSimilares((old) => [...prod.ListaSimilares]);
+      setWordProducts(prod.PRODUTO);
 
       inputQTDRef.current?.focus();
     }
+  }
+
+  async function loadingProduct(product: iProduto) {
+    const prod = await GetProduct(product.PRODUTO);
+    UpdateProduct(prod.value!);
   }
 
   async function findProduct() {
@@ -156,27 +161,7 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
       resultProduct.value?.ATIVO !== 'N' &&
       resultProduct.value?.VENDA !== 'N'
     ) {
-      const new_price = await GetNewPriceFromTable(
-        resultProduct.value,
-        budget.CLIENTE.Tabela
-      );
-
-      setBudgetItem(
-        (old) =>
-          (old = {
-            ...budgetItem,
-            PRODUTO: resultProduct.value,
-            VALOR: new_price.value!,
-            QTD: handleCalcQTD(budgetItem.QTD, resultProduct.value),
-            SUBTOTAL: new_price.value! * budgetItem.QTD,
-            TOTAL: new_price.value! * budgetItem.QTD,
-          })
-      );
-      setProductSelected(resultProduct.value);
-      setSimilares((old) => [...resultProduct.value.ListaSimilares]);
-      setWordProducts(resultProduct.value.PRODUTO);
-
-      inputQTDRef.current?.focus();
+      UpdateProduct(resultProduct.value);
       setLoading(false);
     } else if (
       resultProduct.error !== undefined ||
