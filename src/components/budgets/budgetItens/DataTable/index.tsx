@@ -141,14 +141,15 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
       width: '15%',
     },
     {
-      key: 'PRODUTO.APLICACOES',
-      title: 'APLICAÇÕES',
-      width: '35%',
-    },
-    {
-      key: 'PRODUTO.FABRICANTE.NOME',
-      title: 'FABRICANTE',
-      width: '15%',
+      key: 'VALOR',
+      title: 'VALOR UNITÁRIO',
+      width: '10%',
+      render: (_, item) => {
+        return item.VALOR.toLocaleString('pt-br', {
+          style: 'currency',
+          currency: 'BRL',
+        });
+      },
     },
     {
       key: 'QTD',
