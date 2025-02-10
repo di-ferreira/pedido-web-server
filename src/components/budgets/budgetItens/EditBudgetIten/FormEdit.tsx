@@ -67,6 +67,7 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
   const [WordProducts, setWordProducts] = useState<string>('');
   const [QtdItem, setQtdItem] = useState<string>('1');
   const [loading, setLoading] = useState(false);
+  const [isOferta, setIsOferta] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const inputProductRef = useRef<HTMLInputElement>(null);
   const inputQTDRef = useRef<HTMLInputElement>(null);
@@ -117,10 +118,22 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
       CallBack();
     }
     if (onCloseModal) onCloseModal();
+    setIsOferta(false);
   }
 
   async function UpdateProduct(prod: iProduto) {
-    const new_price = await GetNewPriceFromTable(prod, Budget.CLIENTE.Tabela);
+    let new_price = prod.PRECO;
+
+    if (prod.VENDA_COM_OFERTA !== 'S') {
+      new_price = (await GetNewPriceFromTable(prod, Budget.CLIENTE.Tabela))
+        .value!;
+    }
+
+    if (prod.VENDA_COM_OFERTA === 'S' && prod.PRECO_COM_OFERTA !== null) {
+      setIsOferta(true);
+      new_price = prod.PRECO_COM_OFERTA;
+    }
+
     let newQtd = 1;
     if (prod !== undefined) {
       newQtd = handleCalcQTD(budgetItem.QTD, prod);
@@ -129,13 +142,16 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
           (old = {
             ...budgetItem,
             PRODUTO: prod,
-            VALOR: new_price.value!,
+            VALOR: new_price,
             QTD: newQtd,
-            SUBTOTAL: new_price.value! * budgetItem.QTD,
-            TOTAL: new_price.value! * budgetItem.QTD,
+            SUBTOTAL: new_price * budgetItem.QTD,
+            TOTAL: new_price * budgetItem.QTD,
           })
       );
-      console.log('newQtd', newQtd.toString());
+      console.log('price', prod.PRECO);
+      console.log('price oferta', prod.VENDA_COM_OFERTA);
+      console.log('price oferta', prod.PRECO_COM_OFERTA);
+      console.log('new_price', new_price);
 
       setQtdItem((old) => (old = newQtd.toString()));
       setProductSelected(prod);
@@ -524,7 +540,14 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
             />
           </div>
 
-          <div className={`flex w-[20%]`}>
+          <div className={`flex w-[20%] relative`}>
+            {isOferta && (
+              <span
+                className={`absolute text-[12px] font-bold text-red-700 top-2 left-12`}
+              >
+                *Produto em oferta
+              </span>
+            )}
             <Input
               value={FormatToCurrency(budgetItem.VALOR.toString())}
               name='VALOR (R$)'
