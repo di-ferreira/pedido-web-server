@@ -366,3 +366,12 @@ export interface iProdutoWithTables {
   estoque_lojas: iEstoqueLoja[];
 }
 
+export interface iProductPromotion {
+  PRODUTO: stringify;
+  REFERENCIA: stringify;
+  NOME: stringify;
+  PRECO: number;
+  QTDATUAL: number;
+  OFERTA: number;
+  VALIDADE: string;
+}

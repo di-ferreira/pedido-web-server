@@ -8,6 +8,7 @@ import { addItem, GetOrcamento, updateItem } from '@/app/actions/orcamento';
 import {
   GetNewPriceFromTable,
   GetProduct,
+  GetProductPromotion,
   SuperFindProducts,
 } from '@/app/actions/produto';
 import { DataTable } from '@/components/CustomDataTable';
@@ -123,15 +124,16 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
 
   async function UpdateProduct(prod: iProduto) {
     let new_price = prod.PRECO;
+    let promotionalProduct = await GetProductPromotion(prod);
 
-    if (prod.VENDA_COM_OFERTA !== 'S') {
+    if (promotionalProduct.error !== undefined) {
       new_price = (await GetNewPriceFromTable(prod, Budget.CLIENTE.Tabela))
         .value!;
     }
 
-    if (prod.VENDA_COM_OFERTA === 'S' && prod.PRECO_COM_OFERTA !== null) {
+    if (promotionalProduct.value !== undefined) {
       setIsOferta(true);
-      new_price = prod.PRECO_COM_OFERTA;
+      new_price = promotionalProduct.value.OFERTA;
     }
 
     let newQtd = 1;
@@ -148,9 +150,7 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
             TOTAL: new_price * budgetItem.QTD,
           })
       );
-      console.log('price', prod.PRECO);
-      console.log('price oferta', prod.VENDA_COM_OFERTA);
-      console.log('price oferta', prod.PRECO_COM_OFERTA);
+      console.log('price', promotionalProduct);
       console.log('new_price', new_price);
 
       setQtdItem((old) => (old = newQtd.toString()));
