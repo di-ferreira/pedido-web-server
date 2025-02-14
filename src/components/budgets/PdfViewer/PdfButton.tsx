@@ -128,7 +128,7 @@ const GeneratePDF: React.FC<iGeneratePDF> = ({ orc }) => {
                 </div>
                 <div className='w-[15%] p-1 text-right'>
                   <p className='text-xs'>
-                    {item.PRODUTO.PRECO.toLocaleString('pt-br', {
+                    {item.VALOR.toLocaleString('pt-br', {
                       style: 'currency',
                       currency: 'BRL',
                     })}
