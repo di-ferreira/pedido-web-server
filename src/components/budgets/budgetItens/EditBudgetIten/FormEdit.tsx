@@ -9,6 +9,7 @@ import {
   GetNewPriceFromTable,
   GetProduct,
   GetProductPromotion,
+  GetSaleHistory,
   SuperFindProducts,
 } from '@/app/actions/produto';
 import { DataTable } from '@/components/CustomDataTable';
@@ -125,6 +126,10 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
   async function UpdateProduct(prod: iProduto) {
     let new_price = prod.PRECO;
     let promotionalProduct = await GetProductPromotion(prod);
+    console.log('budget.CLIENTE', budget.CLIENTE);
+    console.log('prod', prod);
+    let history = await GetSaleHistory(budget.CLIENTE, prod);
+    console.log('front history', history);
 
     if (promotionalProduct.error !== undefined) {
       new_price = (await GetNewPriceFromTable(prod, Budget.CLIENTE.Tabela))
@@ -152,12 +157,12 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
       );
       console.log('price', promotionalProduct);
       console.log('new_price', new_price);
+      console.log('front history', history);
 
       setQtdItem((old) => (old = newQtd.toString()));
       setProductSelected(prod);
       setSimilares((old) => [...prod.ListaSimilares]);
       setWordProducts(prod.PRODUTO);
-
       inputQTDRef.current?.focus();
     }
   }
@@ -212,6 +217,7 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
         })
         .finally(() => {
           inputQTDRef.current?.focus();
+
           setLoading(false);
         });
     } else {

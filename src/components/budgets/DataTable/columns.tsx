@@ -57,7 +57,7 @@ export const headers: iColumnType<iOrcamento>[] = [
         <Link href={`/app/pre-sales/${item.ORCAMENTO}`}>
           <FontAwesomeIcon
             icon={faFileLines}
-            className='text-emsoft_blue-main hover:text-emsoft_blue-light'
+            className='text-emsoft_success-main hover:text-emsoft_success-light'
             size='xl'
             title='Gerar Pré-venda'
           />
