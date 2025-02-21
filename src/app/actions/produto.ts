@@ -1,6 +1,7 @@
 'use server';
 
 import { iApiResult, ResponseType } from '@/@types';
+import { iCliente } from '@/@types/Cliente';
 import { iFilter } from '@/@types/Filter';
 import { iProductPromotion, iProduto, iTabelaVenda } from '@/@types/Produto';
 import { iDataResultTable } from '@/@types/Table';
@@ -45,6 +46,7 @@ const ROUTE_SELECT_SQL = '/ServiceSistema/SelectSQL';
 const ROUTE_ESTOQUE_LOJAS = '/EstoqueFiliais';
 
 const ROUTE_GET_ALL_PRODUTO = '/Produto';
+const ROUTE_GET_SALE_HISTORY = '/ServiceClientes/ListaHistoricoVendas';
 
 export async function SuperFindProducts(
   filter: iFilter<iProduto>
@@ -247,6 +249,41 @@ export async function GetProductPromotion(
       Authorization: `bearer ${tokenCookie}`,
     },
   });
+
+  if (res.body.Data === null) {
+    return {
+      value: undefined,
+      error: {
+        code: '404',
+        message: 'Produto não encontrado',
+      },
+    };
+  }
+
+  return {
+    value: res.body.Data[0],
+    error: undefined,
+  };
+}
+
+export async function GetSaleHistory(
+  customer: iCliente,
+  product: iProduto
+): Promise<ResponseType<iProductPromotion>> {
+  const tokenCookie = await getCookie('token');
+
+  const res = await CustomFetch<any>(
+    `${ROUTE_GET_SALE_HISTORY}?pCliente=${customer.CLIENTE}&pProduto=${product.PRODUTO}`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `bearer ${tokenCookie}`,
+      },
+    }
+  );
+
+  console.log('GetSaleHistory', res.body);
 
   if (res.body.Data === null) {
     return {
