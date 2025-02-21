@@ -1,12 +1,13 @@
 'use server';
 
-import { iSelectSQL, ResponseType } from '@/@types';
+import { iSelectSQL, iVendedor, ResponseType } from '@/@types';
 import { iCliente } from '@/@types/Cliente';
 import { iFilter } from '@/@types/Filter';
 import { iDataResultTable } from '@/@types/Table';
 import { CustomFetch } from '@/services/api';
 import dayjs from 'dayjs';
 import { getCookie } from '.';
+import { getVendedorAction } from './user';
 
 interface iCustomersDebit {
   NOME_CLIENTE: string;
@@ -76,12 +77,14 @@ where R.CONTA in ('R', 'C') and
 
 async function CreateFilter(filter: iFilter<iCliente>): Promise<string> {
   const VendedorLocal: string = await getCookie('user');
+  const vendedor: iVendedor = (await getVendedorAction()).value!;
+  const andStr = ' AND ';
 
-  let ResultFilter: string = `$filter=VENDEDOR eq ${VendedorLocal}`;
+  let vendedorFilter: string = `VENDEDOR eq ${VendedorLocal}`;
+  let ResultFilter: string = `$filter=${vendedorFilter}`;
 
   if (filter.filter && filter.filter.length >= 1) {
     ResultFilter = `$filter=VENDEDOR eq ${VendedorLocal}`;
-    const andStr = ' AND ';
     filter.filter.map((itemFilter) => {
       if (itemFilter.typeSearch) {
         itemFilter.typeSearch === 'like'
@@ -106,7 +109,13 @@ async function CreateFilter(filter: iFilter<iCliente>): Promise<string> {
 
   ResultFilter !== '' && (ResultTop = `&${ResultTop}`);
 
-  const ResultRoute: string = `?${ResultFilter}${ResultTop}${ResultSkip}${ResultOrderBy}&$inlinecount=allpages`;
+  let ResultRoute: string = `?${ResultFilter}${ResultTop}${ResultSkip}${ResultOrderBy}&$inlinecount=allpages`;
+
+  if (vendedor.TIPO_VENDEDOR === 'I') {
+    ResultRoute = ResultRoute.replace(vendedorFilter, '');
+    ResultRoute = ResultRoute.replace(andStr, '');
+    ResultRoute = ResultRoute.replace(' ', '');
+  }
 
   return ResultRoute;
 }
