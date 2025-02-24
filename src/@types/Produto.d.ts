@@ -375,3 +375,12 @@ export interface iProductPromotion {
   OFERTA: number;
   VALIDADE: string;
 }
+export interface iSaleHistory {
+  DATA: string;
+  DOC: string;
+  VENDEDOR: number;
+  QTD: number;
+  VALOR: number;
+  TOTAL: number;
+}
+

@@ -1,32 +1,36 @@
 'use client';
-import { iListaChave } from '@/@types/Produto';
+import { iSaleHistory } from '@/@types/Produto';
 import { iColumnType } from '@/@types/Table';
+import { FormatToCurrency } from '@/lib/utils';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import dayjs from 'dayjs';
 import { iListaSimilare } from '../../../../@types/Produto';
 
-export const tableChavesHeaders: iColumnType<iListaChave>[] = [
+export const tableSalesHistoryHeaders: iColumnType<iSaleHistory>[] = [
   {
-    key: 'DATA_ATUALIZACAO',
-    title: 'DATA ATUALIZACAO',
+    key: 'DATA',
+    title: 'DATA',
     width: '30%',
     render: (_, item) => {
-      if (item.DATA_ATUALIZACAO === null) {
+      if (item.DATA === null) {
         return '00/00/0000';
       }
-      return dayjs(item.DATA_ATUALIZACAO).format('DD/MM/YYYY');
+      return dayjs(item.DATA).format('DD/MM/YYYY');
     },
   },
   {
-    key: 'CNA',
+    key: 'DOC',
     title: 'DOC',
     width: '10%',
   },
   {
-    key: 'Chave',
-    title: 'CHAVE',
+    key: 'VALOR',
+    title: 'VALOR',
     width: '25%',
+    render: (_, item) => {
+      return FormatToCurrency(item.TOTAL.toString());
+    },
   },
 ];
 export const tableSimilaresHeaders: iColumnType<iListaSimilare>[] = [

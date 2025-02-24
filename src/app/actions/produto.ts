@@ -3,7 +3,12 @@
 import { iApiResult, ResponseType } from '@/@types';
 import { iCliente } from '@/@types/Cliente';
 import { iFilter } from '@/@types/Filter';
-import { iProductPromotion, iProduto, iTabelaVenda } from '@/@types/Produto';
+import {
+  iProductPromotion,
+  iProduto,
+  iSaleHistory,
+  iTabelaVenda,
+} from '@/@types/Produto';
 import { iDataResultTable } from '@/@types/Table';
 import { CustomFetch } from '@/services/api';
 import { getCookie } from '.';
@@ -269,7 +274,7 @@ export async function GetProductPromotion(
 export async function GetSaleHistory(
   customer: iCliente,
   product: iProduto
-): Promise<ResponseType<iProductPromotion>> {
+): Promise<ResponseType<iSaleHistory[]>> {
   const tokenCookie = await getCookie('token');
 
   const res = await CustomFetch<any>(
@@ -283,20 +288,18 @@ export async function GetSaleHistory(
     }
   );
 
-  console.log('GetSaleHistory', res.body);
-
-  if (res.body.Data === null) {
+  if (res.status !== 200) {
     return {
       value: undefined,
       error: {
-        code: '404',
-        message: 'Produto não encontrado',
+        code: res.status.toString(),
+        message: res.statusText,
       },
     };
   }
 
   return {
-    value: res.body.Data[0],
+    value: res.body.Data,
     error: undefined,
   };
 }

@@ -2,7 +2,7 @@
 import { ResponseType } from '@/@types';
 import { iCliente } from '@/@types/Cliente';
 import { iItemInserir, iItensOrcamento, iOrcamento } from '@/@types/Orcamento';
-import { iListaSimilare, iProduto } from '@/@types/Produto';
+import { iListaSimilare, iProduto, iSaleHistory } from '@/@types/Produto';
 import { iColumnType, iDataResultTable } from '@/@types/Table';
 import { addItem, GetOrcamento, updateItem } from '@/app/actions/orcamento';
 import {
@@ -26,7 +26,7 @@ import { faPlus, faSave } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import dayjs from 'dayjs';
 import React, { useEffect, useRef, useState } from 'react';
-import { tableChavesHeaders } from './columns';
+import { tableSalesHistoryHeaders } from './columns';
 
 interface iFormEditItem {
   item?: iItensOrcamento;
@@ -60,6 +60,7 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
     {} as iProduto
   );
   const [Similares, setSimilares] = useState<iListaSimilare[]>([]);
+  const [SalesHistory, setSalesHistory] = useState<iSaleHistory[]>([]);
   let [SerachedProducts, setSerachedProducts] = useState<
     iDataResultTable<iProduto>
   >({
@@ -126,10 +127,7 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
   async function UpdateProduct(prod: iProduto) {
     let new_price = prod.PRECO;
     let promotionalProduct = await GetProductPromotion(prod);
-    console.log('budget.CLIENTE', budget.CLIENTE);
-    console.log('prod', prod);
     let history = await GetSaleHistory(budget.CLIENTE, prod);
-    console.log('front history', history);
 
     if (promotionalProduct.error !== undefined) {
       new_price = (await GetNewPriceFromTable(prod, Budget.CLIENTE.Tabela))
@@ -155,9 +153,8 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
             TOTAL: new_price * budgetItem.QTD,
           })
       );
-      console.log('price', promotionalProduct);
-      console.log('new_price', new_price);
-      console.log('front history', history);
+
+      history.value !== null && setSalesHistory((old) => [...history.value!]);
 
       setQtdItem((old) => (old = newQtd.toString()));
       setProductSelected(prod);
@@ -499,9 +496,9 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
           </div>
           <div className={`flex flex-col w-[30%] tablet:w-[40%]`}>
             <DataTable
-              columns={tableChavesHeaders}
+              columns={tableSalesHistoryHeaders}
               IsLoading={false}
-              TableData={budgetItem.PRODUTO.ListaChaves}
+              TableData={SalesHistory}
               ErrorMessage='Nenhuma Chave encontrada'
             />
           </div>
