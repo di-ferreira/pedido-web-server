@@ -111,15 +111,18 @@ async function CreateFilter(filter: iFilter<iCliente>): Promise<string> {
 
   let ResultRoute: string = `?${ResultFilter}${ResultTop}${ResultSkip}${ResultOrderBy}&$inlinecount=allpages`;
 
-  if (filter.filter === undefined) {
-    ResultRoute = ResultRoute.replace(ResultFilter + '&', '');
-  }
+  console.log('filter', ResultRoute);
 
   if (vendedor.TIPO_VENDEDOR === 'I') {
+    if (filter.filter === undefined) {
+      ResultRoute = ResultRoute.replace(ResultFilter + '&', '');
+    }
+
     ResultRoute = ResultRoute.replace(vendedorFilter, '');
     ResultRoute = ResultRoute.replace(andStr, '');
     ResultRoute = ResultRoute.replace(' ', '');
   }
+  console.log('ResultRoute', ResultRoute);
 
   return ResultRoute;
 }
