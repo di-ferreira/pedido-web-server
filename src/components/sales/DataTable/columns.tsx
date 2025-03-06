@@ -17,7 +17,6 @@ export const headers: iColumnType<iMovimento>[] = [
   {
     key: 'DATA',
     title: 'DATA',
-    isHideMobile: true,
     width: '20rem',
     render: (_, item) => {
       return dayjs(item.DATA).format('DD/MM/YYYY');
@@ -26,7 +25,6 @@ export const headers: iColumnType<iMovimento>[] = [
   {
     key: 'VENDEDOR.NOME',
     title: 'VENDEDOR',
-    isHideMobile: true,
     width: '20rem',
   },
   {

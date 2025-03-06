@@ -35,7 +35,6 @@ export const headers: iColumnType<iOrcamento>[] = [
     key: 'VENDEDOR.NOME',
     title: 'VENDEDOR',
     width: '20rem',
-    isHideMobile: true,
   },
   {
     key: 'TOTAL',

@@ -28,7 +28,6 @@ export const headers: iColumnType<iCliente>[] = [
     key: 'BLOQUEADO',
     title: 'BLOQUEADO',
     width: '11rem',
-    isHideMobile: true,
     render: (_, item) =>
       item.BLOQUEADO && <>{RenderIconBloqueado(String(item.BLOQUEADO))}</>,
   },
@@ -41,25 +40,21 @@ export const headers: iColumnType<iCliente>[] = [
   {
     key: 'ENDERECO',
     title: 'ENDEREÇO',
-    isHideMobile: true,
     width: '20rem',
   },
   {
     key: 'BAIRRO',
     title: 'BAIRRO',
-    isHideMobile: true,
     width: '20rem',
   },
   {
     key: 'CIDADE',
     title: 'CIDADE',
-    isHideMobile: true,
     width: '20rem',
   },
   {
     key: 'UF',
     title: 'UF',
-    isHideMobile: true,
     width: '7rem',
   },
 ];

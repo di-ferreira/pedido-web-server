@@ -160,7 +160,6 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
       key: 'TOTAL',
       title: 'TOTAL',
       width: '15%',
-      isHideMobile: true,
       render: (_, item) => {
         return item.TOTAL.toLocaleString('pt-br', {
           style: 'currency',

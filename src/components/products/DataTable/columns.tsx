@@ -17,12 +17,10 @@ export const headers: iColumnType<iProduto>[] = [
     key: 'REFERENCIA',
     title: 'REFERENCIA',
     width: '11rem',
-    isHideMobile: true,
   },
   {
     key: 'CODIGOBARRA',
     title: 'CODIGO DE BARRAS',
-    isHideMobile: true,
     width: '5rem',
     render: (_, item) => <>{item.CODIGOBARRA ? item.CODIGOBARRA : ''}</>,
   },
@@ -34,13 +32,11 @@ export const headers: iColumnType<iProduto>[] = [
   {
     key: 'QTDATUAL',
     title: 'QTD ATUAL',
-    isHideMobile: true,
     width: '20rem',
   },
   {
     key: 'LOCAL',
     title: 'LOCAL',
-    isHideMobile: true,
     width: '20rem',
   },
 ];

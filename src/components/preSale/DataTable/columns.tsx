@@ -17,7 +17,6 @@ export const headers: iColumnType<iMovimento>[] = [
   {
     key: 'DATA',
     title: 'DATA',
-    isHideMobile: true,
     width: '20rem',
     render: (_, item) => {
       return dayjs(item.DATA).format('DD/MM/YYYY');
@@ -26,7 +25,6 @@ export const headers: iColumnType<iMovimento>[] = [
   {
     key: 'VENDEDOR.NOME',
     title: 'VENDEDOR',
-    isHideMobile: true,
     width: '20rem',
   },
   {
@@ -40,22 +38,5 @@ export const headers: iColumnType<iMovimento>[] = [
       });
     },
   },
-  // {
-  //   key: 'acoes',
-  //   title: 'AÇÕES',
-  //   width: '5rem',
-  //   render: (_, item) => (
-  //     <span className='flex w-full items-center justify-center gap-x-5'>
-  //       <Link href={`/app/pre-sales/${item.MOVIMENTO}`}>
-  //         <FontAwesomeIcon
-  //           icon={faFileLines}
-  //           className='text-emsoft_blue-main hover:text-emsoft_blue-light'
-  //           size='xl'
-  //           title='Gerar Pré-venda'
-  //         />
-  //       </Link>
-  //     </span>
-  //   ),
-  // },
 ];
 

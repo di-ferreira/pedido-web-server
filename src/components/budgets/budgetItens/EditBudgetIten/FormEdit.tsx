@@ -357,13 +357,11 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
       key: 'EXTERNO.EQUIVALENTE',
       title: 'EQUIVALENTE',
       width: '15%',
-      isHideMobile: true,
     },
     {
       key: 'EXTERNO.DATA_ATUALIZACAO',
       title: 'DATA ATUALIZAÇÃO',
       width: '15%',
-      isHideMobile: true,
       render: (_, item) => {
         return dayjs(item.EXTERNO.DATA_ATUALIZACAO).format('DD/MM/YYYY');
       },

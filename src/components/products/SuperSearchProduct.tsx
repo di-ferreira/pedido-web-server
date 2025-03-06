@@ -50,7 +50,6 @@ const SuperSearchProducts = ({ data, words, CallBack }: iProps) => {
       key: 'PRODUTO',
       title: 'CÓDIGO',
       width: '10%',
-      isHideMobile: true,
     },
     {
       key: 'REFERENCIA',
@@ -81,7 +80,6 @@ const SuperSearchProducts = ({ data, words, CallBack }: iProps) => {
       key: 'PRECO',
       title: 'VALOR',
       width: '10%',
-      isHideMobile: true,
       render: (_, item) => {
         return item.PRECO.toLocaleString('pt-br', {
           style: 'currency',
