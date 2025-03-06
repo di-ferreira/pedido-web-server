@@ -35,27 +35,32 @@ export const headers: iColumnType<iCliente>[] = [
     key: 'CIC',
     title: 'CPF/CNPJ',
     width: '20rem',
+    isHideMobile: true,
     render: (_, item) => <>{MaskCnpjCpf(item.CIC)}</>,
   },
   {
     key: 'ENDERECO',
     title: 'ENDEREÇO',
     width: '20rem',
+    isHideMobile: true,
   },
   {
     key: 'BAIRRO',
     title: 'BAIRRO',
     width: '20rem',
+    isHideMobile: true,
   },
   {
     key: 'CIDADE',
     title: 'CIDADE',
     width: '20rem',
+    isHideMobile: true,
   },
   {
     key: 'UF',
     title: 'UF',
     width: '7rem',
+    isHideMobile: true,
   },
 ];
 
