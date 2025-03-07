@@ -118,7 +118,7 @@ async function CreateFilter(filter: iFilter<iCliente>): Promise<string> {
 
     ResultRoute = ResultRoute.replace(vendedorFilter, '');
     ResultRoute = ResultRoute.replace(andStr, '');
-    ResultRoute = ResultRoute.replace(' ', '');
+    // ResultRoute = ResultRoute.replace(' ', '');
   }
 
   return ResultRoute;
