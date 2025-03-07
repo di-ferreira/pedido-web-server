@@ -54,7 +54,6 @@ export const headers: iColumnType<iCliente>[] = [
     key: 'CIDADE',
     title: 'CIDADE',
     width: '20rem',
-    isHideMobile: true,
   },
   {
     key: 'UF',

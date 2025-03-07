@@ -1,10 +1,6 @@
-import SessionWrapper from '@/components/SessionWrapper';
+import { redirect } from 'next/navigation';
 
 export default async function Home() {
-  return (
-    <SessionWrapper>
-      <h1>index</h1>
-    </SessionWrapper>
-  );
+  redirect('/app/dashboard');
 }
 
