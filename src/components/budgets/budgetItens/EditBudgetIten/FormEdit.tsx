@@ -127,6 +127,7 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
   async function UpdateProduct(prod: iProduto) {
     let new_price = prod.PRECO;
     let promotionalProduct = await GetProductPromotion(prod);
+
     let history = await GetSaleHistory(budget.CLIENTE, prod);
 
     if (promotionalProduct.error !== undefined) {
@@ -165,8 +166,13 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
   }
 
   async function loadingProduct(product: iProduto) {
-    const prod = await GetProduct(product.PRODUTO);
-    UpdateProduct(prod.value!);
+    setLoading(true);
+    try {
+      const prod = await GetProduct(product.PRODUTO);
+      UpdateProduct(prod.value!);
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function findProduct() {

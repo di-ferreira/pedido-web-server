@@ -5,7 +5,6 @@ import { iFilter } from '@/@types/Filter';
 import { iMovimento } from '@/@types/PreVenda';
 import { iDataResultTable } from '@/@types/Table';
 import { CustomFetch } from '@/services/api';
-import dayjs from 'dayjs';
 import { getCookie } from '.';
 
 const ROUTE_GET_ALL_PRE_VENDA = '/Movimento';
@@ -95,9 +94,23 @@ export async function getVendasDashboard() {
   const VendedorLocal: string = await getCookie('user');
   const tokenCookie = await getCookie('token');
 
-  const sql: string = `SELECT c.NOME AS CLIENTE, SUM(m.TOTAL) AS TOTAL_VENDAS FROM MVE m JOIN CLI c ON m.CLIENTE = c.CLIENTE WHERE m.TIPOMOV = 'VENDA' AND m.VENDEDOR = ${VendedorLocal} AND m.CANCELADO = 'N' AND m.data >= cast('${String(
-    dayjs().subtract(1, 'month').format('YYYY-MM-DD')
-  )}' as DATE) GROUP BY c.NOME ORDER BY c.NOME`;
+  const sql: string = `SELECT
+    c.NOME AS CLIENTE,
+    SUM(m.TOTAL) AS TOTAL_VENDAS
+FROM
+    MVE m
+    JOIN CLI c ON m.CLIENTE = c.CLIENTE
+WHERE
+    m.TIPOMOV = 'VENDA'
+    AND m.VENDEDOR = ${VendedorLocal}
+    AND m.CANCELADO = 'N'
+    AND m.DATA BETWEEN DATEADD(1 - EXTRACT(DAY FROM CURRENT_DATE) DAY TO CURRENT_DATE)
+                    AND DATEADD(-EXTRACT(DAY FROM DATEADD(1 MONTH TO CURRENT_DATE)) DAY TO DATEADD(1 MONTH TO CURRENT_DATE))
+GROUP BY
+    c.NOME
+ORDER BY
+    c.NOME;
+`;
 
   const body: string = JSON.stringify({
     pSQL: sql,

@@ -67,7 +67,7 @@ const Dashboard = async () => {
               Número Total de Vendas <FontAwesomeIcon icon={faDollarSign} />
             </CardHeader>
             <CardDescription className='text-xs text-gray-500'>
-              Quantidade Total de vendas nos ultimos 30 dias
+              Quantidade Total de vendas do mês
             </CardDescription>
           </div>
           <CardContent
@@ -86,7 +86,7 @@ const Dashboard = async () => {
               Total de Vendas <FontAwesomeIcon icon={faDollarSign} />
             </CardHeader>
             <CardDescription className='text-xs text-gray-500'>
-              Total de vendas nos ultimos 30 dias
+              Total de vendas do mês
             </CardDescription>
           </div>
           <CardContent
@@ -134,7 +134,7 @@ const Dashboard = async () => {
             Gráfico de venda Mensal <FontAwesomeIcon icon={faDollarSign} />
           </CardHeader>
           <CardDescription className='text-xs text-gray-500'>
-            Gráfico de vendas do vendedor dos últimos 30 dias
+            Gráfico de vendas do vendedor do mês
           </CardDescription>
 
           <CardContent className='font-bold mt-2 p-0 w-full'>

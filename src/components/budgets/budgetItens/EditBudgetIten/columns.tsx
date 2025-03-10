@@ -25,11 +25,16 @@ export const tableSalesHistoryHeaders: iColumnType<iSaleHistory>[] = [
     width: '10%',
   },
   {
+    key: 'QTD',
+    title: 'QTD',
+    width: '10%',
+  },
+  {
     key: 'VALOR',
     title: 'VALOR',
     width: '25%',
     render: (_, item) => {
-      return FormatToCurrency(item.TOTAL.toString());
+      return FormatToCurrency(item.VALOR.toString());
     },
   },
 ];

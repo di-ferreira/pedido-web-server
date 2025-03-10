@@ -96,7 +96,7 @@ export async function SuperFindProducts(
 export async function GetProduct(productCode: string) {
   const tokenCookie = await getCookie('token');
   const res = await CustomFetch<iProduto>(
-    `${ROUTE_GET_ALL_PRODUTO}(${productCode})?$expand=FABRICANTE,FORNECEDOR,GRUPO,ListaChaves,ListaSimilares,ListaSimilares/PRODUTO,ListaSimilares/EXTERNO`,
+    `${ROUTE_GET_ALL_PRODUTO}(${productCode})?$expand=FABRICANTE,ListaSimilares,ListaSimilares/PRODUTO,ListaSimilares/EXTERNO`,
     {
       method: 'GET',
       headers: {
@@ -105,6 +105,7 @@ export async function GetProduct(productCode: string) {
       },
     }
   );
+  console.log('res', res.body);
 
   if (res.status !== 200) {
     return {
@@ -254,6 +255,8 @@ export async function GetProductPromotion(
       Authorization: `bearer ${tokenCookie}`,
     },
   });
+
+  console.log('product promotion', res);
 
   if (res.body.Data === null) {
     return {
