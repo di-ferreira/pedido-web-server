@@ -45,7 +45,10 @@ export const ModalEditBudgetItem = ({
         {buttonText}
       </Button>
       {Modal && (
-        <Modal Title={modalTitle} containerStyle='w-[80%] h-[95%] bg-gray-200'>
+        <Modal
+          Title={modalTitle}
+          containerStyle='laptop:w-[80%] w-full laptop:h-[95%] bg-gray-200'
+        >
           {React.cloneElement(children, { onCloseModal: OnCloseModal })}
         </Modal>
       )}

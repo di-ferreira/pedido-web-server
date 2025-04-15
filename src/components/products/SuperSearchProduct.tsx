@@ -388,7 +388,10 @@ const SuperSearchProducts = ({ data, words, CallBack }: iProps) => {
   return (
     <>
       {Modal && (
-        <Modal Title={'BUSCAR PRODUTO'} containerStyle='w-[75%] h-[80%]'>
+        <Modal
+          Title={'BUSCAR PRODUTO'}
+          containerStyle='laptop:w-[75%] laptop:h-[80%]'
+        >
           <div className='flex flex-col gap-4 w-full h-[95%] p-2'>
             <div className='flex gap-x-2 w-full items-center'>
               <Input

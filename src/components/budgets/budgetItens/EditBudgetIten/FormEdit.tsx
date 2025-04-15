@@ -406,6 +406,7 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
                     name='ProdutoPalavras'
                     labelText='PRODUTO'
                     labelPosition='top'
+                    enterKeyHint='enter'
                     onKeyDown={OnSearchProduto}
                     disabled={item !== undefined}
                   />
