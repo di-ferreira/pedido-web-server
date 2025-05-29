@@ -26,6 +26,12 @@ const config = {
       'tablet-landscape': {
         raw: '(max-width: 1340px) and (orientation: landscape)',
       },
+      'tablet-a8-portrait': {
+        raw: '(max-width: 1200px) and (orientation: portrait)',
+      },
+      'tablet-a8-landscape': {
+        raw: '(max-width: 1920px) and (orientation: landscape)',
+      },
     },
     container: {
       center: true,
