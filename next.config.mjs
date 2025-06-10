@@ -7,7 +7,7 @@ const nextConfig = withBundleAnalyzer({
     output: 'standalone', // Mantém a configuração de standalone
     experimental: {
         serverActions: {
-            bodySizeLimit: '10mb', // Limite de tamanho do corpo da requisição
+            bodySizeLimit: '50mb', // Limite de tamanho do corpo da requisição
         }
     }
 });
