@@ -53,6 +53,41 @@ const ROUTE_ESTOQUE_LOJAS = '/EstoqueFiliais';
 const ROUTE_GET_ALL_PRODUTO = '/Produto';
 const ROUTE_GET_SALE_HISTORY = '/ServiceClientes/ListaHistoricoVendas';
 
+async function CreateFilter(filter: iFilter<iProduto>): Promise<string> {
+  let ResultFilter: string = ``;
+  const andStr = ' AND ';
+  if (filter.filter && filter.filter.length >= 1) {
+    ResultFilter = `$filter=`;
+    filter.filter.map((itemFilter) => {
+      if (itemFilter.typeSearch)
+        itemFilter.typeSearch === 'like'
+          ? (ResultFilter = `${ResultFilter}${andStr} contains(${
+              itemFilter.key
+            }, '${String(itemFilter.value).toUpperCase()}')${andStr}`)
+          : itemFilter.typeSearch === 'eq' &&
+            (ResultFilter = `${ResultFilter}${andStr}${itemFilter.key} eq '${itemFilter.value}'${andStr}`);
+      else
+        ResultFilter = `${ResultFilter}${andStr} contains(${
+          itemFilter.key
+        }, '${String(itemFilter.value).toUpperCase()}')${andStr}`;
+    });
+    ResultFilter = ResultFilter.slice(0, -andStr.length);
+  }
+
+  const ResultOrderBy = filter.orderBy
+    ? `&$orderby=${filter.orderBy}`
+    : '&$orderby=PRODUTO desc';
+
+  const ResultSkip = filter.skip ? `&$skip=${filter.skip}` : '&$skip=0';
+
+  let ResultTop = filter.top ? `$top=${filter.top}` : '$top=15';
+
+  ResultFilter !== '' && (ResultTop = `&${ResultTop}`);
+
+  const ResultRoute: string = `?${ResultFilter}${ResultTop}${ResultSkip}${ResultOrderBy}&$expand=FABRICANTE,FORNECEDOR,GRUPO,ListaChaves,ListaSimilares,ListaSimilares/PRODUTO,ListaSimilares/EXTERNO&$inlinecount=allpages`;
+  return ResultRoute;
+}
+
 export async function SuperFindProducts(
   filter: iFilter<iProduto>
 ): Promise<ResponseType<iDataResultTable<iProduto>>> {
@@ -89,6 +124,50 @@ export async function SuperFindProducts(
     value: {
       value: res.body.Data,
       Qtd_Registros: res.body.RecordCount,
+    },
+    error: undefined,
+  };
+}
+
+export async function GetProducts(
+  productCode: string
+): Promise<ResponseType<iDataResultTable<iProduto>>> {
+  const tokenCookie = await getCookie('token');
+  const url: string = `${ROUTE_GET_ALL_PRODUTO}?$filter=PRODUTO like ${encodeURIComponent(
+    `'${productCode}'`
+  )} or NOME like ${encodeURIComponent(
+    `'${productCode}'`
+  )} or REFERENCIA like ${encodeURIComponent(
+    `'${productCode}'`
+  )}&$top=15&$skip=0&$orderby=PRODUTO&$expand=FABRICANTE,FORNECEDOR,GRUPO&$inlinecount=allpages`;
+
+  console.log('url', url);
+
+  const res = await CustomFetch<{ '@xdata.count': number; value: iProduto[] }>(
+    url,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `bearer ${tokenCookie}`,
+      },
+    }
+  );
+
+  if (res.status !== 200) {
+    return {
+      value: undefined,
+      error: {
+        code: String(res.status),
+        message: String(res.statusText),
+      },
+    };
+  }
+
+  return {
+    value: {
+      value: res.body.value,
+      Qtd_Registros: res.body['@xdata.count'],
     },
     error: undefined,
   };
