@@ -2,7 +2,7 @@
 
 import { iApiResult, ResponseType } from '@/@types';
 import { iCliente } from '@/@types/Cliente';
-import { iFilter } from '@/@types/Filter';
+import { iFilter, iFilterQuery } from '@/@types/Filter';
 import {
   iProductPromotion,
   iProduto,
@@ -53,34 +53,83 @@ const ROUTE_ESTOQUE_LOJAS = '/EstoqueFiliais';
 const ROUTE_GET_ALL_PRODUTO = '/Produto';
 const ROUTE_GET_SALE_HISTORY = '/ServiceClientes/ListaHistoricoVendas';
 
-async function CreateFilter(filter: iFilter<iProduto>): Promise<string> {
-  let ResultFilter: string = ``;
+function ReturnFilterQuery(typeSearch: iFilterQuery<iProduto>): string {
+  let result: string = '';
   const andStr = ' AND ';
-  if (filter.filter && filter.filter.length >= 1) {
-    ResultFilter = `$filter=`;
-    filter.filter.map((itemFilter) => {
-      if (itemFilter.typeSearch)
-        itemFilter.typeSearch === 'like'
-          ? (ResultFilter = `${ResultFilter}${andStr} contains(${
-              itemFilter.key
-            }, '${String(itemFilter.value).toUpperCase()}')${andStr}`)
-          : itemFilter.typeSearch === 'eq' &&
-            (ResultFilter = `${ResultFilter}${andStr}${itemFilter.key} eq '${itemFilter.value}'${andStr}`);
-      else
-        ResultFilter = `${ResultFilter}${andStr} contains(${
-          itemFilter.key
-        }, '${String(itemFilter.value).toUpperCase()}')${andStr}`;
-    });
-    ResultFilter = ResultFilter.slice(0, -andStr.length);
+  const orStr = ' OR ';
+
+  if (typeSearch.typeSearch === 'like' && typeSearch.typeCondition === 'and') {
+    result = `${result}${andStr}${String(
+      typeSearch.key
+    ).toUpperCase()} like '${String(typeSearch.value).toUpperCase()}'`;
   }
 
-  const ResultOrderBy = filter.orderBy
-    ? `&$orderby=${filter.orderBy}`
-    : '&$orderby=PRODUTO desc';
+  if (typeSearch.typeSearch === 'like' && typeSearch.typeCondition === 'or') {
+    result = `${result}${orStr}${String(
+      typeSearch.key
+    ).toUpperCase()} like '${String(typeSearch.value).toUpperCase()}'`;
+  }
 
-  const ResultSkip = filter.skip ? `&$skip=${filter.skip}` : '&$skip=0';
+  if (typeSearch.typeSearch === 'eq' && typeSearch.typeCondition === 'and') {
+    result = `${result}${andStr}${String(
+      typeSearch.key
+    ).toUpperCase()} eq '${String(typeSearch.value).toUpperCase()}'`;
+  }
 
-  let ResultTop = filter.top ? `$top=${filter.top}` : '$top=15';
+  if (typeSearch.typeSearch === 'eq' && typeSearch.typeCondition === 'or') {
+    result = `${result}${orStr}'${String(
+      typeSearch.key
+    ).toUpperCase()} eq ${String(typeSearch.value).toUpperCase()}'`;
+  }
+
+  if (
+    typeSearch.typeSearch === 'like' &&
+    typeSearch.typeCondition === undefined
+  ) {
+    result = `${result}${String(typeSearch.key).toUpperCase()} like '${String(
+      typeSearch.value
+    ).toUpperCase()}'`;
+  }
+
+  if (
+    typeSearch.typeSearch === 'eq' &&
+    typeSearch.typeCondition === undefined
+  ) {
+    result = `${result}${String(typeSearch.key).toUpperCase()} eq '${String(
+      typeSearch.value
+    ).toUpperCase()}'`;
+  }
+
+  return encodeURIComponent(result);
+}
+
+async function CreateQueryParams(filter: iFilter<iProduto>): Promise<string> {
+  let ResultFilter: string = ``;
+  const FilterStr: string = `$filter=`;
+
+  //verifica os filtros
+  if (filter.filter && filter.filter.length >= 1) {
+    filter.filter.map(async (itemFilter) => {
+      if (itemFilter.value !== '') {
+        ResultFilter = ResultFilter + ReturnFilterQuery(itemFilter);
+      }
+    });
+
+    if (ResultFilter !== '') {
+      ResultFilter = FilterStr + ResultFilter;
+    }
+  }
+
+  //verifica a quantidade buscada
+  let ResultTop = filter.top !== undefined ? `$top=${filter.top}` : '$top=15';
+
+  //verifica a quantidade 'pulada'
+  const ResultSkip =
+    filter.skip !== undefined ? `&$skip=${filter.skip}` : '&$skip=0';
+
+  //ordena a busca
+  const ResultOrderBy =
+    filter.orderBy !== undefined ? `&$orderby=${filter.orderBy}` : '';
 
   ResultFilter !== '' && (ResultTop = `&${ResultTop}`);
 
@@ -130,16 +179,12 @@ export async function SuperFindProducts(
 }
 
 export async function GetProducts(
-  productCode: string
+  filter: iFilter<iProduto>
 ): Promise<ResponseType<iDataResultTable<iProduto>>> {
   const tokenCookie = await getCookie('token');
-  const url: string = `${ROUTE_GET_ALL_PRODUTO}?$filter=PRODUTO like ${encodeURIComponent(
-    `'${productCode}'`
-  )} or NOME like ${encodeURIComponent(
-    `'${productCode}'`
-  )} or REFERENCIA like ${encodeURIComponent(
-    `'${productCode}'`
-  )}&$top=15&$skip=0&$orderby=PRODUTO&$expand=FABRICANTE,FORNECEDOR,GRUPO&$inlinecount=allpages`;
+  const url: string = `${ROUTE_GET_ALL_PRODUTO}${await CreateQueryParams(
+    filter
+  )}`;
 
   console.log('url', url);
 
@@ -153,6 +198,8 @@ export async function GetProducts(
       },
     }
   );
+
+  console.log('res product', res.status);
 
   if (res.status !== 200) {
     return {
