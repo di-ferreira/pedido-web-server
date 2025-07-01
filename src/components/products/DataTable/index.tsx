@@ -21,7 +21,6 @@ function DataTableProducts() {
   const [WordProducts, setWordProducts] = useState<string>('');
 
   const handleProductSearch = (filter: iSearch<iProduto>) => {
-    console.log('handleProductSearch', filter);
     setLoading(true);
     setWordProducts(filter.value);
 
@@ -32,12 +31,12 @@ function DataTableProducts() {
       filter: [
         {
           key: 'PRODUTO',
-          value: WordProducts,
+          value: filter.value,
           typeSearch: 'like',
         },
         {
           key: 'REFERENCIA',
-          value: WordProducts,
+          value: filter.value,
           typeCondition: 'or',
           typeSearch: 'like',
         },
@@ -86,10 +85,7 @@ function DataTableProducts() {
       ],
     })
       .then(async (products: ResponseType<iDataResultTable<iProduto>>) => {
-        console.log('products', products);
-
         if (products.value !== undefined) {
-          console.log('GetProduct', products.value);
           setData((old) => (old = products));
         }
 
@@ -106,7 +102,7 @@ function DataTableProducts() {
 
   useEffect(() => {
     removeStorage(KEY_NAME_TABLE_PAGINATION);
-    handleProduct({ top: 10 });
+    handleProduct({ top: 15 });
   }, []);
 
   if (data.error !== undefined) {
