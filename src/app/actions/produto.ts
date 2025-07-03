@@ -349,10 +349,25 @@ export async function GetNewPriceFromTable(
     },
   });
 
+  console.log('GetNewPriceFromTable', res.body);
+
   if (res.status !== 200) {
     return {
-      value: product.PRECO,
-      error: undefined,
+      value: undefined,
+      error: {
+        code: String(res.status),
+        message: res.statusText,
+      },
+    };
+  }
+
+  if (res.body.Data === null || res.body.RecordCount <= 0) {
+    return {
+      value: undefined,
+      error: {
+        code: '404',
+        message: 'Produto não encontrado!',
+      },
     };
   }
 

@@ -9,18 +9,18 @@ import {
   GetNewPriceFromTable,
   GetProduct,
   GetProductPromotion,
+  GetProducts,
   GetSaleHistory,
-  SuperFindProducts,
 } from '@/app/actions/produto';
 import { DataTable } from '@/components/CustomDataTable';
 import { Loading } from '@/components/Loading';
+import { SearchProductsModal } from '@/components/products/SearchProductsModal';
 import SuperSearchProducts from '@/components/products/SuperSearchProduct';
 import ToastNotify from '@/components/ToastNotify';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/components/ui/use-toast';
-import useModal from '@/hooks/useModal';
 import { FormatToCurrency } from '@/lib/utils';
 import { faPlus, faSave } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -36,7 +36,8 @@ interface iFormEditItem {
 }
 
 const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
-  const { showModal } = useModal();
+  const [IsVisibleModalProducts, setIsVisibleModalProducts] =
+    useState<boolean>(false);
   const [budgetItem, setBudgetItem] = useState<iItensOrcamento>({
     QTD: 1,
     VALOR: 0,
@@ -167,6 +168,7 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
 
   async function loadingProduct(product: iProduto) {
     setLoading(true);
+    setIsVisibleModalProducts(false);
     try {
       const prod = await GetProduct(product.PRODUTO);
       UpdateProduct(prod.value!);
@@ -191,8 +193,35 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
       resultProduct.error !== undefined ||
       (resultProduct.value?.ATIVO !== 'S' && resultProduct.value?.VENDA !== 'S')
     ) {
-      SuperFindProducts({
-        filter: [{ key: 'PRODUTO', value: WordProducts }],
+      GetProducts({
+        top: 15,
+        skip: 0,
+        orderBy: 'PRODUTO',
+        filter: [
+          {
+            key: 'PRODUTO',
+            value: WordProducts,
+            typeSearch: 'like',
+          },
+          {
+            key: 'TRANCAR',
+            value: 'N',
+            typeCondition: 'and',
+            typeSearch: 'eq',
+          },
+          {
+            key: 'VENDA',
+            value: 'S',
+            typeCondition: 'and',
+            typeSearch: 'eq',
+          },
+          {
+            key: 'ATIVO',
+            value: 'S',
+            typeCondition: 'and',
+            typeSearch: 'eq',
+          },
+        ],
       })
         .then(async (products: ResponseType<iDataResultTable<iProduto>>) => {
           if (products.value !== undefined) {
@@ -200,7 +229,7 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
               loadingProduct(products.value.value[0]);
             } else {
               setSerachedProducts((old) => (old = products.value!));
-              showModal();
+              setIsVisibleModalProducts(true);
             }
           }
 
@@ -604,11 +633,16 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
             </Button>
           </div>
         </footer>
-        <SuperSearchProducts
-          words={WordProducts}
-          data={SerachedProducts}
-          CallBack={loadingProduct}
-        />
+        <SearchProductsModal
+          modalTitle={'Busca de Produtos'}
+          IsVisible={IsVisibleModalProducts}
+        >
+          <SuperSearchProducts
+            words={WordProducts}
+            data={SerachedProducts}
+            CallBack={loadingProduct}
+          />
+        </SearchProductsModal>
       </form>
       {loading && <Loading />}
     </div>

@@ -35,10 +35,22 @@ function DataTableProducts() {
           typeSearch: 'like',
         },
         {
-          key: 'REFERENCIA',
-          value: filter.value,
-          typeCondition: 'or',
-          typeSearch: 'like',
+          key: 'TRANCAR',
+          value: 'N',
+          typeCondition: 'and',
+          typeSearch: 'eq',
+        },
+        {
+          key: 'VENDA',
+          value: 'S',
+          typeCondition: 'and',
+          typeSearch: 'eq',
+        },
+        {
+          key: 'ATIVO',
+          value: 'S',
+          typeCondition: 'and',
+          typeSearch: 'eq',
         },
       ],
     })
@@ -77,10 +89,22 @@ function DataTableProducts() {
           typeSearch: 'like',
         },
         {
-          key: 'REFERENCIA',
-          value: WordProducts,
-          typeCondition: 'or',
-          typeSearch: 'like',
+          key: 'TRANCAR',
+          value: 'N',
+          typeCondition: 'and',
+          typeSearch: 'eq',
+        },
+        {
+          key: 'VENDA',
+          value: 'S',
+          typeCondition: 'and',
+          typeSearch: 'eq',
+        },
+        {
+          key: 'ATIVO',
+          value: 'S',
+          typeCondition: 'and',
+          typeSearch: 'eq',
         },
       ],
     })

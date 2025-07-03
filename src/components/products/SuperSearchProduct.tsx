@@ -3,7 +3,7 @@ import { ResponseType } from '@/@types';
 import { iFilter } from '@/@types/Filter';
 import { iProduto } from '@/@types/Produto';
 import { iColumnType, iDataResultTable } from '@/@types/Table';
-import { SuperFindProducts } from '@/app/actions/produto';
+import { GetProducts } from '@/app/actions/produto';
 import useModal from '@/hooks/useModal';
 import { faPlus, faSearch } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -349,11 +349,35 @@ const SuperSearchProducts = ({ data, words, CallBack }: iProps) => {
       ListaChaves: [],
     };
     setLoading(true);
-    SuperFindProducts({
+    GetProducts({
       top: filter.top,
       skip: filter.skip,
       orderBy: 'PRODUTO',
-      filter: [{ key: 'PRODUTO', value: WordProducts }],
+      filter: [
+        {
+          key: 'PRODUTO',
+          value: WordProducts,
+          typeSearch: 'like',
+        },
+        {
+          key: 'TRANCAR',
+          value: 'N',
+          typeCondition: 'and',
+          typeSearch: 'eq',
+        },
+        {
+          key: 'VENDA',
+          value: 'S',
+          typeCondition: 'and',
+          typeSearch: 'eq',
+        },
+        {
+          key: 'ATIVO',
+          value: 'S',
+          typeCondition: 'and',
+          typeSearch: 'eq',
+        },
+      ],
     })
       .then(async (products: ResponseType<iDataResultTable<iProduto>>) => {
         if (products.value !== undefined) {
@@ -386,52 +410,43 @@ const SuperSearchProducts = ({ data, words, CallBack }: iProps) => {
     }
   }, [data]);
   return (
-    <>
-      {Modal && (
-        <Modal
-          Title={'BUSCAR PRODUTO'}
-          containerStyle='laptop:w-[75%] laptop:h-[80%]'
+    <div className='flex flex-col gap-4 w-full h-[95%] p-2'>
+      <div className='flex gap-x-2 w-full items-center'>
+        <Input
+          value={WordProducts}
+          onChange={(e) => setWordProducts(e.target.value)}
+          onKeyDown={OnSearchProduto}
+        />
+        <Button
+          className={`flex w-fit h-[35px] p-3 gap-3`}
+          title='Buscar Produto'
+          onClick={() => findProduct({ top: 10, skip: 0 })}
         >
-          <div className='flex flex-col gap-4 w-full h-[95%] p-2'>
-            <div className='flex gap-x-2 w-full items-center'>
-              <Input
-                value={WordProducts}
-                onChange={(e) => setWordProducts(e.target.value)}
-                onKeyDown={OnSearchProduto}
-              />
-              <Button
-                className={`flex w-fit h-[35px] p-3 gap-3`}
-                title='Buscar Produto'
-                onClick={() => findProduct({ top: 10, skip: 0 })}
-              >
-                <FontAwesomeIcon
-                  icon={faSearch}
-                  size='xl'
-                  title='SALVAR'
-                  className='text-white'
-                />
-                Buscar
-              </Button>
-            </div>
-            <div className='flex w-full h-full flex-col overflow-x-hidden overflow-y-auto'>
-              {loading ? (
-                <span>Carregando...</span>
-              ) : (
-                <Suspense fallback={<span>Carregando...</span>}>
-                  <DataTable
-                    columns={tableHeaders}
-                    TableData={Products.value}
-                    IsLoading={loading}
-                    QuantityRegiters={Products.Qtd_Registros}
-                    onFetchPagination={findProduct}
-                  />
-                </Suspense>
-              )}
-            </div>
-          </div>
-        </Modal>
-      )}
-    </>
+          <FontAwesomeIcon
+            icon={faSearch}
+            size='xl'
+            title='SALVAR'
+            className='text-white'
+          />
+          Buscar
+        </Button>
+      </div>
+      <div className='flex w-full h-full flex-col overflow-x-hidden overflow-y-auto'>
+        {loading ? (
+          <span>Carregando...</span>
+        ) : (
+          <Suspense fallback={<span>Carregando...</span>}>
+            <DataTable
+              columns={tableHeaders}
+              TableData={Products.value}
+              IsLoading={loading}
+              QuantityRegiters={Products.Qtd_Registros}
+              onFetchPagination={findProduct}
+            />
+          </Suspense>
+        )}
+      </div>
+    </div>
   );
 };
 
