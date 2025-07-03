@@ -146,7 +146,6 @@ export async function SuperFindProducts(
     PularRegistros: filter?.skip ? filter.skip : 0,
     QuantidadeRegistros: filter?.top ? filter.top : 15,
   };
-  console.log('superFindProducts', bodyReq);
 
   const res = await CustomFetch<iApiResult<iProduto[]>>(
     `${ROUTE_SUPER_BUSCA}?$expand=FABRICANTE,FORNECEDOR,GRUPO,ListaChaves,ListaSimilares`,
@@ -186,8 +185,6 @@ export async function GetProducts(
     filter
   )}`;
 
-  console.log('url', url);
-
   const res = await CustomFetch<{ '@xdata.count': number; value: iProduto[] }>(
     url,
     {
@@ -198,8 +195,6 @@ export async function GetProducts(
       },
     }
   );
-
-  console.log('res product', res.status);
 
   if (res.status !== 200) {
     return {
@@ -223,8 +218,6 @@ export async function GetProducts(
 export async function GetProduct(productCode: string) {
   const tokenCookie = await getCookie('token');
   const productScape = encodeURIComponent(productCode);
-  console.log('getproduct', productCode);
-  console.log('getproduct Scape', productScape);
 
   const res = await CustomFetch<iProduto>(
     `${ROUTE_GET_ALL_PRODUTO}('${productScape}')?$expand=FABRICANTE,ListaSimilares,ListaSimilares/PRODUTO,ListaSimilares/EXTERNO`,
@@ -236,7 +229,6 @@ export async function GetProduct(productCode: string) {
       },
     }
   );
-  console.log('res', res.body);
 
   if (res.status !== 200) {
     return {
@@ -349,8 +341,6 @@ export async function GetNewPriceFromTable(
     },
   });
 
-  console.log('GetNewPriceFromTable', res.body);
-
   if (res.status !== 200) {
     return {
       value: undefined,
@@ -401,8 +391,6 @@ export async function GetProductPromotion(
       Authorization: `bearer ${tokenCookie}`,
     },
   });
-
-  console.log('product promotion', res);
 
   if (res.body.Data === null) {
     return {

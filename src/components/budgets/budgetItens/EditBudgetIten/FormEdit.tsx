@@ -142,6 +142,8 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
     }
 
     let newQtd = 1;
+    new_price = new_price === undefined ? prod.PRECO : new_price;
+
     if (prod !== undefined) {
       newQtd = handleCalcQTD(budgetItem.QTD, prod);
       setBudgetItem(
@@ -155,7 +157,6 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
             TOTAL: new_price * budgetItem.QTD,
           })
       );
-
       history.value !== null && setSalesHistory((old) => [...history.value!]);
 
       setQtdItem((old) => (old = newQtd.toString()));
@@ -171,6 +172,7 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
     setIsVisibleModalProducts(false);
     try {
       const prod = await GetProduct(product.PRODUTO);
+
       UpdateProduct(prod.value!);
     } finally {
       setLoading(false);
@@ -301,10 +303,11 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
 
   async function LoadItem(cliente: iCliente) {
     if (item) {
-      const new_price = await GetNewPriceFromTable(
+      const price_from_table = await GetNewPriceFromTable(
         item.PRODUTO,
         cliente.Tabela
       );
+
       setProductSelected(
         (old) =>
           (old = {
@@ -312,12 +315,18 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
           })
       );
 
+      let new_price: number = item.PRODUTO.PRECO;
+      new_price =
+        price_from_table.value! === undefined
+          ? item.PRODUTO.PRECO
+          : price_from_table.value!;
+
       setBudgetItem(
         (old) =>
           (old = {
             ...item,
             PRODUTO: item.PRODUTO,
-            VALOR: new_price.value!,
+            VALOR: new_price,
             QTD: item.QTD,
             SUBTOTAL: item.SUBTOTAL,
             TOTAL: item.TOTAL,

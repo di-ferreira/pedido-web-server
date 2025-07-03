@@ -55,10 +55,7 @@ function DataTableProducts() {
       ],
     })
       .then(async (products: ResponseType<iDataResultTable<iProduto>>) => {
-        console.log('handleProductSearch products', products);
-
         if (products.value !== undefined) {
-          console.log('handleProductSearch GetProduct', products.value);
           setData((old) => (old = products));
         }
 
@@ -74,8 +71,6 @@ function DataTableProducts() {
   };
 
   const handleProduct = (filter: iFilter<iProduto>) => {
-    console.log('handleProduct', filter);
-
     setLoading(true);
 
     GetProducts({
