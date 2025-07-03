@@ -159,9 +159,21 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
       );
       history.value !== null && setSalesHistory((old) => [...history.value!]);
 
+      let similaresFiltrados: iListaSimilare[] = prod.ListaSimilares.filter(
+        (similar) => {
+          return (
+            similar.EXTERNO.ATIVO === 'S' &&
+            similar.EXTERNO.VENDA === 'S' &&
+            similar.EXTERNO.TRANCAR === 'N'
+          );
+        }
+      );
+      console.log('similares', prod.ListaSimilares);
+      console.log('similaresFiltrados', similaresFiltrados);
+
       setQtdItem((old) => (old = newQtd.toString()));
       setProductSelected(prod);
-      setSimilares((old) => [...prod.ListaSimilares]);
+      setSimilares((old) => [...similaresFiltrados]);
       setWordProducts(prod.PRODUTO);
       inputQTDRef.current?.focus();
     }
