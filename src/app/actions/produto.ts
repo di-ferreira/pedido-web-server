@@ -351,7 +351,7 @@ export async function GetNewPriceFromTable(
     };
   }
 
-  if (res.body.Data === null || res.body.RecordCount <= 0) {
+  if (res.body.Data === null && res.body.RecordCount <= 0) {
     return {
       value: undefined,
       error: {
@@ -440,4 +440,3 @@ export async function GetSaleHistory(
     error: undefined,
   };
 }
-

@@ -132,8 +132,8 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
     let history = await GetSaleHistory(budget.CLIENTE, prod);
 
     if (promotionalProduct.error !== undefined) {
-      new_price = (await GetNewPriceFromTable(prod, Budget.CLIENTE.Tabela))
-        .value!;
+      let tablePrice = await GetNewPriceFromTable(prod, Budget.CLIENTE.Tabela);
+      new_price = tablePrice.value ? tablePrice.value : prod.PRECO;
     }
 
     if (promotionalProduct.value !== undefined) {
@@ -168,8 +168,6 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
           );
         }
       );
-      console.log('similares', prod.ListaSimilares);
-      console.log('similaresFiltrados', similaresFiltrados);
 
       setQtdItem((old) => (old = newQtd.toString()));
       setProductSelected(prod);
@@ -671,4 +669,3 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
 };
 
 export default FormEdit;
-
