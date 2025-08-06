@@ -20,7 +20,6 @@ import ToastNotify from '@/components/ToastNotify';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { toast } from '@/components/ui/use-toast';
 import { FormatToCurrency } from '@/lib/utils';
 import { faPlus, faSave } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -146,6 +145,7 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
 
     if (prod !== undefined) {
       newQtd = handleCalcQTD(budgetItem.QTD, prod);
+
       setBudgetItem(
         (old) =>
           (old = {
@@ -253,10 +253,9 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
           }
         })
         .catch((e) => {
-          toast({
-            title: 'Error!',
-            description: `Erro: ${e.message}`,
-            variant: 'destructive',
+          ToastNotify({
+            message: `Erro: ${e.message}`,
+            type: 'error',
           });
         })
         .finally(() => {
@@ -283,17 +282,26 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
 
   const handleCalcQTD = (qtd: number, product: iProduto): number => {
     let newQtd = 1;
-    let multiplo = product.MULTIPLO_COMPRA;
 
-    if (product.QTD_VENDA > 1) multiplo = product.QTD_VENDA;
+    // Garantir que MULTIPLO_COMPRA e QTD_VENDA são números válidos
+    const multiploCompra = Number(product.MULTIPLO_COMPRA) || 1;
+    const qtdVenda = Number(product.QTD_VENDA) || 1;
 
+    // Decidir qual usar como múltiplo
+    const multiplo = qtdVenda > 1 ? qtdVenda : multiploCompra;
+
+    // Calcular nova quantidade
     newQtd = Math.ceil(qtd / multiplo) * multiplo;
+
     return newQtd;
   };
 
   async function onChangeQTD(e: React.ChangeEvent<HTMLInputElement>) {
     let newQtd = Number(e.target.value);
-    if (isNaN(newQtd)) newQtd = 1;
+
+    if (Number.isNaN(newQtd) || newQtd < 1) {
+      newQtd = 1;
+    }
     const finalQtd = handleCalcQTD(newQtd, productSelected);
 
     setQtdItem(finalQtd.toString());
@@ -573,6 +581,10 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
                 let newQtdText = e.target.value;
                 let newQtd = Number(newQtdText);
 
+                if (Number.isNaN(newQtd) || newQtd < 1) {
+                  newQtd = 1;
+                }
+
                 setQtdItem(newQtdText);
 
                 setBudgetItem((prevBudgetItem) => ({
@@ -669,3 +681,4 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
 };
 
 export default FormEdit;
+

@@ -14,22 +14,8 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { Flip, toast } from 'react-toastify';
 
 export function AuthForm() {
-  const notify = (message: string) => {
-    toast(message, {
-      position: 'bottom-right',
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: false,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: 'colored',
-      transition: Flip,
-    });
-  };
   const router = useRouter();
   const vendedorUser = useUser();
   const [isPendding, setIsPendding] = useState<boolean>(false);
