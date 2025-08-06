@@ -197,13 +197,16 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
     if (
       resultProduct.value !== undefined &&
       resultProduct.value?.ATIVO !== 'N' &&
-      resultProduct.value?.VENDA !== 'N'
+      resultProduct.value?.VENDA !== 'N' &&
+      resultProduct.value?.TRANCAR !== 'S'
     ) {
       UpdateProduct(resultProduct.value);
       setLoading(false);
     } else if (
       resultProduct.error !== undefined ||
-      (resultProduct.value?.ATIVO !== 'S' && resultProduct.value?.VENDA !== 'S')
+      resultProduct.value?.ATIVO !== 'S' ||
+      resultProduct.value?.VENDA !== 'S' ||
+      resultProduct.value?.TRANCAR !== 'N'
     ) {
       GetProducts({
         top: 15,
@@ -213,6 +216,12 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
           {
             key: 'PRODUTO',
             value: WordProducts,
+            typeSearch: 'like',
+          },
+          {
+            key: 'REFERENCIA',
+            value: WordProducts,
+            typeCondition: 'or',
             typeSearch: 'like',
           },
           {
