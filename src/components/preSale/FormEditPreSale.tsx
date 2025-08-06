@@ -12,6 +12,7 @@ import {
   GetFormasPGTO,
   SavePreVenda,
 } from '@/app/actions/preVenda';
+import ToastNotify from '@/components/ToastNotify';
 import { cn } from '@/lib/utils';
 import {
   faFileInvoiceDollar,
@@ -33,7 +34,6 @@ import {
   SelectItem,
   SelectTrigger,
 } from '../ui/select';
-import { toast } from '../ui/use-toast';
 import { tableHeaders } from './columnsParcelas';
 
 interface iFormEditPreSale {
@@ -116,10 +116,9 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
       GetCondicaoPGTO(orc ? orc.TOTAL : 0, orc.CLIENTE.Tabela).then(
         (condicao) => {
           if (condicao.value === null) {
-            toast({
-              title: 'Error!',
-              description: 'não a condições para o total do orçamento!',
-              variant: 'destructive',
+            ToastNotify({
+              message: 'não a condições para o total do orçamento!',
+              type: 'error',
             });
           }
           if (condicao.value) {
@@ -162,6 +161,20 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
   }
 
   function GerarPV() {
+    if (orc.CLIENTE.LIMITE < orc.TOTAL) {
+      ToastNotify({
+        message: `Cliente não possui limite suficiente de compras! Limite do cliente ${orc.CLIENTE.LIMITE.toLocaleString(
+          'pt-br',
+          {
+            style: 'currency',
+            currency: 'BRL',
+          }
+        )}`,
+        type: 'error',
+      });
+      return;
+    }
+
     const ItensPV: iItemPreVenda[] = [];
 
     for (const item in orc.ItensOrcamento) {
@@ -189,25 +202,22 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
     SavePreVenda(PV)
       .then((res) => {
         if (res.value) {
-          toast({
-            title: 'Sucesso!',
-            description: 'Pré-venda gerada com sucesso',
-            variant: 'success',
+          ToastNotify({
+            message: 'Pré-venda gerada com sucesso',
+            type: 'success',
           });
         }
         if (res.error) {
-          toast({
-            title: 'Error!',
-            description: res.error.message,
-            variant: 'destructive',
+          ToastNotify({
+            message: `Error! ${res.error.message}`,
+            type: 'error',
           });
         }
       })
       .catch((e) => {
-        toast({
-          title: 'Error!',
-          description: e.message,
-          variant: 'destructive',
+        ToastNotify({
+          message: `Error! ${e.message}`,
+          type: 'error',
         });
       })
       .finally(() => {
