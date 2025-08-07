@@ -1,7 +1,7 @@
 'use server';
 
-import { iSelectSQL, iVendedor, ResponseType } from '@/@types';
-import { iCliente } from '@/@types/Cliente';
+import { iSelectSQL, iVendedor, ResponseSQL, ResponseType } from '@/@types';
+import { iCliente, iPgtoEmAberto } from '@/@types/Cliente';
 import { iFilter } from '@/@types/Filter';
 import { iDataResultTable } from '@/@types/Table';
 import { CustomFetch } from '@/services/api';
@@ -301,14 +301,19 @@ export async function GetPGTOsEmAberto(cliente: number) {
     ],
   } as iSelectSQL);
 
-  const response = await CustomFetch<any>(`${ROUTE_SELECT_SQL}`, {
-    method: 'POST',
-    body: body,
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `bearer ${tokenCookie}`,
-    },
-  });
+  const response = await CustomFetch<ResponseSQL<iPgtoEmAberto[]>>(
+    `${ROUTE_SELECT_SQL}`,
+    {
+      method: 'POST',
+      body: body,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `bearer ${tokenCookie}`,
+      },
+    }
+  );
+
+  console.log('response: ', response.body);
 
   if (response.status !== 200) {
     return {
@@ -321,7 +326,7 @@ export async function GetPGTOsEmAberto(cliente: number) {
   }
 
   return {
-    value: response.body,
+    value: response.body.Data,
     error: undefined,
   };
 }

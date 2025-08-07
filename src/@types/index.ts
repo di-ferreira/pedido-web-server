@@ -125,3 +125,10 @@ export type ResponseError = {
   message: string;
 };
 
+export interface ResponseSQL<T> {
+  StatusCode: number;
+  StatusMessage: string;
+  RecordCount: number;
+  Data: T;
+}
+

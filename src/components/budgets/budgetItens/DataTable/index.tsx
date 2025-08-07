@@ -129,48 +129,112 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
       key: 'PRODUTO.PRODUTO',
       title: 'CÓDIGO',
       width: '15%',
+      render: (_, item) => (
+        <span
+          className={`flex w-full items-center justify-center gap-x-5  h-[55px] ${
+            item.PRODUTO.QTDATUAL - item.PRODUTO.QTD_GARANTIA <= 0 &&
+            ' bg-red-700 text-emsoft_light-surface font-bold'
+          }`}
+        >
+          {item.PRODUTO.PRODUTO}
+        </span>
+      ),
     },
     {
       key: 'PRODUTO.REFERENCIA',
       title: 'REFERÊNCIA',
       width: '15%',
+      render: (_, item) => (
+        <span
+          className={`flex w-full items-center justify-center gap-x-5  h-[55px] ${
+            item.PRODUTO.QTDATUAL - item.PRODUTO.QTD_GARANTIA <= 0 &&
+            ' bg-red-700 text-emsoft_light-surface font-bold'
+          }`}
+        >
+          {item.PRODUTO.REFERENCIA}
+        </span>
+      ),
     },
     {
       key: 'PRODUTO.NOME',
       title: 'PRODUTO',
       width: '15%',
+      render: (_, item) => (
+        <span
+          className={`flex w-full items-center justify-start text-wrap gap-x-5  h-[55px] ${
+            item.PRODUTO.QTDATUAL - item.PRODUTO.QTD_GARANTIA <= 0 &&
+            ' bg-red-700 text-emsoft_light-surface font-bold'
+          }`}
+        >
+          {item.PRODUTO.NOME}
+        </span>
+      ),
     },
     {
       key: 'VALOR',
       title: 'VALOR UNITÁRIO',
       width: '10%',
-      render: (_, item) => {
-        return item.VALOR.toLocaleString('pt-br', {
-          style: 'currency',
-          currency: 'BRL',
-        });
-      },
+      render: (_, item) => (
+        <span
+          className={`flex w-full items-center justify-center gap-x-5  h-[55px] ${
+            item.PRODUTO.QTDATUAL - item.PRODUTO.QTD_GARANTIA <= 0 &&
+            ' bg-red-700 text-emsoft_light-surface font-bold'
+          }`}
+        >
+          {item.VALOR.toLocaleString('pt-br', {
+            style: 'currency',
+            currency: 'BRL',
+          })}
+        </span>
+      ),
     },
     {
       key: 'PRODUTO.QTDATUAL',
       title: 'QTD EST.',
       width: '5%',
+      render: (_, item) => (
+        <span
+          className={`flex w-full items-center justify-center gap-x-5  h-[55px] ${
+            item.PRODUTO.QTDATUAL - item.PRODUTO.QTD_GARANTIA <= 0 &&
+            ' bg-red-700 text-emsoft_light-surface font-bold'
+          }`}
+        >
+          {item.PRODUTO.QTDATUAL - item.PRODUTO.QTD_GARANTIA}
+        </span>
+      ),
     },
     {
       key: 'QTD',
       title: 'QTD',
       width: '5%',
+      render: (_, item) => (
+        <span
+          className={`flex w-full items-center justify-center gap-x-5  h-[55px] ${
+            item.PRODUTO.QTDATUAL - item.PRODUTO.QTD_GARANTIA <= 0 &&
+            ' bg-red-700 text-emsoft_light-surface font-bold'
+          }`}
+        >
+          {item.QTD}
+        </span>
+      ),
     },
     {
       key: 'TOTAL',
       title: 'TOTAL',
       width: '15%',
-      render: (_, item) => {
-        return item.TOTAL.toLocaleString('pt-br', {
-          style: 'currency',
-          currency: 'BRL',
-        });
-      },
+      render: (_, item) => (
+        <span
+          className={`flex w-full items-center justify-center gap-x-5  h-[55px] ${
+            item.PRODUTO.QTDATUAL - item.PRODUTO.QTD_GARANTIA <= 0 &&
+            ' bg-red-700 text-emsoft_light-surface font-bold'
+          }`}
+        >
+          {item.TOTAL.toLocaleString('pt-br', {
+            style: 'currency',
+            currency: 'BRL',
+          })}
+        </span>
+      ),
     },
   ];
 

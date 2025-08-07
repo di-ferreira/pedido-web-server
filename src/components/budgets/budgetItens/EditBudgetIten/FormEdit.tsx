@@ -453,25 +453,6 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
                     disabled={item !== undefined}
                   />
                 </div>
-                {/* <div className={`flex w-[10%] mb-2`}>
-                <Button
-                  type='button'
-                  onClick={() => {
-                    findProduct();
-                  }}
-                  className={`flex w-9 h-10`}
-                  title='Buscar Produto'
-                  disabled={item !== undefined || loading}
-                >
-                  <FontAwesomeIcon
-                    icon={loading ? faSpinner : faSearch}
-                    spin={loading}
-                    size='xl'
-                    title='Fechar'
-                    className='text-white'
-                  />
-                </Button>
-              </div> */}
               </div>
               <div
                 className={`flex w-[25%] tablet:w-[47%] tablet-portrait:w-[100%]`}

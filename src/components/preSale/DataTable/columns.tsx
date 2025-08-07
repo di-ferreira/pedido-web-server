@@ -2,6 +2,8 @@
 import { iMovimento } from '@/@types/PreVenda';
 import { iColumnType } from '@/@types/Table';
 import dayjs from 'dayjs';
+import { LuBox } from 'react-icons/lu';
+import { TbTruck } from 'react-icons/tb';
 
 export const headers: iColumnType<iMovimento>[] = [
   {
@@ -26,6 +28,20 @@ export const headers: iColumnType<iMovimento>[] = [
     key: 'VENDEDOR.NOME',
     title: 'VENDEDOR',
     width: '20rem',
+  },
+  {
+    key: 'COM_FRETE',
+    title: 'FRETE',
+    width: '20rem',
+    render: (_, item) => (
+      <span className='flex w-full items-center justify-center gap-x-5'>
+        {item.COM_FRETE === 'S' ? (
+          <TbTruck size={30} className='text-emsoft_orange-dark' />
+        ) : (
+          <LuBox size={30} className='text-emsoft_orange-dark' />
+        )}
+      </span>
+    ),
   },
   {
     key: 'TOTAL',

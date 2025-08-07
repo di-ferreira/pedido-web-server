@@ -1,5 +1,6 @@
 'use client';
-import { iOrcamento } from '@/@types/Orcamento';
+import { iPgtoEmAberto } from '@/@types/Cliente';
+import { iItensOrcamento, iOrcamento } from '@/@types/Orcamento';
 import {
   iCondicaoPgto,
   iFormaPgto,
@@ -7,6 +8,7 @@ import {
   iParcelasPgto,
   iPreVenda,
 } from '@/@types/PreVenda';
+import { GetPGTOsEmAberto } from '@/app/actions/cliente';
 import {
   GetCondicaoPGTO,
   GetFormasPGTO,
@@ -135,7 +137,11 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
     GetFormasPGTO().then((formas) => {
       if (formas.value) {
         setFormaPgto(formas.value);
-        setFormaPgtoSelected(formas.value[0]);
+        let formaFilter = formas.value.find(
+          (forma) => forma.CARTAO === 'BOLETO'
+        );
+        let forma: iFormaPgto = formaFilter ? formaFilter : formas.value[0];
+        setFormaPgtoSelected(forma);
       }
     });
   }
@@ -160,16 +166,61 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
     setParcelasPgto((old) => (old = parcelas));
   }
 
+  function hasProdutoZerado(orc: iOrcamento): boolean {
+    let result: boolean = false;
+
+    const itens: iItensOrcamento[] = orc.ItensOrcamento;
+
+    itens.map((item) => {
+      if (item.PRODUTO.QTDATUAL - item.PRODUTO.QTD_GARANTIA <= 0) {
+        result = true;
+      }
+    });
+
+    return result;
+  }
+
+  function hasLimiteCliente(orc: iOrcamento) {
+    let emAberto: iPgtoEmAberto[] = [];
+    let saldoCompra = 0;
+    let result = false;
+    GetPGTOsEmAberto(orc.CLIENTE.CLIENTE)
+      .then((pgtos) => {
+        if (pgtos.value) {
+          emAberto = pgtos.value;
+        }
+      })
+      .catch((e) => {
+        ToastNotify({
+          message: `Erro ao buscar informações do cliente`,
+          type: 'error',
+        });
+      })
+      .finally(() => {
+        const contasAbertas: number =
+          emAberto?.reduce(
+            (total: number, conta: { RESTA: number }) => total + conta.RESTA,
+            0
+          ) ?? 0;
+        saldoCompra = orc.CLIENTE.LIMITE - contasAbertas;
+        result = saldoCompra < orc.TOTAL;
+      });
+
+    return result;
+  }
+
   function GerarPV() {
-    if (orc.CLIENTE.LIMITE < orc.TOTAL) {
+    if (hasLimiteCliente(orc)) {
       ToastNotify({
-        message: `Cliente não possui limite suficiente de compras! Limite do cliente ${orc.CLIENTE.LIMITE.toLocaleString(
-          'pt-br',
-          {
-            style: 'currency',
-            currency: 'BRL',
-          }
-        )}`,
+        message: `Cliente não possui limite suficiente de compras!`,
+        type: 'error',
+      });
+      return;
+    }
+
+    if (hasProdutoZerado(orc)) {
+      ToastNotify({
+        message: `Existe produto com estoque zerado na lista!`,
         type: 'error',
       });
       return;
