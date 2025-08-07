@@ -61,13 +61,13 @@ function ReturnFilterQuery(typeSearch: iFilterQuery<iProduto>): string {
   if (typeSearch.typeSearch === 'like' && typeSearch.typeCondition === 'and') {
     result = `${result}${andStr}${String(
       typeSearch.key
-    ).toUpperCase()} like '${String(typeSearch.value).toUpperCase()}'`;
+    ).toUpperCase()} like '%${String(typeSearch.value).toUpperCase()}%'`;
   }
 
   if (typeSearch.typeSearch === 'like' && typeSearch.typeCondition === 'or') {
     result = `${result}${orStr}${String(
       typeSearch.key
-    ).toUpperCase()} like '${String(typeSearch.value).toUpperCase()}'`;
+    ).toUpperCase()} like '%${String(typeSearch.value).toUpperCase()}%'`;
   }
 
   if (typeSearch.typeSearch === 'eq' && typeSearch.typeCondition === 'and') {
@@ -86,9 +86,9 @@ function ReturnFilterQuery(typeSearch: iFilterQuery<iProduto>): string {
     typeSearch.typeSearch === 'like' &&
     typeSearch.typeCondition === undefined
   ) {
-    result = `${result}${String(typeSearch.key).toUpperCase()} like '${String(
+    result = `${result}${String(typeSearch.key).toUpperCase()} like '%${String(
       typeSearch.value
-    ).toUpperCase()}'`;
+    ).toUpperCase()}%'`;
   }
 
   if (

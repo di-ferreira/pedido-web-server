@@ -1,5 +1,4 @@
 'use client';
-import { ResponseType } from '@/@types';
 import { iCliente } from '@/@types/Cliente';
 import { iItemInserir, iItensOrcamento, iOrcamento } from '@/@types/Orcamento';
 import { iListaSimilare, iProduto, iSaleHistory } from '@/@types/Produto';
@@ -192,36 +191,30 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
   async function findProduct() {
     setLoading(true);
 
-    const resultProduct = await GetProduct(WordProducts);
+    try {
+      const resultProduct = await GetProduct(WordProducts);
+      const produto = resultProduct.value;
 
-    if (
-      resultProduct.value !== undefined &&
-      resultProduct.value?.ATIVO !== 'N' &&
-      resultProduct.value?.VENDA !== 'N' &&
-      resultProduct.value?.TRANCAR !== 'S'
-    ) {
-      UpdateProduct(resultProduct.value);
-      setLoading(false);
-    } else if (
-      resultProduct.error !== undefined ||
-      resultProduct.value?.ATIVO !== 'S' ||
-      resultProduct.value?.VENDA !== 'S' ||
-      resultProduct.value?.TRANCAR !== 'N'
-    ) {
-      GetProducts({
+      const isValidProduct =
+        produto &&
+        produto.ATIVO === 'S' &&
+        produto.VENDA === 'S' &&
+        produto.TRANCAR === 'N';
+
+      if (isValidProduct) {
+        UpdateProduct(produto);
+
+        return;
+      }
+
+      const products = await GetProducts({
         top: 15,
         skip: 0,
         orderBy: 'PRODUTO',
         filter: [
           {
-            key: 'PRODUTO',
-            value: WordProducts,
-            typeSearch: 'like',
-          },
-          {
             key: 'REFERENCIA',
             value: WordProducts,
-            typeCondition: 'or',
             typeSearch: 'like',
           },
           {
@@ -230,54 +223,39 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
             typeCondition: 'and',
             typeSearch: 'eq',
           },
-          {
-            key: 'VENDA',
-            value: 'S',
-            typeCondition: 'and',
-            typeSearch: 'eq',
-          },
-          {
-            key: 'ATIVO',
-            value: 'S',
-            typeCondition: 'and',
-            typeSearch: 'eq',
-          },
+          { key: 'VENDA', value: 'S', typeCondition: 'and', typeSearch: 'eq' },
+          { key: 'ATIVO', value: 'S', typeCondition: 'and', typeSearch: 'eq' },
         ],
-      })
-        .then(async (products: ResponseType<iDataResultTable<iProduto>>) => {
-          if (products.value !== undefined) {
-            if (products.value.Qtd_Registros === 1) {
-              loadingProduct(products.value.value[0]);
-            } else {
-              setSerachedProducts((old) => (old = products.value!));
-              setIsVisibleModalProducts(true);
-            }
-          }
-
-          if (products.error !== undefined) {
-            ToastNotify({
-              message: `Erro: ${products.error.message}`,
-              type: 'error',
-            });
-          }
-        })
-        .catch((e) => {
-          ToastNotify({
-            message: `Erro: ${e.message}`,
-            type: 'error',
-          });
-        })
-        .finally(() => {
-          inputQTDRef.current?.focus();
-
-          setLoading(false);
-        });
-    } else {
-      ToastNotify({
-        message: `Erro: Produto não disponível para venda`,
-        type: 'error',
       });
 
+      if (products.value !== undefined && products.value.Qtd_Registros > 0) {
+        if (products.value.Qtd_Registros === 1) {
+          loadingProduct(products.value.value[0]);
+        } else {
+          setSerachedProducts(products.value);
+          setIsVisibleModalProducts(true);
+        }
+      } else {
+        // ❌ Nenhum produto encontrado após a segunda busca
+        ToastNotify({
+          message: 'Produto não encontrado ou indisponível para venda',
+          type: 'error',
+        });
+      }
+
+      if (products.error !== undefined) {
+        ToastNotify({
+          message: `Erro: ${products.error.message}`,
+          type: 'error',
+        });
+      }
+    } catch (e: any) {
+      ToastNotify({
+        message: `Erro inesperado: ${e.message}`,
+        type: 'error',
+      });
+    } finally {
+      inputQTDRef.current?.focus();
       setLoading(false);
     }
   }
@@ -377,7 +355,6 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
           LoadItem(res.value.CLIENTE);
         }
       } catch (err: any) {
-        console.error('Erro ao carregar orçamento:', err);
         ToastNotify({ message: err.message, type: 'error' });
       }
     };
