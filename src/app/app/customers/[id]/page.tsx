@@ -69,8 +69,7 @@ const Customers = async ({ params }: iCustomerPage) => {
     emAberto.value?.Data?.filter((aberto: iCredito) => aberto.ATRASO <= 0) ??
     [];
 
-  const saldoCompra =
-    customer.value.LIMITE - (contasAtrazadas + contasAVencer + contasAbertas);
+  const saldoCompra = customer.value.LIMITE - contasAbertas;
 
   function verifyTypeCustomer(customer: iCliente) {
     if (customer.TIPO_CLIENTE == 'BRONZE') {
