@@ -152,6 +152,11 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
       },
     },
     {
+      key: 'PRODUTO.QTDATUAL',
+      title: 'QTD EST.',
+      width: '5%',
+    },
+    {
       key: 'QTD',
       title: 'QTD',
       width: '5%',
