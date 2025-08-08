@@ -1,6 +1,5 @@
 'use client';
-import { iPgtoEmAberto } from '@/@types/Cliente';
-import { iItensOrcamento, iOrcamento } from '@/@types/Orcamento';
+import { iOrcamento } from '@/@types/Orcamento';
 import {
   iCondicaoPgto,
   iFormaPgto,
@@ -89,7 +88,9 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
     TipoEntrega[0]
   );
 
-  const [IsDelivery, setIsDelivery] = useState<boolean>(false);
+  const [IsDelivery, setIsDelivery] = useState<boolean>(
+    TipoEntrega[0].value === 'ENTREGA'
+  );
 
   const [preSale, setPreSale] = useState<iPreVenda>({
     CodigoCliente: orc.CLIENTE.CLIENTE,
@@ -103,7 +104,7 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
     ObsPedido1: orc.OBS1 ? orc.OBS1 : '',
     ObsPedido2: orc.OBS2 ? orc.OBS2 : '',
     ObsNotaFiscal: '',
-    Entrega: 'N',
+    Entrega: TipoEntrega[0].value === 'ENTREGA' ? 'S' : 'N',
     NumeroOrdemCompraCliente: '',
     CodigoVendedor2: 0,
     Desconto: 0,
@@ -167,114 +168,119 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
   }
 
   function hasProdutoZerado(orc: iOrcamento): boolean {
-    let result: boolean = false;
-
-    const itens: iItensOrcamento[] = orc.ItensOrcamento;
-
-    itens.map((item) => {
-      if (item.PRODUTO.QTDATUAL - item.PRODUTO.QTD_GARANTIA <= 0) {
-        result = true;
-      }
+    // Verifica se há pelo menos um produto com estoque insuficiente
+    return orc.ItensOrcamento.some((item) => {
+      const estoqueDisponivel =
+        item.PRODUTO.QTDATUAL - item.PRODUTO.QTD_GARANTIA;
+      return estoqueDisponivel <= 0;
     });
-
-    return result;
   }
 
-  function hasLimiteCliente(orc: iOrcamento) {
-    let emAberto: iPgtoEmAberto[] = [];
-    let saldoCompra = 0;
-    let result = false;
-    GetPGTOsEmAberto(orc.CLIENTE.CLIENTE)
-      .then((pgtos) => {
-        if (pgtos.value) {
-          emAberto = pgtos.value;
-        }
-      })
-      .catch((e) => {
+  async function hasLimiteCliente(orc: iOrcamento): Promise<boolean> {
+    try {
+      const pgtos = await GetPGTOsEmAberto(orc.CLIENTE.CLIENTE);
+
+      if (!pgtos.value) {
         ToastNotify({
-          message: `Erro ao buscar informações do cliente`,
+          message: 'Erro ao verificar limite do cliente',
           type: 'error',
         });
-      })
-      .finally(() => {
-        const contasAbertas: number =
-          emAberto?.reduce(
-            (total: number, conta: { RESTA: number }) => total + conta.RESTA,
-            0
-          ) ?? 0;
-        saldoCompra = orc.CLIENTE.LIMITE - contasAbertas;
-        result = saldoCompra < orc.TOTAL;
-      });
+        return true; // Bloqueia a operação em caso de erro
+      }
 
-    return result;
+      const emAberto = pgtos.value;
+      const contasAbertas = emAberto.reduce(
+        (total: number, conta: { RESTA: number }) => total + conta.RESTA,
+        0
+      );
+
+      const saldoDisponivel = orc.CLIENTE.LIMITE - contasAbertas;
+      const limiteInsuficiente = saldoDisponivel < orc.TOTAL;
+
+      // Debug para identificar o problema
+      console.log('Limite do cliente:', orc.CLIENTE.LIMITE);
+      console.log('Contas em aberto:', contasAbertas);
+      console.log('Saldo disponível:', saldoDisponivel);
+      console.log('Total do orçamento:', orc.TOTAL);
+      console.log('Limite insuficiente?', limiteInsuficiente);
+
+      return limiteInsuficiente;
+    } catch (e: any) {
+      ToastNotify({
+        message: `Erro ao verificar limite do cliente: ${e.message}`,
+        type: 'error',
+      });
+      return true; // Bloqueia a operação em caso de erro
+    }
   }
 
-  function GerarPV() {
-    if (hasLimiteCliente(orc)) {
-      ToastNotify({
-        message: `Cliente não possui limite suficiente de compras!`,
-        type: 'error',
-      });
-      return;
-    }
-
-    if (hasProdutoZerado(orc)) {
-      ToastNotify({
-        message: `Existe produto com estoque zerado na lista!`,
-        type: 'error',
-      });
-      return;
-    }
-
-    const ItensPV: iItemPreVenda[] = [];
-
-    for (const item in orc.ItensOrcamento) {
-      ItensPV.push({
-        CodigoProduto: orc.ItensOrcamento[item].PRODUTO.PRODUTO,
-        Qtd: orc.ItensOrcamento[item].QTD,
-        Desconto: orc.ItensOrcamento[item].DESCONTO
-          ? orc.ItensOrcamento[item].DESCONTO
-          : 0,
-        SubTotal: orc.ItensOrcamento[item].SUBTOTAL,
-        Tabela: orc.ItensOrcamento[item].TABELA,
-        Valor: orc.ItensOrcamento[item].VALOR,
-        Total: orc.ItensOrcamento[item].TOTAL,
-        Frete: 0,
-      });
-    }
-
-    const PV: iPreVenda = {
-      ...preSale,
-      Itens: ItensPV,
-      CodigoCondicaoPagamento: CondicaoPgtoSelected.ID,
-      Entrega: IsDelivery ? 'S' : 'N',
-    };
-
-    SavePreVenda(PV)
-      .then((res) => {
-        if (res.value) {
-          ToastNotify({
-            message: 'Pré-venda gerada com sucesso',
-            type: 'success',
-          });
-        }
-        if (res.error) {
-          ToastNotify({
-            message: `Error! ${res.error.message}`,
-            type: 'error',
-          });
-        }
-      })
-      .catch((e) => {
+  const GerarPV = async () => {
+    try {
+      // Primeiro verifica o estoque (síncrono)
+      if (hasProdutoZerado(orc)) {
         ToastNotify({
-          message: `Error! ${e.message}`,
+          message: `Existe produto com estoque zerado na lista!`,
           type: 'error',
         });
-      })
-      .finally(() => {
+        return;
+      }
+
+      // Depois verifica o limite (assíncrono)
+      const limiteExcedido = await hasLimiteCliente(orc);
+      console.log('limiteExcedido: ', limiteExcedido);
+      if (limiteExcedido) {
+        ToastNotify({
+          message: `Cliente não possui limite suficiente de compras!`,
+          type: 'error',
+        });
+        return;
+      }
+
+      // Se passou nas verificações, prossegue com a geração
+      const ItensPV: iItemPreVenda[] = [];
+      for (const item of orc.ItensOrcamento) {
+        ItensPV.push({
+          CodigoProduto: item.PRODUTO.PRODUTO,
+          Qtd: item.QTD,
+          Desconto: item.DESCONTO || 0,
+          SubTotal: item.SUBTOTAL,
+          Tabela: item.TABELA,
+          Valor: item.VALOR,
+          Total: item.TOTAL,
+          Frete: 0,
+        });
+      }
+
+      console.log('IsDelivery: ', IsDelivery);
+      const PV: iPreVenda = {
+        ...preSale,
+        Itens: ItensPV,
+        CodigoCondicaoPagamento: CondicaoPgtoSelected.ID,
+        Entrega: IsDelivery ? 'S' : 'N',
+      };
+      console.log('PV: ', PV);
+
+      const res = await SavePreVenda(PV);
+
+      if (res.value) {
+        ToastNotify({
+          message: 'Pré-venda gerada com sucesso',
+          type: 'success',
+        });
         router.push('/app/pre-sales');
+      } else if (res.error) {
+        ToastNotify({
+          message: `Erro: ${res.error.message}`,
+          type: 'error',
+        });
+      }
+    } catch (e: any) {
+      ToastNotify({
+        message: `Erro ao gerar pré-venda: ${e.message}`,
+        type: 'error',
       });
-  }
+    }
+  };
 
   useEffect(() => {
     getCondicao();
@@ -401,19 +407,16 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
                       const entrega = TipoEntrega.find((cp) => cp.value === e);
                       if (entrega) {
                         setTipoEntregaSelected(entrega);
-                        setIsDelivery(false);
-                        setPreSale({
-                          ...preSale,
-                          Entrega: 'N',
-                        });
-                      }
 
-                      if (entrega?.value === 'ENTREGA') {
-                        setIsDelivery(true);
-                        setPreSale({
-                          ...preSale,
-                          Entrega: 'S',
-                        });
+                        // Determina se é entrega de forma direta
+                        const isEntrega = entrega.value === 'ENTREGA';
+                        setIsDelivery(isEntrega);
+
+                        // Atualiza o estado do preSale de forma consistente
+                        setPreSale((prev) => ({
+                          ...prev,
+                          Entrega: isEntrega ? 'S' : 'N',
+                        }));
                       }
                     }}
                   >

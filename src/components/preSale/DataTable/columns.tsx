@@ -36,9 +36,9 @@ export const headers: iColumnType<iMovimento>[] = [
     render: (_, item) => (
       <span className='flex w-full items-center justify-center gap-x-5'>
         {item.COM_FRETE === 'S' ? (
-          <TbTruck size={30} className='text-emsoft_orange-dark' />
+          <TbTruck size={30} className='text-emsoft_success-main' />
         ) : (
-          <LuBox size={30} className='text-emsoft_orange-dark' />
+          <LuBox size={30} className='text-emsoft_orange-main' />
         )}
       </span>
     ),
