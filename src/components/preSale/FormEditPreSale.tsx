@@ -110,7 +110,7 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
     Desconto: 0,
     Origem: '',
     PedidoEcommerce: '',
-    TipoEntrega: '',
+    TipoEntrega: TipoEntrega[0].value === 'ENTREGA' ? 'CARRO' : 'VEM BUSCAR',
     ValorFrete: 0,
   });
 
@@ -257,6 +257,7 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
         Itens: ItensPV,
         CodigoCondicaoPagamento: CondicaoPgtoSelected.ID,
         Entrega: IsDelivery ? 'S' : 'N',
+        TipoEntrega: IsDelivery ? 'CARRO' : 'VEM BUSCAR',
       };
       console.log('PV: ', PV);
 
@@ -416,6 +417,7 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
                         setPreSale((prev) => ({
                           ...prev,
                           Entrega: isEntrega ? 'S' : 'N',
+                          TipoEntrega: IsDelivery ? 'CARRO' : 'VEM BUSCAR',
                         }));
                       }
                     }}
