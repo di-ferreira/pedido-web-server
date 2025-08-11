@@ -191,31 +191,26 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
   async function findProduct() {
     setLoading(true);
 
+    console.log('WordProducts: ', WordProducts);
     try {
-      const resultProduct = await GetProduct(WordProducts);
-      const produto = resultProduct.value;
-
-      const isValidProduct =
-        produto &&
-        produto.ATIVO === 'S' &&
-        produto.VENDA === 'S' &&
-        produto.TRANCAR === 'N';
-
-      if (isValidProduct) {
-        UpdateProduct(produto);
-
-        return;
-      }
-
+      // const resultProduct = await GetProduct(WordProducts);
+      // console.log('resultProduct: ', resultProduct);
+      // const produto = resultProduct.value;
       const products = await GetProducts({
         top: 15,
         skip: 0,
         orderBy: 'PRODUTO',
         filter: [
           {
+            key: 'PRODUTO',
+            value: WordProducts,
+            typeSearch: 'like',
+          },
+          {
             key: 'REFERENCIA',
             value: WordProducts,
             typeSearch: 'like',
+            typeCondition: 'or',
           },
           {
             key: 'TRANCAR',
@@ -227,10 +222,23 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
           { key: 'ATIVO', value: 'S', typeCondition: 'and', typeSearch: 'eq' },
         ],
       });
+      console.log('products: ', products);
 
       if (products.value !== undefined && products.value.Qtd_Registros > 0) {
         if (products.value.Qtd_Registros === 1) {
-          loadingProduct(products.value.value[0]);
+          const produto = products.value.value[0];
+          const isValidProduct =
+            produto &&
+            produto.ATIVO === 'S' &&
+            produto.VENDA === 'S' &&
+            produto.TRANCAR === 'N';
+
+          if (isValidProduct) {
+            UpdateProduct(produto);
+            return;
+          }
+
+          // loadingProduct(produto);
         } else {
           setSerachedProducts(products.value);
           setIsVisibleModalProducts(true);
