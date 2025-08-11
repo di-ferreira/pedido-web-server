@@ -5,12 +5,16 @@ import { iFilter, iFilterQuery } from '@/@types/Filter';
 import { iOrcamento } from '@/@types/Orcamento';
 import { iColumnType, iDataResultTable } from '@/@types/Table';
 import { iVendedor } from '@/@types/Vendedor';
-import { GetClienteFromVendedor } from '@/app/actions/cliente';
+import {
+  GetClienteFromVendedor,
+  GetPGTOsAtrazados,
+} from '@/app/actions/cliente';
 import { NewOrcamento } from '@/app/actions/orcamento';
 import { DataTable } from '@/components/CustomDataTable';
 import ErrorMessage from '@/components/ErrorMessage';
 import Filter from '@/components/Filter';
 import { Loading } from '@/components/Loading';
+import ToastNotify from '@/components/ToastNotify';
 import { KEY_NAME_TABLE_PAGINATION } from '@/constants';
 import { removeStorage } from '@/lib/utils';
 import {
@@ -145,21 +149,49 @@ function DataTableCustomer() {
           onClick={() => {
             let orcID = 0;
             setIconLoading(true);
-            NewOrcamento({
-              ...NewAddOrcamento,
-              CLIENTE: item,
-            })
+
+            GetPGTOsAtrazados(item.CLIENTE)
               .then((res) => {
-                if (res.value !== undefined) {
-                  orcID = res.value.ORCAMENTO;
+                const contasAtrazadas = res.value[0]?.VALOR ?? 0;
+
+                if (contasAtrazadas > 0) {
+                  ToastNotify({
+                    message: `Cliente ${item.NOME} possuí contas em aberto!`,
+                    type: 'error',
+                  });
+                  return;
                 }
+
+                if (item.BLOQUEADO === 'S') {
+                  ToastNotify({
+                    message: `Cliente ${item.NOME} está bloqueado!`,
+                    type: 'error',
+                  });
+                  setIconLoading(false);
+                  return;
+                }
+                NewOrcamento({
+                  ...NewAddOrcamento,
+                  CLIENTE: item,
+                })
+                  .then((res) => {
+                    if (res.value !== undefined) {
+                      orcID = res.value.ORCAMENTO;
+                    }
+                  })
+                  .catch((err) => {
+                    console.error('Create budget error: ', err);
+                  })
+                  .finally(() => {
+                    setIconLoading(false);
+                    router.push(`/app/budgets/${orcID}`);
+                  });
               })
               .catch((err) => {
                 console.error('Create budget error: ', err);
               })
               .finally(() => {
                 setIconLoading(false);
-                router.push(`/app/budgets/${orcID}`);
               });
           }}
         />
