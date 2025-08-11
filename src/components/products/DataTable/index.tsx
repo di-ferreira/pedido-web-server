@@ -31,8 +31,14 @@ function DataTableProducts() {
       filter: [
         {
           key: 'PRODUTO',
-          value: filter.value,
+          value: WordProducts,
           typeSearch: 'like',
+        },
+        {
+          key: 'REFERENCIA',
+          value: WordProducts,
+          typeSearch: 'like',
+          typeCondition: 'or',
         },
         {
           key: 'TRANCAR',
@@ -40,18 +46,8 @@ function DataTableProducts() {
           typeCondition: 'and',
           typeSearch: 'eq',
         },
-        {
-          key: 'VENDA',
-          value: 'S',
-          typeCondition: 'and',
-          typeSearch: 'eq',
-        },
-        {
-          key: 'ATIVO',
-          value: 'S',
-          typeCondition: 'and',
-          typeSearch: 'eq',
-        },
+        { key: 'VENDA', value: 'S', typeCondition: 'and', typeSearch: 'eq' },
+        { key: 'ATIVO', value: 'S', typeCondition: 'and', typeSearch: 'eq' },
       ],
     })
       .then(async (products: ResponseType<iDataResultTable<iProduto>>) => {
