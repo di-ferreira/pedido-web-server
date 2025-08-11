@@ -191,11 +191,7 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
   async function findProduct() {
     setLoading(true);
 
-    console.log('WordProducts: ', WordProducts);
     try {
-      // const resultProduct = await GetProduct(WordProducts);
-      // console.log('resultProduct: ', resultProduct);
-      // const produto = resultProduct.value;
       const products = await GetProducts({
         top: 15,
         skip: 0,
@@ -222,7 +218,6 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
           { key: 'ATIVO', value: 'S', typeCondition: 'and', typeSearch: 'eq' },
         ],
       });
-      console.log('products: ', products);
 
       if (products.value !== undefined && products.value.Qtd_Registros > 0) {
         if (products.value.Qtd_Registros === 1) {
