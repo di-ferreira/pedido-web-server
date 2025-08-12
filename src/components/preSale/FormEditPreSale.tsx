@@ -180,7 +180,7 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
     try {
       const pgtos = await GetPGTOsEmAberto(orc.CLIENTE.CLIENTE);
 
-      if (!pgtos.value) {
+      if (pgtos.error !== undefined) {
         ToastNotify({
           message: 'Erro ao verificar limite do cliente',
           type: 'error',
@@ -188,21 +188,19 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
         return true; // Bloqueia a operação em caso de erro
       }
 
-      const emAberto = pgtos.value;
-      const contasAbertas = emAberto.reduce(
-        (total: number, conta: { RESTA: number }) => total + conta.RESTA,
-        0
-      );
+      const emAberto = pgtos.value!;
+
+      const contasAbertas = emAberto
+        ? emAberto.reduce(
+            (total: number, conta: { RESTA: number }) => total + conta.RESTA,
+            0
+          )
+        : 0;
 
       const saldoDisponivel = orc.CLIENTE.LIMITE - contasAbertas;
       const limiteInsuficiente = saldoDisponivel < orc.TOTAL;
 
       // Debug para identificar o problema
-      console.log('Limite do cliente:', orc.CLIENTE.LIMITE);
-      console.log('Contas em aberto:', contasAbertas);
-      console.log('Saldo disponível:', saldoDisponivel);
-      console.log('Total do orçamento:', orc.TOTAL);
-      console.log('Limite insuficiente?', limiteInsuficiente);
 
       return limiteInsuficiente;
     } catch (e: any) {
@@ -227,7 +225,7 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
 
       // Depois verifica o limite (assíncrono)
       const limiteExcedido = await hasLimiteCliente(orc);
-      console.log('limiteExcedido: ', limiteExcedido);
+
       if (limiteExcedido) {
         ToastNotify({
           message: `Cliente não possui limite suficiente de compras!`,
@@ -251,7 +249,6 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
         });
       }
 
-      console.log('IsDelivery: ', IsDelivery);
       const PV: iPreVenda = {
         ...preSale,
         Itens: ItensPV,
@@ -259,7 +256,6 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
         Entrega: IsDelivery ? 'S' : 'N',
         TipoEntrega: IsDelivery ? 'CARRO' : 'VEM BUSCAR',
       };
-      console.log('PV: ', PV);
 
       const res = await SavePreVenda(PV);
 
