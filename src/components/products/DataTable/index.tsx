@@ -31,12 +31,24 @@ function DataTableProducts() {
       filter: [
         {
           key: 'PRODUTO',
-          value: WordProducts,
+          value: WordProducts.toUpperCase(),
           typeSearch: 'like',
         },
         {
           key: 'REFERENCIA',
-          value: WordProducts,
+          value: WordProducts.toUpperCase(),
+          typeSearch: 'like',
+          typeCondition: 'or',
+        },
+        {
+          key: 'NOME',
+          value: WordProducts.toUpperCase(),
+          typeSearch: 'like',
+          typeCondition: 'or',
+        },
+        {
+          key: 'APLICACOES',
+          value: WordProducts.toUpperCase(),
           typeSearch: 'like',
           typeCondition: 'or',
         },
