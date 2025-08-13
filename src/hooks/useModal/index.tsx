@@ -13,6 +13,7 @@ const RenderLayout = ({
   bodyHeight,
   bodyWidth,
   containerStyle,
+  titleStyle,
 }: iModalRender) => {
   const BtnClose = () => {
     OnClose();
@@ -46,7 +47,7 @@ const RenderLayout = ({
         )}
       >
         <span
-          className='absolute right-0 top-0 flex items-center justify-center cursor-pointer border-none w-10 h-10 bg-red-700'
+          className='absolute right-0 top-0 flex items-center justify-center cursor-pointer border-none min-w-7 min-h-7 max-w-10 max-h-10 bg-red-700'
           onClick={BtnClose}
         >
           <FontAwesomeIcon
@@ -57,7 +58,10 @@ const RenderLayout = ({
           />
         </span>
         <header
-          className={`flex items-center justify-center text-3xl uppercase font-bold w-full h-11 border-b-2 border-emsoft_orange-main`}
+          className={cn(
+            `flex items-center justify-center text-3xl uppercase font-bold w-full h-11 border-b-2 border-emsoft_orange-main`,
+            titleStyle
+          )}
         >
           <h1>{Title}</h1>
         </header>
@@ -89,6 +93,7 @@ const useModal = () => {
       bodyHeight,
       bodyWidth,
       containerStyle,
+      titleStyle,
     }: iModal) =>
       ReactDOM.createPortal(
         <RenderLayout
@@ -98,6 +103,7 @@ const useModal = () => {
           bodyHeight={bodyHeight}
           bodyWidth={bodyWidth}
           containerStyle={containerStyle}
+          titleStyle={titleStyle}
         >
           {children}
         </RenderLayout>,

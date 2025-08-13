@@ -12,6 +12,8 @@ interface iModalEditBudgetItem {
   buttonText?: string;
   buttonIcon?: IconProp;
   buttonStyle?: string | undefined;
+  containerStyle?: string | undefined;
+  titleStyle?: string | undefined;
   iconStyle?: string | undefined;
   titleButton?: string | undefined;
 }
@@ -22,6 +24,8 @@ export const ModalEditBudgetItem = ({
   buttonIcon,
   modalTitle,
   buttonStyle,
+  containerStyle,
+  titleStyle,
   iconStyle,
   titleButton = '',
 }: iModalEditBudgetItem) => {
@@ -47,7 +51,11 @@ export const ModalEditBudgetItem = ({
       {Modal && (
         <Modal
           Title={modalTitle}
-          containerStyle='laptop:w-screen w-full laptop:h-screen tablet-a8-portrait:w-screen tablet-a8-portrait:h-screen bg-gray-200'
+          containerStyle={cn(
+            `laptop:w-screen w-full laptop:h-screen tablet-a8-portrait:w-screen tablet-a8-portrait:h-screen bg-gray-200`,
+            containerStyle
+          )}
+          titleStyle={titleStyle}
         >
           {React.cloneElement(children, { onCloseModal: OnCloseModal })}
         </Modal>

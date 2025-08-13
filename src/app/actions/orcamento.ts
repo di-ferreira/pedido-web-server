@@ -96,8 +96,8 @@ export async function GetOrcamentosFromVendedor(
   });
 
   const result: iDataResultTable<iOrcamento> = {
-    Qtd_Registros: response.body['@xdata.count'],
-    value: response.body.value,
+    Qtd_Registros: response.body!['@xdata.count'],
+    value: response.body!.value,
   };
 
   if (response.status !== 200) {
@@ -133,7 +133,7 @@ export async function GetOrcamento(
     }
   );
 
-  const result: iOrcamento = response.body;
+  const result: iOrcamento = response.body!;
 
   if (response.status !== 200) {
     return {
@@ -145,9 +145,9 @@ export async function GetOrcamento(
     };
   }
 
-  const itensOrcs: iItensOrcamento[] = response.body.ItensOrcamento.map(
+  const itensOrcs: iItensOrcamento[] = response.body!.ItensOrcamento.map(
     (item) => {
-      return { ...item, ORCAMENTO: response.body.ORCAMENTO };
+      return { ...item, ORCAMENTO: response.body!.ORCAMENTO };
     }
   );
 
@@ -202,17 +202,17 @@ export async function NewOrcamento(orcamento: iOrcamento) {
     }
   );
 
-  if (responseInsert.body.StatusCode !== 200) {
+  if (responseInsert.body!.StatusCode !== 200) {
     return {
       value: undefined,
       error: {
-        code: String(responseInsert.body.StatusCode),
-        message: String(responseInsert.body.StatusMessage),
+        code: String(responseInsert.body!.StatusCode),
+        message: String(responseInsert.body!.StatusMessage),
       },
     };
   }
 
-  const response = await GetOrcamento(responseInsert.body.Data.ORCAMENTO);
+  const response = await GetOrcamento(responseInsert.body!.Data.ORCAMENTO);
 
   if (response.error !== undefined) {
     return {
@@ -262,7 +262,7 @@ export async function UpdateOrcamento(orcamento: iOrcamento) {
     };
   }
 
-  const response = await GetOrcamento(responseInsert.body.ORCAMENTO);
+  const response = await GetOrcamento(responseInsert.body!.ORCAMENTO);
 
   if (response.error !== undefined) {
     return {
@@ -280,10 +280,60 @@ export async function UpdateOrcamento(orcamento: iOrcamento) {
   };
 }
 
+export async function RemoverOrcamento(orcamento: iOrcamento) {
+  const tokenCookie = await getCookie('token');
+  // 1. Remove todos os itens SEQUENCIALMENTE (garantindo ordem e tratamento de erro)
+  for (const item of orcamento.ItensOrcamento) {
+    const result = await removeItem({
+      pIdOrcamento: orcamento.ORCAMENTO,
+      pProduto: item.PRODUTO.PRODUTO,
+    });
+
+    console.log('result: ', result);
+    // 2. Se ANY item falhar, interrompe e retorna o erro
+    if (result.error) {
+      return {
+        value: undefined,
+        error: result.error,
+      };
+    }
+  }
+
+  // 3. Só chega aqui se TODOS os itens foram removidos com sucesso
+  const responseRemove = await CustomFetch<any>(
+    `/Orcamento(${orcamento.ORCAMENTO})`,
+    {
+      method: 'DELETE',
+      headers: {
+        accept: 'application/json',
+        Authorization: `bearer ${tokenCookie}`,
+      },
+    }
+  );
+  console.log('responseRemove: ', responseRemove);
+
+  // 4. Trata erro na remoção do orçamento
+  if (responseRemove.status !== 204) {
+    return {
+      value: undefined,
+      error: {
+        code: String(responseRemove.status),
+        message: String(responseRemove.statusText),
+      },
+    };
+  }
+
+  return {
+    value: 'Orçamento excluído com sucesso!',
+    error: undefined,
+  };
+}
+
 export async function removeItem(
   itemOrcamento: iItemRemove
 ): Promise<ResponseType<iOrcamento>> {
   const tokenCookie = await getCookie('token');
+  console.log('itemOrcamento remove: ', itemOrcamento);
 
   const data = await CustomFetch<iApiResult<iOrcamento>>(
     ROUTE_REMOVE_ITEM_ORCAMENTO,
@@ -299,6 +349,7 @@ export async function removeItem(
       },
     }
   );
+  console.log('item remove data: ', data);
 
   const response = await GetOrcamento(itemOrcamento.pIdOrcamento);
 
@@ -341,12 +392,12 @@ export async function addItem(itemOrcamento: iItemInserir) {
     }
   );
 
-  if (res.body.StatusCode !== 200) {
+  if (res.body!.StatusCode !== 200) {
     return {
       value: undefined,
       error: {
-        code: String(res.body.StatusCode),
-        message: String(res.body.StatusMessage),
+        code: String(res.body!.StatusCode),
+        message: String(res.body!.StatusMessage),
       },
     };
   }
@@ -387,12 +438,12 @@ export async function updateItem(itemOrcamento: iItemInserir) {
     }
   );
 
-  if (removeResult.body.StatusCode !== 200) {
+  if (removeResult.body!.StatusCode !== 200) {
     return {
       value: undefined,
       error: {
-        code: String(removeResult.body.StatusCode),
-        message: String(removeResult.body.StatusMessage),
+        code: String(removeResult.body!.StatusCode),
+        message: String(removeResult.body!.StatusMessage),
       },
     };
   }
@@ -409,12 +460,12 @@ export async function updateItem(itemOrcamento: iItemInserir) {
     }
   );
 
-  if (resultSave.body.StatusCode !== 200) {
+  if (resultSave.body!.StatusCode !== 200) {
     return {
       value: undefined,
       error: {
-        code: String(resultSave.body.StatusCode),
-        message: String(resultSave.body.StatusMessage),
+        code: String(resultSave.body!.StatusCode),
+        message: String(resultSave.body!.StatusMessage),
       },
     };
   }

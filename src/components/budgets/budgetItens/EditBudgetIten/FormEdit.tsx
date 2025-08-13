@@ -20,7 +20,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { FormatToCurrency } from '@/lib/utils';
-import { faPlus, faSave } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faSave, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import dayjs from 'dayjs';
 import React, { useEffect, useRef, useState } from 'react';
@@ -30,7 +30,7 @@ interface iFormEditItem {
   item?: iItensOrcamento;
   budget: iOrcamento;
   CallBack?: () => void;
-  onCloseModal?: () => void; // Adicione esta linha
+  onCloseModal?: () => void;
 }
 
 const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
@@ -199,12 +199,24 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
         filter: [
           {
             key: 'PRODUTO',
-            value: WordProducts,
+            value: WordProducts.toUpperCase(),
             typeSearch: 'like',
           },
           {
             key: 'REFERENCIA',
-            value: WordProducts,
+            value: WordProducts.toUpperCase(),
+            typeSearch: 'like',
+            typeCondition: 'or',
+          },
+          {
+            key: 'NOME',
+            value: WordProducts.toUpperCase(),
+            typeSearch: 'like',
+            typeCondition: 'or',
+          },
+          {
+            key: 'APLICACOES',
+            value: WordProducts.toUpperCase(),
             typeSearch: 'like',
             typeCondition: 'or',
           },
@@ -631,6 +643,22 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
                 className='text-white'
               />
               SALVAR
+            </Button>
+          </div>
+          <div className='w-fit'>
+            <Button
+              type='button'
+              className={`bg-emsoft_danger-main hover:bg-emsoft_danger-light flex w-fit h-[35px] p-3 gap-3`}
+              title='SAIR'
+              onClick={() => onCloseModal && onCloseModal()}
+            >
+              <FontAwesomeIcon
+                icon={faTimes}
+                size='xl'
+                title='SALVAR'
+                className='text-white'
+              />
+              SAIR
             </Button>
           </div>
         </footer>

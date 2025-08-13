@@ -104,7 +104,7 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
             icon={faTrashAlt}
             className='cursor-pointer text-emsoft_blue-main hover:text-emsoft_blue-light'
             size='xl'
-            title='Gerar Pré-venda'
+            title='Remover Item'
             onClick={() => {
               removeItem({
                 pIdOrcamento: item.ORCAMENTO,
