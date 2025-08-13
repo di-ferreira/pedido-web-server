@@ -74,7 +74,7 @@ async function vendaLogin(): Promise<ResponseType<string>> {
     }
   );
 
-  return data.body;
+  return data.body!;
 }
 
 async function userVendaLogin(
@@ -96,7 +96,7 @@ async function userVendaLogin(
     }
   );
 
-  return data.body;
+  return data.body!;
 }
 
 async function getVendedor(data: {

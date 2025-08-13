@@ -70,8 +70,8 @@ export async function GetVendas(filter: iFilter<iMovimento>) {
   });
 
   const result: iDataResultTable<iMovimento> = {
-    Qtd_Registros: response.body['@xdata.count'],
-    value: response.body.value,
+    Qtd_Registros: response.body!['@xdata.count'],
+    value: response.body!.value,
   };
 
   if (response.status !== 200) {
@@ -207,8 +207,8 @@ export async function getLastVenda() {
   });
 
   const result: iDataResultTable<iMovimento> = {
-    Qtd_Registros: response.body['@xdata.count'],
-    value: response.body.value,
+    Qtd_Registros: response.body!['@xdata.count'],
+    value: response.body!.value,
   };
 
   if (response.status !== 200) {

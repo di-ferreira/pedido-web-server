@@ -146,8 +146,8 @@ export async function GetClienteFromVendedor(
   });
 
   const result: iDataResultTable<iCliente> = {
-    Qtd_Registros: response.body['@xdata.count'],
-    value: response.body.value,
+    Qtd_Registros: response.body!!['@xdata.count'],
+    value: response.body!.value,
   };
 
   if (response.status !== 200) {
@@ -181,7 +181,7 @@ export async function GetCliente(
     }
   );
 
-  const result: iCliente = response.body;
+  const result: iCliente = response.body!;
 
   if (response.status !== 200) {
     return {
@@ -227,18 +227,18 @@ export async function GetPGTOsAtrazados(cliente: number) {
     },
   });
 
-  if (response.body.StatusCode !== 200) {
+  if (response.body!.StatusCode !== 200) {
     return {
       value: undefined,
       error: {
-        code: String(response.body.StatusCode),
-        message: String(response.body.StatusMessage),
+        code: String(response.body!.StatusCode),
+        message: String(response.body!.StatusMessage),
       },
     };
   }
 
   return {
-    value: response.body.Data,
+    value: response.body!.Data,
     error: undefined,
   };
 }
@@ -282,7 +282,7 @@ export async function GetPGTOsNaoVencidos(cliente: number) {
   }
 
   return {
-    value: response.body,
+    value: response.body!,
     error: undefined,
   };
 }
@@ -313,8 +313,6 @@ export async function GetPGTOsEmAberto(cliente: number) {
     }
   );
 
-  console.log('response: ', response.body);
-
   if (response.status !== 200) {
     return {
       value: undefined,
@@ -326,7 +324,7 @@ export async function GetPGTOsEmAberto(cliente: number) {
   }
 
   return {
-    value: response.body.Data,
+    value: response.body!.Data,
     error: undefined,
   };
 }
@@ -374,7 +372,7 @@ export async function GetClientesPgtoEmAberto() {
   }
 
   return {
-    value: response.body.Data,
+    value: response.body!.Data,
     error: undefined,
   };
 }

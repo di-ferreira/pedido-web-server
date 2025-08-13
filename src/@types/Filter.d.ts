@@ -1,4 +1,4 @@
-export type tTypeSearch = 'eq' | 'like';
+export type tTypeSearch = 'eq' | 'ne' | 'like';
 
 export type tTypeCondition = 'and' | 'or';
 export interface iFilterQuery<T> {

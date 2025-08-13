@@ -37,7 +37,7 @@ function DataTableBudget() {
     (filter: iSearch<iOrcamento>): iFilterQuery<iOrcamento>[] => {
       let listFilter: iFilterQuery<iOrcamento>[] = [];
 
-      listFilter.push({ key: 'PV', value: filter.filterBy, typeSearch: 'eq' });
+      listFilter.push({ key: 'PV', value: filter.filterBy, typeSearch: 'ne' });
 
       return listFilter;
     },
@@ -46,16 +46,20 @@ function DataTableBudget() {
   const handleBudgetSearch = useCallback((filter: iSearch<iOrcamento>) => {
     const valueSearch: string = filter.filterBy;
 
-    if (valueSearch == 'S')
+    //PV eq NÃO?
+    if (valueSearch == 'N')
       handleBudgets({
         top: 10,
         skip: 0,
         orderBy: 'ORCAMENTO desc' as keyof iOrcamento,
-        filter: MountQueryFilter(filter),
+        filter: [{ key: 'PV', value: 'S', typeSearch: 'ne' }],
       });
     else
       handleBudgets({
-        top: 10,
+        top: 50,
+        skip: 0,
+        orderBy: 'ORCAMENTO desc' as keyof iOrcamento,
+        filter: [{ key: 'PV', value: 'S', typeSearch: 'eq' }],
       });
   }, []);
 
@@ -78,9 +82,7 @@ function DataTableBudget() {
         setData(res);
         setLoading(false);
       })
-      .catch((err) => {
-        console.error('Erro ao carregar clientes:', err);
-      })
+      .catch((err) => {})
       .finally(() => {
         setLoading(false);
       });
@@ -172,7 +174,10 @@ function DataTableBudget() {
   ];
   useEffect(() => {
     removeStorage(KEY_NAME_TABLE_PAGINATION);
-    handleBudgets({ top: 10 });
+    handleBudgets({
+      top: 10,
+      filter: [{ key: 'PV', value: 'S', typeSearch: 'ne' }],
+    });
   }, []);
 
   if (data.error !== undefined) {

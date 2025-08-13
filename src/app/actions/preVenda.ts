@@ -62,7 +62,9 @@ const CreateFilter = async (filter: iFilter<iMovimento>): Promise<string> => {
     ResultFilter = ResultFilter.slice(0, -andStr.length);
   }
 
-  const ResultOrderBy = filter.orderBy ? `&$orderby=${filter.orderBy}` : '';
+  const ResultOrderBy = filter.orderBy
+    ? `&$orderby=${filter.orderBy}`
+    : '&$orderby=MOVIMENTO desc,DATA desc';
 
   const ResultSkip = filter.skip ? `&$skip=${filter.skip}` : '&$skip=0';
 
@@ -81,7 +83,7 @@ export async function GetPreVendas(filter: iFilter<iMovimento>) {
 
   const FILTER = filter
     ? await CreateFilter(filter)
-    : `?$filter=VENDEDOR eq ${VendedorLocal} and TIPOMOV eq 'PRE-VENDA' and CANCELADO eq 'N'&$top=15&$inlinecount=allpages&$orderby=DATA desc&$expand=CLIENTE,VENDEDOR,Itens_List,Itens_List/PRODUTO`;
+    : `?$filter=VENDEDOR eq ${VendedorLocal} and TIPOMOV eq 'PRE-VENDA' and CANCELADO eq 'N'&$top=15&$inlinecount=allpages&$orderby=MOVIMENTO desc,DATA desc&$expand=CLIENTE,VENDEDOR,Itens_List,Itens_List/PRODUTO`;
 
   const response = await CustomFetch<{
     '@xdata.count': number;
@@ -95,8 +97,8 @@ export async function GetPreVendas(filter: iFilter<iMovimento>) {
   });
 
   const result: iDataResultTable<iMovimento> = {
-    Qtd_Registros: response.body['@xdata.count'],
-    value: response.body.value,
+    Qtd_Registros: response.body!['@xdata.count'],
+    value: response.body!.value,
   };
 
   if (response.status !== 200) {
@@ -139,7 +141,7 @@ export async function GetPreVenda(IdPV: number) {
   }
 
   return {
-    value: response.body,
+    value: response.body!,
     error: undefined,
   };
 }
@@ -162,18 +164,18 @@ export async function GetFormasPGTO() {
     }
   );
 
-  if (response.body.StatusCode !== 200) {
+  if (response.body!.StatusCode !== 200) {
     return {
       value: undefined,
       error: {
-        code: String(response.body.StatusCode),
-        message: String(response.body.StatusMessage),
+        code: String(response.body!.StatusCode),
+        message: String(response.body!.StatusMessage),
       },
     };
   }
 
   return {
-    value: response.body.Data,
+    value: response.body!.Data,
     error: undefined,
   };
 }
@@ -209,18 +211,18 @@ export async function GetCondicaoPGTO(valor: number, tabela: string) {
     }
   );
 
-  if (response.body.StatusCode !== 200) {
+  if (response.body!.StatusCode !== 200) {
     return {
       value: undefined,
       error: {
-        code: String(response.body.StatusCode),
-        message: String(response.body.StatusMessage),
+        code: String(response.body!.StatusCode),
+        message: String(response.body!.StatusMessage),
       },
     };
   }
 
   return {
-    value: response.body.Data,
+    value: response.body!.Data,
     error: undefined,
   };
 }
@@ -243,18 +245,18 @@ export async function GetTransport() {
     }
   );
 
-  if (response.body.StatusCode !== 200) {
+  if (response.body!.StatusCode !== 200) {
     return {
       value: undefined,
       error: {
-        code: String(response.body.StatusCode),
-        message: String(response.body.StatusMessage),
+        code: String(response.body!.StatusCode),
+        message: String(response.body!.StatusMessage),
       },
     };
   }
 
   return {
-    value: response.body.Data,
+    value: response.body!.Data,
     error: undefined,
   };
 }

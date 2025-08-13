@@ -8,6 +8,7 @@ import {
   iPreVenda,
 } from '@/@types/PreVenda';
 import { GetPGTOsEmAberto } from '@/app/actions/cliente';
+import { UpdateOrcamento } from '@/app/actions/orcamento';
 import {
   GetCondicaoPGTO,
   GetFormasPGTO,
@@ -237,6 +238,8 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
       // Se passou nas verificações, prossegue com a geração
       const ItensPV: iItemPreVenda[] = [];
       for (const item of orc.ItensOrcamento) {
+        if (item.QTD <= 0)
+          throw new Error(`O Item ${item.PRODUTO.PRODUTO} está zerado!`);
         ItensPV.push({
           CodigoProduto: item.PRODUTO.PRODUTO,
           Qtd: item.QTD,
@@ -258,6 +261,14 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
       };
 
       const res = await SavePreVenda(PV);
+      if (res.error) throw res.error;
+
+      const resOrc = await UpdateOrcamento({
+        ...orc,
+        PV: 'S',
+      });
+
+      if (resOrc.error) throw resOrc.error;
 
       if (res.value) {
         ToastNotify({
@@ -265,11 +276,6 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
           type: 'success',
         });
         router.push('/app/pre-sales');
-      } else if (res.error) {
-        ToastNotify({
-          message: `Erro: ${res.error.message}`,
-          type: 'error',
-        });
       }
     } catch (e: any) {
       ToastNotify({

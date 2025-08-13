@@ -170,8 +170,8 @@ export async function SuperFindProducts(
 
   return {
     value: {
-      value: res.body.Data,
-      Qtd_Registros: res.body.RecordCount,
+      value: res.body!.Data,
+      Qtd_Registros: res.body!.RecordCount,
     },
     error: undefined,
   };
@@ -208,8 +208,8 @@ export async function GetProducts(
 
   return {
     value: {
-      value: res.body.value,
-      Qtd_Registros: res.body['@xdata.count'],
+      value: res.body!.value,
+      Qtd_Registros: res.body!['@xdata.count'],
     },
     error: undefined,
   };

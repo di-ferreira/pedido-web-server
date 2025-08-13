@@ -26,7 +26,13 @@ async function CreateFilter(filter: iFilter<iOrcamento>): Promise<string> {
     .subtract(1, 'day')
     .format('MM')} and day(DATA) ge ${dayjs().subtract(1, 'day').format('DD')}`;
 
-  if (filter.filter?.some((item) => item.key === 'PV' && item.value === 'S'))
+  filter.filter?.some((item) => item.key === 'PV' && item.value === 'S');
+  if (
+    filter.filter?.some(
+      (item) =>
+        item.key === 'PV' && item.value === 'S' && item.typeSearch === 'eq'
+    )
+  )
     DataSql = '';
 
   let ResultFilter: string = `$filter=VENDEDOR eq ${VendedorLocal} ${DataSql}`;
@@ -35,14 +41,17 @@ async function CreateFilter(filter: iFilter<iOrcamento>): Promise<string> {
     ResultFilter = `$filter=VENDEDOR eq ${VendedorLocal} ${DataSql}`;
     const andStr = ' AND ';
     filter.filter.map((itemFilter) => {
-      if (itemFilter.typeSearch)
-        itemFilter.typeSearch === 'like'
-          ? (ResultFilter = `${ResultFilter}${andStr} contains(${
-              itemFilter.key
-            }, '${String(itemFilter.value).toUpperCase()}')${andStr}`)
-          : itemFilter.typeSearch === 'eq' &&
-            (ResultFilter = `${ResultFilter}${andStr}${itemFilter.key} eq '${itemFilter.value}'${andStr}`);
-      else
+      if (itemFilter.typeSearch) {
+        itemFilter.typeSearch === 'like' &&
+          (ResultFilter = `${ResultFilter}${andStr} contains(${
+            itemFilter.key
+          }, '${String(itemFilter.value).toUpperCase()}')${andStr}`);
+
+        itemFilter.typeSearch === 'eq' &&
+          (ResultFilter = `${ResultFilter}${andStr}${itemFilter.key} eq '${itemFilter.value}'${andStr}`);
+        itemFilter.typeSearch === 'ne' &&
+          (ResultFilter = `${ResultFilter}${andStr}${itemFilter.key} ne '${itemFilter.value}'${andStr}`);
+      } else
         ResultFilter = `${ResultFilter}${andStr} contains(${
           itemFilter.key
         }, '${String(itemFilter.value).toUpperCase()}')${andStr}`;
@@ -244,6 +253,7 @@ export async function UpdateOrcamento(orcamento: iOrcamento) {
       body: JSON.stringify({
         OBS1: orcamento.OBS1,
         OBS2: orcamento.OBS2,
+        PV: orcamento.PV,
       }),
       method: 'PATCH',
       headers: {
@@ -289,7 +299,6 @@ export async function RemoverOrcamento(orcamento: iOrcamento) {
       pProduto: item.PRODUTO.PRODUTO,
     });
 
-    console.log('result: ', result);
     // 2. Se ANY item falhar, interrompe e retorna o erro
     if (result.error) {
       return {
@@ -310,7 +319,6 @@ export async function RemoverOrcamento(orcamento: iOrcamento) {
       },
     }
   );
-  console.log('responseRemove: ', responseRemove);
 
   // 4. Trata erro na remoção do orçamento
   if (responseRemove.status !== 204) {
@@ -333,7 +341,6 @@ export async function removeItem(
   itemOrcamento: iItemRemove
 ): Promise<ResponseType<iOrcamento>> {
   const tokenCookie = await getCookie('token');
-  console.log('itemOrcamento remove: ', itemOrcamento);
 
   const data = await CustomFetch<iApiResult<iOrcamento>>(
     ROUTE_REMOVE_ITEM_ORCAMENTO,
@@ -349,7 +356,6 @@ export async function removeItem(
       },
     }
   );
-  console.log('item remove data: ', data);
 
   const response = await GetOrcamento(itemOrcamento.pIdOrcamento);
 
