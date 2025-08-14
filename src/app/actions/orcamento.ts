@@ -1,6 +1,6 @@
 'use server';
 import { iApiResult, ResponseType } from '@/@types';
-import { iFilter } from '@/@types/Filter';
+import { iFilter, iFilterQuery } from '@/@types/Filter';
 import {
   iItemInserir,
   iItemRemove,
@@ -17,62 +17,183 @@ const ROUTE_SAVE_ORCAMENTO = '/ServiceVendas/NovoOrcamento';
 const ROUTE_REMOVE_ITEM_ORCAMENTO = '/ServiceVendas/ExcluirItemOrcamento';
 const ROUTE_SAVE_ITEM_ORCAMENTO = '/ServiceVendas/NovoItemOrcamento';
 
-async function CreateFilter(filter: iFilter<iOrcamento>): Promise<string> {
+// async function CreateQueryParams(filter: iFilter<iOrcamento>): Promise<string> {
+//   const VendedorLocal: string = await getCookie('user');
+
+//   let DataSql: string = ` and year(DATA) eq ${dayjs()
+//     .subtract(1, 'day')
+//     .format('YYYY')} and month(DATA) eq ${dayjs()
+//     .subtract(1, 'day')
+//     .format('MM')} and day(DATA) ge ${dayjs().subtract(1, 'day').format('DD')}`;
+
+//   filter.filter?.some((item) => item.key === 'PV' && item.value === 'S');
+//   if (
+//     filter.filter?.some(
+//       (item) =>
+//         item.key === 'PV' && item.value === 'S' && item.typeSearch === 'eq'
+//     )
+//   )
+//     DataSql = '';
+
+//   let ResultFilter: string = `$filter=VENDEDOR eq ${VendedorLocal} ${DataSql}`;
+
+//   if (filter.filter && filter.filter.length >= 1) {
+//     ResultFilter = `$filter=VENDEDOR eq ${VendedorLocal} ${DataSql}`;
+//     const andStr = ' AND ';
+//     filter.filter.map((itemFilter) => {
+//       if (itemFilter.typeSearch) {
+//         itemFilter.typeSearch === 'like' &&
+//           (ResultFilter = `${ResultFilter}${andStr} contains(${
+//             itemFilter.key
+//           }, '${String(itemFilter.value).toUpperCase()}')${andStr}`);
+
+//         itemFilter.typeSearch === 'eq' &&
+//           (ResultFilter = `${ResultFilter}${andStr}${itemFilter.key} eq '${itemFilter.value}'${andStr}`);
+//         itemFilter.typeSearch === 'ne' &&
+//           (ResultFilter = `${ResultFilter}${andStr}${itemFilter.key} ne '${itemFilter.value}'${andStr}`);
+//       } else
+//         ResultFilter = `${ResultFilter}${andStr} contains(${
+//           itemFilter.key
+//         }, '${String(itemFilter.value).toUpperCase()}')${andStr}`;
+//     });
+//     ResultFilter = ResultFilter.slice(0, -andStr.length);
+//   }
+
+//   const ResultOrderBy = filter.orderBy
+//     ? `&$orderby=${filter.orderBy}`
+//     : '&$orderby=ORCAMENTO desc';
+
+//   const ResultSkip = filter.skip ? `&$skip=${filter.skip}` : '&$skip=0';
+
+//   let ResultTop = filter.top ? `$top=${filter.top}` : '$top=15';
+
+//   ResultFilter !== '' && (ResultTop = `&${ResultTop}`);
+
+//   const ResultRoute: string = `?${ResultFilter}${ResultTop}${ResultSkip}${ResultOrderBy}&$expand=VENDEDOR,CLIENTE,
+//   ItensOrcamento/PRODUTO/FORNECEDOR,ItensOrcamento/PRODUTO/FABRICANTE,
+//   ItensOrcamento,ItensOrcamento/PRODUTO&$inlinecount=allpages`;
+//   return ResultRoute;
+// }
+function ReturnFilterQuery(typeSearch: iFilterQuery<iOrcamento>): string {
+  // Tratamento especial para valores nulos
+  if (typeSearch.value === null) {
+    return typeSearch.typeSearch === 'ne'
+      ? `${typeSearch.key} ne null`
+      : `${typeSearch.key} eq null`;
+  }
+
+  // Tratamento para operações numéricas
+  if (['TOTAL', 'ORCAMENTO'].includes(String(typeSearch.key))) {
+    switch (typeSearch.typeSearch) {
+      case 'gt':
+        return `${typeSearch.key} gt ${typeSearch.value}`;
+      case 'lt':
+        return `${typeSearch.key} lt ${typeSearch.value}`;
+      case 'ge':
+        return `${typeSearch.key} ge ${typeSearch.value}`;
+      case 'le':
+        return `${typeSearch.key} le ${typeSearch.value}`;
+    }
+  }
+
+  // Tratamento padrão
+  switch (typeSearch.typeSearch) {
+    case 'like':
+      return `contains(${typeSearch.key}, '${String(
+        typeSearch.value
+      ).toUpperCase()}')`;
+
+    case 'eq':
+      return `${typeSearch.key} eq '${typeSearch.value}'`;
+
+    case 'ne':
+      return `${typeSearch.key} ne '${typeSearch.value}'`;
+
+    default:
+      return `contains(${typeSearch.key}, '${String(
+        typeSearch.value
+      ).toUpperCase()}')`;
+  }
+}
+async function CreateQueryParams(filter: iFilter<iOrcamento>): Promise<string> {
+  // 1. Separação dos filtros por campo
+  const groupedFilters: { [key: string]: iFilterQuery<iOrcamento>[] } = {};
+
+  // Adiciona filtros do usuário
+  filter.filter?.forEach((item) => {
+    if (!groupedFilters[item.key]) {
+      groupedFilters[item.key] = [];
+    }
+    groupedFilters[item.key].push(item);
+  });
+
+  // 2. Gera condições agrupadas
+  const conditions: string[] = [];
+
+  Object.entries(groupedFilters).forEach(([key, items]) => {
+    // Determina operador de agrupamento (padrão: 'or' para PV, 'and' para outros)
+    const groupOperator =
+      items[0].groupOperator || (key === 'PV' ? 'or' : 'and');
+
+    // Gera sub-condições
+    const subConditions = items.map(ReturnFilterQuery).filter(Boolean);
+
+    // Agrupa com operador definido
+    if (subConditions.length > 1) {
+      conditions.push(`(${subConditions.join(` ${groupOperator} `)})`);
+    }
+    // Única condição → adiciona sem parênteses
+    else if (subConditions.length === 1) {
+      conditions.push(subConditions[0]);
+    }
+  });
+
+  // 3. Adiciona filtros fixos (VENDEDOR e DATA)
   const VendedorLocal: string = await getCookie('user');
 
-  let DataSql: string = ` and year(DATA) eq ${dayjs()
+  // Filtro de data (apenas para orçamentos abertos)
+  // const hasOpenBudgetsFilter = filter.filter?.some(
+  //   (item) =>
+  //     item.key === 'PV' && item.value === 'N' && item.typeSearch === 'eq'
+  // );
+
+  // let dateFilter = '';
+  // if (!hasOpenBudgetsFilter) {
+  //   dateFilter = `year(DATA) eq ${dayjs()
+  //     .subtract(1, 'day')
+  //     .format('YYYY')} and month(DATA) eq ${dayjs()
+  //     .subtract(1, 'day')
+  //     .format('MM')} and day(DATA) ge ${dayjs()
+  //     .subtract(1, 'day')
+  //     .format('DD')}`;
+  //   conditions.push(dateFilter);
+  // }
+
+  let dateFilter = '';
+  dateFilter = `year(DATA) eq ${dayjs()
     .subtract(1, 'day')
     .format('YYYY')} and month(DATA) eq ${dayjs()
     .subtract(1, 'day')
     .format('MM')} and day(DATA) ge ${dayjs().subtract(1, 'day').format('DD')}`;
+  conditions.push(dateFilter);
 
-  filter.filter?.some((item) => item.key === 'PV' && item.value === 'S');
-  if (
-    filter.filter?.some(
-      (item) =>
-        item.key === 'PV' && item.value === 'S' && item.typeSearch === 'eq'
-    )
-  )
-    DataSql = '';
+  // Filtro do vendedor (sempre presente)
+  conditions.unshift(`VENDEDOR eq ${VendedorLocal}`);
 
-  let ResultFilter: string = `$filter=VENDEDOR eq ${VendedorLocal} ${DataSql}`;
+  // 4. Monta a string final
+  const filterString = conditions.length
+    ? `$filter=${conditions.join(' and ')}`
+    : '';
 
-  if (filter.filter && filter.filter.length >= 1) {
-    ResultFilter = `$filter=VENDEDOR eq ${VendedorLocal} ${DataSql}`;
-    const andStr = ' AND ';
-    filter.filter.map((itemFilter) => {
-      if (itemFilter.typeSearch) {
-        itemFilter.typeSearch === 'like' &&
-          (ResultFilter = `${ResultFilter}${andStr} contains(${
-            itemFilter.key
-          }, '${String(itemFilter.value).toUpperCase()}')${andStr}`);
-
-        itemFilter.typeSearch === 'eq' &&
-          (ResultFilter = `${ResultFilter}${andStr}${itemFilter.key} eq '${itemFilter.value}'${andStr}`);
-        itemFilter.typeSearch === 'ne' &&
-          (ResultFilter = `${ResultFilter}${andStr}${itemFilter.key} ne '${itemFilter.value}'${andStr}`);
-      } else
-        ResultFilter = `${ResultFilter}${andStr} contains(${
-          itemFilter.key
-        }, '${String(itemFilter.value).toUpperCase()}')${andStr}`;
-    });
-    ResultFilter = ResultFilter.slice(0, -andStr.length);
-  }
-
+  // 5. Parâmetros de paginação e ordenação
+  const ResultTop = filter.top ? `&$top=${filter.top}` : '&$top=15';
+  const ResultSkip = filter.skip ? `&$skip=${filter.skip}` : '&$skip=0';
   const ResultOrderBy = filter.orderBy
     ? `&$orderby=${filter.orderBy}`
     : '&$orderby=ORCAMENTO desc';
 
-  const ResultSkip = filter.skip ? `&$skip=${filter.skip}` : '&$skip=0';
-
-  let ResultTop = filter.top ? `$top=${filter.top}` : '$top=15';
-
-  ResultFilter !== '' && (ResultTop = `&${ResultTop}`);
-
-  const ResultRoute: string = `?${ResultFilter}${ResultTop}${ResultSkip}${ResultOrderBy}&$expand=VENDEDOR,CLIENTE,
-  ItensOrcamento/PRODUTO/FORNECEDOR,ItensOrcamento/PRODUTO/FABRICANTE,
-  ItensOrcamento,ItensOrcamento/PRODUTO&$inlinecount=allpages`;
-  return ResultRoute;
+  // 6. Monta URL final
+  return `?${filterString}${ResultTop}${ResultSkip}${ResultOrderBy}&$expand=VENDEDOR,CLIENTE,ItensOrcamento/PRODUTO/FORNECEDOR,ItensOrcamento/PRODUTO/FABRICANTE,ItensOrcamento,ItensOrcamento/PRODUTO&$inlinecount=allpages`;
 }
 
 export async function GetOrcamentosFromVendedor(
@@ -82,7 +203,7 @@ export async function GetOrcamentosFromVendedor(
   const tokenCookie = await getCookie('token');
 
   const FILTER = filter
-    ? await CreateFilter(filter)
+    ? await CreateQueryParams(filter)
     : `?$filter=VENDEDOR eq ${VendedorLocal} and year(DATA) eq ${dayjs()
         .subtract(1, 'day')
         .format('YYYY')} and month(DATA) eq ${dayjs()
@@ -91,7 +212,9 @@ export async function GetOrcamentosFromVendedor(
         .subtract(1, 'day')
         .format(
           'DD'
-        )}&$orderby=ORCAMENTO desc&$top=10&$expand=VENDEDOR,CLIENTE,ItensOrcamento/PRODUTO/FORNECEDOR,ItensOrcamento/PRODUTO/FABRICANTE,ItensOrcamento,ItensOrcamento/PRODUTO&$inlinecount=allpages`;
+        )} and (PV eq 'N' or PV eq null)&$orderby=ORCAMENTO desc&$top=10&$expand=VENDEDOR,CLIENTE,ItensOrcamento/PRODUTO/FORNECEDOR,ItensOrcamento/PRODUTO/FABRICANTE,ItensOrcamento,ItensOrcamento/PRODUTO&$inlinecount=allpages`;
+
+  console.log('GetOrcamentosFromVendedor FILTER: ', FILTER);
 
   const response = await CustomFetch<{
     '@xdata.count': number;
@@ -103,6 +226,8 @@ export async function GetOrcamentosFromVendedor(
       Authorization: `bearer ${tokenCookie}`,
     },
   });
+
+  console.log('response: ', response);
 
   const result: iDataResultTable<iOrcamento> = {
     Qtd_Registros: response.body!['@xdata.count'],

@@ -44,7 +44,11 @@ function DataTableBudget() {
     []
   );
   const handleBudgetSearch = useCallback((filter: iSearch<iOrcamento>) => {
+    console.log('handleBudgetSearch filter: ', filter);
+
     const valueSearch: string = filter.filterBy;
+
+    console.log('handleBudgetSearch valueSearch: ', valueSearch);
 
     //PV eq NÃO?
     if (valueSearch == 'N')
@@ -52,7 +56,10 @@ function DataTableBudget() {
         top: 10,
         skip: 0,
         orderBy: 'ORCAMENTO desc' as keyof iOrcamento,
-        filter: [{ key: 'PV', value: 'S', typeSearch: 'ne' }],
+        filter: [
+          { key: 'PV', value: 'N', typeSearch: 'eq' },
+          { key: 'PV', value: null, typeSearch: 'eq' },
+        ],
       });
     else
       handleBudgets({
@@ -76,6 +83,7 @@ function DataTableBudget() {
   }, []);
 
   const handleBudgets = useCallback((filter: iFilter<iOrcamento>) => {
+    console.log('handleBudgets filter: ', filter);
     setLoading(true);
     GetOrcamentosFromVendedor(filter)
       .then((res) => {
@@ -176,7 +184,10 @@ function DataTableBudget() {
     removeStorage(KEY_NAME_TABLE_PAGINATION);
     handleBudgets({
       top: 10,
-      filter: [{ key: 'PV', value: 'S', typeSearch: 'ne' }],
+      filter: [
+        { key: 'PV', value: 'N', typeSearch: 'eq' },
+        { key: 'PV', value: null, typeSearch: 'eq' },
+      ],
     });
   }, []);
 
