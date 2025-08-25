@@ -200,6 +200,7 @@ export async function GetOrcamentosFromVendedor(
   filter: iFilter<iOrcamento> | null | undefined
 ): Promise<ResponseType<iDataResultTable<iOrcamento>>> {
   const VendedorLocal: string = await getCookie('user');
+  console.log('VendedorLocal: ', VendedorLocal);
   const tokenCookie = await getCookie('token');
 
   const FILTER = filter

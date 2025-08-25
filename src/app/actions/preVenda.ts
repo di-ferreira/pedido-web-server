@@ -263,6 +263,8 @@ export async function GetTransport() {
 
 export async function SavePreVenda(PreVenda: iPreVenda) {
   const tokenCookie = await getCookie('token');
+  console.log('tokenCookie: ', tokenCookie);
+  console.log('PreVenda: ', PreVenda);
 
   const responseInsert = await CustomFetch<iMovimento>(ROUTE_SAVE_PRE_VENDA, {
     body: JSON.stringify(PreVenda),
@@ -272,6 +274,7 @@ export async function SavePreVenda(PreVenda: iPreVenda) {
       Authorization: `bearer ${tokenCookie}`,
     },
   });
+  console.log('responseInsert: ', responseInsert);
 
   if (responseInsert.status !== 200) {
     return {

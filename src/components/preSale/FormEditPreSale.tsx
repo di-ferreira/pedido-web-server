@@ -260,13 +260,16 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
         TipoEntrega: IsDelivery ? 'CARRO' : 'VEM BUSCAR',
       };
 
+      console.log('PV: ', PV);
       const res = await SavePreVenda(PV);
+      console.log('res: ', res);
       if (res.error) throw res.error;
 
       const resOrc = await UpdateOrcamento({
         ...orc,
         PV: 'S',
       });
+      console.log('resOrc: ', resOrc);
 
       if (resOrc.error) throw resOrc.error;
 
