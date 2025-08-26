@@ -119,6 +119,7 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
             buttonIcon={faEdit}
             iconStyle='cursor-pointer text-emsoft_orange-main hover:text-emsoft_orange-light'
             buttonStyle='bg-tranparent hover:bg-tranparent'
+            containerStyle='laptop:w-[85vw] laptop:h-[85vh] tablet-a8-portrait:w-[85vw] tablet-a8-portrait:h-[85vh] w-[85vw] h-[85vh]'
           >
             <FormEdit budget={data} item={item} CallBack={handleItensBudgets} />
           </ModalEditBudgetItem>
@@ -276,6 +277,7 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
           modalTitle={'Novo Item'}
           buttonText={'Novo Item'}
           buttonIcon={faPlusCircle}
+          containerStyle='laptop:w-[85vw] laptop:h-[85vh] tablet-a8-portrait:w-[85vw] tablet-a8-portrait:h-[85vh] w-[85vw] h-[85vh]'
         >
           <FormEdit budget={data} CallBack={handleItensBudgets} />
         </ModalEditBudgetItem>
