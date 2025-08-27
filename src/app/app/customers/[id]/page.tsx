@@ -174,6 +174,7 @@ function Customers({ params }: iCustomerPage) {
   const loadData = async () => {
     try {
       const customer = await GetCliente(params.id);
+      console.log('customer: ', customer);
 
       setcustomer((old) => customer.value!);
 
