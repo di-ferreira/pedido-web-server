@@ -1,6 +1,6 @@
 'use client';
 import { iSearch, ResponseType } from '@/@types';
-import { iFilter, iFilterQuery } from '@/@types/Filter';
+import { iFilter } from '@/@types/Filter';
 import { iOrcamento } from '@/@types/Orcamento';
 import { iColumnType, iDataResultTable } from '@/@types/Table';
 import { GetOrcamentosFromVendedor } from '@/app/actions/orcamento';
@@ -33,22 +33,9 @@ function DataTableBudget() {
     { key: 'ORÇAMENTOS ABERTOS', value: 'N' },
     { key: 'ORÇAMENTOS FECHADOS', value: 'S' },
   ];
-  const MountQueryFilter = useCallback(
-    (filter: iSearch<iOrcamento>): iFilterQuery<iOrcamento>[] => {
-      let listFilter: iFilterQuery<iOrcamento>[] = [];
 
-      listFilter.push({ key: 'PV', value: filter.filterBy, typeSearch: 'ne' });
-
-      return listFilter;
-    },
-    []
-  );
   const handleBudgetSearch = useCallback((filter: iSearch<iOrcamento>) => {
-    console.log('handleBudgetSearch filter: ', filter);
-
     const valueSearch: string = filter.filterBy;
-
-    console.log('handleBudgetSearch valueSearch: ', valueSearch);
 
     //PV eq NÃO?
     if (valueSearch == 'N')
@@ -83,7 +70,6 @@ function DataTableBudget() {
   }, []);
 
   const handleBudgets = useCallback((filter: iFilter<iOrcamento>) => {
-    console.log('handleBudgets filter: ', filter);
     setLoading(true);
     GetOrcamentosFromVendedor(filter)
       .then((res) => {
@@ -160,6 +146,7 @@ function DataTableBudget() {
             buttonStyle='bg-transparent hover:bg-transparent m-0 p-0'
             iconStyle='text-emsoft_blue-light hover:text-emsoft_blue-main'
             titleButton='Gerar PDF'
+            containerStyle='laptop:w-[85vw] laptop:h-[85vh] tablet-a8-portrait:w-[85vw] tablet-a8-portrait:h-[85vh] w-[85vw] h-[85vh]'
           >
             <div className='w-full h-full'>
               <GeneratePDF orc={item} />

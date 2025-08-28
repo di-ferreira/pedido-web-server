@@ -9,6 +9,7 @@ import { faPlus, faSearch } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Suspense, useEffect, useState } from 'react';
 import { DataTable } from '../CustomDataTable';
+import ToastNotify from '../ToastNotify';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 
@@ -356,8 +357,26 @@ const SuperSearchProducts = ({ data, words, CallBack }: iProps) => {
       filter: [
         {
           key: 'PRODUTO',
-          value: WordProducts,
+          value: WordProducts.toUpperCase(),
           typeSearch: 'like',
+        },
+        {
+          key: 'REFERENCIA',
+          value: WordProducts.toUpperCase(),
+          typeSearch: 'like',
+          typeCondition: 'or',
+        },
+        {
+          key: 'NOME',
+          value: WordProducts.toUpperCase(),
+          typeSearch: 'like',
+          typeCondition: 'or',
+        },
+        {
+          key: 'APLICACOES',
+          value: WordProducts.toUpperCase(),
+          typeSearch: 'like',
+          typeCondition: 'or',
         },
         {
           key: 'TRANCAR',
@@ -365,31 +384,36 @@ const SuperSearchProducts = ({ data, words, CallBack }: iProps) => {
           typeCondition: 'and',
           typeSearch: 'eq',
         },
-        {
-          key: 'VENDA',
-          value: 'S',
-          typeCondition: 'and',
-          typeSearch: 'eq',
-        },
-        {
-          key: 'ATIVO',
-          value: 'S',
-          typeCondition: 'and',
-          typeSearch: 'eq',
-        },
+        { key: 'VENDA', value: 'S', typeCondition: 'and', typeSearch: 'eq' },
+        { key: 'ATIVO', value: 'S', typeCondition: 'and', typeSearch: 'eq' },
       ],
     })
       .then(async (products: ResponseType<iDataResultTable<iProduto>>) => {
         if (products.value !== undefined) {
           pd = products.value.value[0];
-          setProducts((old) => (old = products.value!));
+          setProducts(
+            (old) =>
+              (old = {
+                Qtd_Registros: products.value!.Qtd_Registros,
+                value: products.value!.value.filter(
+                  (p) => p.ATIVO !== 'N' && p.VENDA !== 'N' && p.TRANCAR !== 'S'
+                ),
+              })
+          );
         }
 
-        if (products.error !== undefined)
-          console.error('Error find Products', products.error);
+        if (products.error !== undefined) {
+          ToastNotify({
+            message: 'Error find Products' + products.error,
+            type: 'error',
+          });
+        }
       })
       .catch((e) => {
-        console.error('Error find Products', e);
+        ToastNotify({
+          message: 'Error find Products' + e,
+          type: 'error',
+        });
       })
       .finally(() => {
         setLoading(false);

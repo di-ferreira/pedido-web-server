@@ -253,10 +253,20 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
             return;
           }
 
+          ToastNotify({
+            message: 'Produto não encontrado ou indisponível para venda',
+            type: 'error',
+          });
+
           // loadingProduct(produto);
         } else {
           console.log('mais de 1 produto encontrado');
-          setSerachedProducts(products.value);
+          setSerachedProducts({
+            Qtd_Registros: products.value.Qtd_Registros,
+            value: products.value.value.filter(
+              (p) => p.ATIVO !== 'N' && p.VENDA !== 'N' && p.TRANCAR !== 'S'
+            ),
+          });
           setIsVisibleModalProducts(true);
         }
       } else {
