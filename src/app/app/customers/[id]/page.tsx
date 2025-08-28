@@ -137,20 +137,20 @@ function Customers({ params }: iCustomerPage) {
     let orcID = 0;
     setIconLoading(true);
     if (ContasAtrazadas > 0) {
+      setIconLoading(false);
       ToastNotify({
         message: `Cliente ${Customer?.NOME} possuí contas em aberto!`,
         type: 'error',
       });
-      setIconLoading(false);
       return;
     }
 
     if (Customer?.BLOQUEADO === 'S') {
+      setIconLoading(false);
       ToastNotify({
         message: `Cliente está bloqueado!`,
         type: 'error',
       });
-      setIconLoading(false);
       return;
     }
 
