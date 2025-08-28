@@ -196,8 +196,6 @@ export async function GetProducts(
     }
   );
 
-  console.log('getProdutos res: ', res);
-
   if (res.status !== 200) {
     return {
       value: undefined,

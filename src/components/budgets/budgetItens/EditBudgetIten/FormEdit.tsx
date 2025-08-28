@@ -126,7 +126,6 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
   async function UpdateProduct(prod: iProduto) {
     let new_price = prod.PRECO;
     let promotionalProduct = await GetProductPromotion(prod);
-    console.log('promotionalProduct', promotionalProduct);
 
     let history = await GetSaleHistory(budget.CLIENTE, prod);
 
@@ -232,14 +231,10 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
         ],
       });
 
-      console.log('itens orçamento products: ', products);
-
       if (products.value !== undefined && products.value.Qtd_Registros > 0) {
         if (products.value.Qtd_Registros === 1) {
-          console.log('Somente 1 produto encontrado');
-
           const produto = products.value.value[0];
-          console.log('produto: ', produto);
+
           const isValidProduct =
             produto &&
             produto.ATIVO !== 'N' &&
@@ -247,8 +242,6 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
             produto.TRANCAR !== 'S';
 
           if (isValidProduct) {
-            console.log('é valido');
-
             UpdateProduct(produto);
             return;
           }
@@ -260,7 +253,6 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
 
           // loadingProduct(produto);
         } else {
-          console.log('mais de 1 produto encontrado');
           setSerachedProducts({
             Qtd_Registros: products.value.Qtd_Registros,
             value: products.value.value.filter(
@@ -270,7 +262,6 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
           setIsVisibleModalProducts(true);
         }
       } else {
-        console.log('nenhum produto encontrado');
         // ❌ Nenhum produto encontrado após a segunda busca
         ToastNotify({
           message: 'Produto não encontrado ou indisponível para venda',
@@ -279,14 +270,12 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
       }
 
       if (products.error !== undefined) {
-        console.error('erro ao encontrar produto 1');
         ToastNotify({
           message: `Erro: ${products.error.message}`,
           type: 'error',
         });
       }
     } catch (e: any) {
-      console.error('erro ao encontrar produto 2');
       ToastNotify({
         message: `Erro inesperado: ${e.message}`,
         type: 'error',

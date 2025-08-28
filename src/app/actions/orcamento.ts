@@ -200,7 +200,7 @@ export async function GetOrcamentosFromVendedor(
   filter: iFilter<iOrcamento> | null | undefined
 ): Promise<ResponseType<iDataResultTable<iOrcamento>>> {
   const VendedorLocal: string = await getCookie('user');
-  console.log('VendedorLocal: ', VendedorLocal);
+
   const tokenCookie = await getCookie('token');
 
   const FILTER = filter
@@ -215,8 +215,6 @@ export async function GetOrcamentosFromVendedor(
           'DD'
         )} and (PV eq 'N' or PV eq null)&$orderby=ORCAMENTO desc&$top=10&$expand=VENDEDOR,CLIENTE,ItensOrcamento/PRODUTO/FORNECEDOR,ItensOrcamento/PRODUTO/FABRICANTE,ItensOrcamento,ItensOrcamento/PRODUTO&$inlinecount=allpages`;
 
-  console.log('GetOrcamentosFromVendedor FILTER: ', FILTER);
-
   const response = await CustomFetch<{
     '@xdata.count': number;
     value: iOrcamento[];
@@ -227,8 +225,6 @@ export async function GetOrcamentosFromVendedor(
       Authorization: `bearer ${tokenCookie}`,
     },
   });
-
-  console.log('response: ', response);
 
   const result: iDataResultTable<iOrcamento> = {
     Qtd_Registros: response.body!['@xdata.count'],
