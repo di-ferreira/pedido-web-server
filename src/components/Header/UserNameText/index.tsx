@@ -24,7 +24,7 @@ const UserNameText = () => {
     IDENTIDADE: user.value.IDENTIDADE,
     ATIVO: user.value.ATIVO,
     VENDA: user.value.VENDA,
-    TIPO_VENDEDOR: user.value.TIPO_VENDEDOR,
+    TIPO_VENDEDOR: user.value.TIPO_VENDEDOR ? user.value.TIPO_VENDEDOR : 'E',
     TABELAS_PERMITIDAS: user.value.TABELAS_PERMITIDAS,
   };
 

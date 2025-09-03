@@ -50,7 +50,9 @@ export async function LoginUser(
       IDENTIDADE: vendedor.value.IDENTIDADE,
       ATIVO: vendedor.value.ATIVO,
       VENDA: vendedor.value.VENDA,
-      TIPO_VENDEDOR: vendedor.value.TIPO_VENDEDOR,
+      TIPO_VENDEDOR: vendedor.value.TIPO_VENDEDOR
+        ? vendedor.value.TIPO_VENDEDOR
+        : 'E',
       TABELAS_PERMITIDAS: vendedor.value.TABELAS_PERMITIDAS,
     },
   };
