@@ -198,7 +198,6 @@ export async function GetOrcamentosFromVendedor(
   const VendedorLocal: string = await getCookie('user');
 
   const tokenCookie = await getCookie('token');
-  console.log('param filter: ', filter);
 
   const FILTER = filter
     ? await CreateQueryParams(filter)
@@ -208,7 +207,6 @@ export async function GetOrcamentosFromVendedor(
           'YYYY-MM-DD'
         )} and (PV ne 'S' or PV eq null)&$orderby=ORCAMENTO desc&$top=10&$expand=VENDEDOR,CLIENTE,ItensOrcamento/PRODUTO/FORNECEDOR,ItensOrcamento/PRODUTO/FABRICANTE,ItensOrcamento,ItensOrcamento/PRODUTO&$inlinecount=allpages`;
 
-  console.log('FILTER: ', FILTER);
   const response = await CustomFetch<{
     '@xdata.count': number;
     value: iOrcamento[];
