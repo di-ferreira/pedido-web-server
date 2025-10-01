@@ -197,11 +197,12 @@ async function CreateQueryParams(filter: iFilter<iOrcamento>): Promise<string> {
 }
 
 export async function GetOrcamentosFromVendedor(
-  filter: iFilter<iOrcamento> | null | undefined
+  filter?: iFilter<iOrcamento> | null | undefined
 ): Promise<ResponseType<iDataResultTable<iOrcamento>>> {
   const VendedorLocal: string = await getCookie('user');
 
   const tokenCookie = await getCookie('token');
+  console.log('param filter: ', filter);
 
   const FILTER = filter
     ? await CreateQueryParams(filter)
@@ -213,7 +214,7 @@ export async function GetOrcamentosFromVendedor(
         .subtract(1, 'day')
         .format(
           'DD'
-        )} and (PV eq 'N' or PV eq null)&$orderby=ORCAMENTO desc&$top=10&$expand=VENDEDOR,CLIENTE,ItensOrcamento/PRODUTO/FORNECEDOR,ItensOrcamento/PRODUTO/FABRICANTE,ItensOrcamento,ItensOrcamento/PRODUTO&$inlinecount=allpages`;
+        )} and (PV ne 'S' or PV eq null)&$orderby=ORCAMENTO desc&$top=10&$expand=VENDEDOR,CLIENTE,ItensOrcamento/PRODUTO/FORNECEDOR,ItensOrcamento/PRODUTO/FABRICANTE,ItensOrcamento,ItensOrcamento/PRODUTO&$inlinecount=allpages`;
 
   console.log('FILTER: ', FILTER);
   const response = await CustomFetch<{

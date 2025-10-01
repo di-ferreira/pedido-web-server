@@ -38,16 +38,16 @@ function DataTableBudget() {
     const valueSearch: string = filter.filterBy;
 
     //PV eq NÃO?
-    if (valueSearch == 'N')
-      handleBudgets({
-        top: 10,
-        skip: 0,
-        orderBy: 'ORCAMENTO desc' as keyof iOrcamento,
-        filter: [
-          { key: 'PV', value: 'N', typeSearch: 'eq' },
-          { key: 'PV', value: null, typeSearch: 'eq' },
-        ],
-      });
+    if (valueSearch == 'N') handleBudgets();
+    // handleBudgets({
+    //   top: 10,
+    //   skip: 0,
+    //   orderBy: 'ORCAMENTO desc' as keyof iOrcamento,
+    //   filter: [
+    //     { key: 'PV', value: 'N', typeSearch: 'eq' },
+    //     { key: 'PV', value: null, typeSearch: 'eq' },
+    //   ],
+    // });
     else
       handleBudgets({
         top: 50,
@@ -69,17 +69,28 @@ function DataTableBudget() {
     });
   }, []);
 
-  const handleBudgets = useCallback((filter: iFilter<iOrcamento>) => {
+  const handleBudgets = useCallback((filter?: iFilter<iOrcamento>) => {
     setLoading(true);
-    GetOrcamentosFromVendedor(filter)
-      .then((res) => {
-        setData(res);
-        setLoading(false);
-      })
-      .catch((err) => {})
-      .finally(() => {
-        setLoading(false);
-      });
+    if (filter)
+      GetOrcamentosFromVendedor(filter)
+        .then((res) => {
+          setData(res);
+          setLoading(false);
+        })
+        .catch((err) => {})
+        .finally(() => {
+          setLoading(false);
+        });
+    else
+      GetOrcamentosFromVendedor()
+        .then((res) => {
+          setData(res);
+          setLoading(false);
+        })
+        .catch((err) => {})
+        .finally(() => {
+          setLoading(false);
+        });
   }, []);
 
   const headers: iColumnType<iOrcamento>[] = [
@@ -169,13 +180,7 @@ function DataTableBudget() {
   ];
   useEffect(() => {
     removeStorage(KEY_NAME_TABLE_PAGINATION);
-    handleBudgets({
-      top: 10,
-      filter: [
-        { key: 'PV', value: 'N', typeSearch: 'eq' },
-        { key: 'PV', value: null, typeSearch: 'eq' },
-      ],
-    });
+    handleBudgets();
   }, []);
 
   if (data.error !== undefined) {
