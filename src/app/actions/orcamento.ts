@@ -215,6 +215,7 @@ export async function GetOrcamentosFromVendedor(
           'DD'
         )} and (PV eq 'N' or PV eq null)&$orderby=ORCAMENTO desc&$top=10&$expand=VENDEDOR,CLIENTE,ItensOrcamento/PRODUTO/FORNECEDOR,ItensOrcamento/PRODUTO/FABRICANTE,ItensOrcamento,ItensOrcamento/PRODUTO&$inlinecount=allpages`;
 
+  console.log('FILTER: ', FILTER);
   const response = await CustomFetch<{
     '@xdata.count': number;
     value: iOrcamento[];
