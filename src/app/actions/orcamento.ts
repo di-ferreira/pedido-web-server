@@ -170,11 +170,7 @@ async function CreateQueryParams(filter: iFilter<iOrcamento>): Promise<string> {
   // }
 
   let dateFilter = '';
-  dateFilter = `year(DATA) eq ${dayjs()
-    .subtract(1, 'day')
-    .format('YYYY')} and month(DATA) eq ${dayjs()
-    .subtract(1, 'day')
-    .format('MM')} and day(DATA) ge ${dayjs().subtract(1, 'day').format('DD')}`;
+  dateFilter = `DATA ge ${dayjs().subtract(1, 'day').format('YYYY-MM-DD')}`;
   conditions.push(dateFilter);
 
   // Filtro do vendedor (sempre presente)
@@ -206,14 +202,10 @@ export async function GetOrcamentosFromVendedor(
 
   const FILTER = filter
     ? await CreateQueryParams(filter)
-    : `?$filter=VENDEDOR eq ${VendedorLocal} and year(DATA) eq ${dayjs()
-        .subtract(1, 'day')
-        .format('YYYY')} and month(DATA) eq ${dayjs()
-        .subtract(1, 'day')
-        .format('MM')} and day(DATA) ge ${dayjs()
+    : `?$filter=VENDEDOR eq ${VendedorLocal} and DATA ge ${dayjs()
         .subtract(1, 'day')
         .format(
-          'DD'
+          'YYYY-MM-DD'
         )} and (PV ne 'S' or PV eq null)&$orderby=ORCAMENTO desc&$top=10&$expand=VENDEDOR,CLIENTE,ItensOrcamento/PRODUTO/FORNECEDOR,ItensOrcamento/PRODUTO/FABRICANTE,ItensOrcamento,ItensOrcamento/PRODUTO&$inlinecount=allpages`;
 
   console.log('FILTER: ', FILTER);
