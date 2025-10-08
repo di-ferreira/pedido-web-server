@@ -123,11 +123,9 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
     setIsOferta(false);
   }
 
-  async function UpdateProduct(prod: iProduto) {
+  async function GetPromotionalPrice(prod: iProduto) {
     let new_price = prod.PRECO;
     let promotionalProduct = await GetProductPromotion(prod);
-
-    let history = await GetSaleHistory(budget.CLIENTE, prod);
 
     if (promotionalProduct.error !== undefined) {
       let tablePrice = await GetNewPriceFromTable(prod, Budget.CLIENTE.Tabela);
@@ -138,6 +136,14 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
       setIsOferta(true);
       new_price = promotionalProduct.value.OFERTA;
     }
+    return new_price;
+  }
+
+  async function UpdateProduct(prod: iProduto) {
+    let new_price = prod.PRECO;
+    let history = await GetSaleHistory(budget.CLIENTE, prod);
+
+    new_price = await GetPromotionalPrice(prod);
 
     let newQtd = 1;
     new_price = new_price === undefined ? prod.PRECO : new_price;
@@ -334,11 +340,6 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
 
   async function LoadItem(cliente: iCliente) {
     if (item) {
-      const price_from_table = await GetNewPriceFromTable(
-        item.PRODUTO,
-        cliente.Tabela
-      );
-
       setProductSelected(
         (old) =>
           (old = {
@@ -347,10 +348,10 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
       );
 
       let new_price: number = item.PRODUTO.PRECO;
-      new_price =
-        price_from_table.value! === undefined
-          ? item.PRODUTO.PRECO
-          : price_from_table.value!;
+
+      new_price = await GetPromotionalPrice(item.PRODUTO);
+
+      new_price = new_price === undefined ? item.PRODUTO.PRECO : new_price;
 
       setBudgetItem(
         (old) =>
