@@ -185,10 +185,36 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
   async function loadingProduct(product: iProduto) {
     setLoading(true);
     setIsVisibleModalProducts(false);
+
     try {
       const prod = await GetProduct(product.PRODUTO);
 
-      UpdateProduct(prod.value!);
+      // ✅ Verifique se a resposta foi bem-sucedida e tem valor
+      if (prod.error !== undefined) {
+        ToastNotify({
+          message: `Erro ao carregar produto: ${
+            prod.error.message || prod.error
+          }`,
+          type: 'error',
+        });
+        return; // ❌ Não continue se houver erro
+      }
+
+      if (!prod.value) {
+        ToastNotify({
+          message: 'Produto não encontrado no sistema',
+          type: 'error',
+        });
+        return; // ❌ Não continue se value for null/undefined
+      }
+
+      // ✅ Agora sim, temos um produto válido
+      UpdateProduct(prod.value);
+    } catch (e: any) {
+      ToastNotify({
+        message: `Erro inesperado ao carregar produto: ${e.message}`,
+        type: 'error',
+      });
     } finally {
       setLoading(false);
     }
@@ -237,9 +263,12 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
         ],
       });
 
+      console.log('products: ', products);
+
       if (products.value !== undefined && products.value.Qtd_Registros > 0) {
         if (products.value.Qtd_Registros === 1) {
           const produto = products.value.value[0];
+          console.log('produto = 1: ', produto);
 
           const isValidProduct =
             produto &&
@@ -248,6 +277,10 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
             produto.TRANCAR !== 'S';
 
           if (isValidProduct) {
+            console.log('isValidProduct: ', isValidProduct);
+            setProductSelected({} as iProduto); // 👈 Limpa o anterior
+            setSimilares([]);
+            setSalesHistory([]);
             UpdateProduct(produto);
             return;
           }
@@ -259,6 +292,18 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
 
           // loadingProduct(produto);
         } else {
+          console.log('setSerachedProducts: ', products);
+          console.log(
+            'setSerachedProducts qtd: ',
+            products.value.Qtd_Registros
+          );
+          console.log(
+            'setSerachedProducts filterd: ',
+            products.value.value.filter(
+              (p) => p.ATIVO !== 'N' && p.VENDA !== 'N' && p.TRANCAR !== 'S'
+            )
+          );
+
           setSerachedProducts({
             Qtd_Registros: products.value.Qtd_Registros,
             value: products.value.value.filter(
@@ -268,6 +313,9 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
           setIsVisibleModalProducts(true);
         }
       } else {
+        setProductSelected({} as iProduto);
+        setSimilares([]);
+        setSalesHistory([]);
         // ❌ Nenhum produto encontrado após a segunda busca
         ToastNotify({
           message: 'Produto não encontrado ou indisponível para venda',

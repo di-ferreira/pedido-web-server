@@ -17,63 +17,6 @@ const ROUTE_SAVE_ORCAMENTO = '/ServiceVendas/NovoOrcamento';
 const ROUTE_REMOVE_ITEM_ORCAMENTO = '/ServiceVendas/ExcluirItemOrcamento';
 const ROUTE_SAVE_ITEM_ORCAMENTO = '/ServiceVendas/NovoItemOrcamento';
 
-// async function CreateQueryParams(filter: iFilter<iOrcamento>): Promise<string> {
-//   const VendedorLocal: string = await getCookie('user');
-
-//   let DataSql: string = ` and year(DATA) eq ${dayjs()
-//     .subtract(1, 'day')
-//     .format('YYYY')} and month(DATA) eq ${dayjs()
-//     .subtract(1, 'day')
-//     .format('MM')} and day(DATA) ge ${dayjs().subtract(1, 'day').format('DD')}`;
-
-//   filter.filter?.some((item) => item.key === 'PV' && item.value === 'S');
-//   if (
-//     filter.filter?.some(
-//       (item) =>
-//         item.key === 'PV' && item.value === 'S' && item.typeSearch === 'eq'
-//     )
-//   )
-//     DataSql = '';
-
-//   let ResultFilter: string = `$filter=VENDEDOR eq ${VendedorLocal} ${DataSql}`;
-
-//   if (filter.filter && filter.filter.length >= 1) {
-//     ResultFilter = `$filter=VENDEDOR eq ${VendedorLocal} ${DataSql}`;
-//     const andStr = ' AND ';
-//     filter.filter.map((itemFilter) => {
-//       if (itemFilter.typeSearch) {
-//         itemFilter.typeSearch === 'like' &&
-//           (ResultFilter = `${ResultFilter}${andStr} contains(${
-//             itemFilter.key
-//           }, '${String(itemFilter.value).toUpperCase()}')${andStr}`);
-
-//         itemFilter.typeSearch === 'eq' &&
-//           (ResultFilter = `${ResultFilter}${andStr}${itemFilter.key} eq '${itemFilter.value}'${andStr}`);
-//         itemFilter.typeSearch === 'ne' &&
-//           (ResultFilter = `${ResultFilter}${andStr}${itemFilter.key} ne '${itemFilter.value}'${andStr}`);
-//       } else
-//         ResultFilter = `${ResultFilter}${andStr} contains(${
-//           itemFilter.key
-//         }, '${String(itemFilter.value).toUpperCase()}')${andStr}`;
-//     });
-//     ResultFilter = ResultFilter.slice(0, -andStr.length);
-//   }
-
-//   const ResultOrderBy = filter.orderBy
-//     ? `&$orderby=${filter.orderBy}`
-//     : '&$orderby=ORCAMENTO desc';
-
-//   const ResultSkip = filter.skip ? `&$skip=${filter.skip}` : '&$skip=0';
-
-//   let ResultTop = filter.top ? `$top=${filter.top}` : '$top=15';
-
-//   ResultFilter !== '' && (ResultTop = `&${ResultTop}`);
-
-//   const ResultRoute: string = `?${ResultFilter}${ResultTop}${ResultSkip}${ResultOrderBy}&$expand=VENDEDOR,CLIENTE,
-//   ItensOrcamento/PRODUTO/FORNECEDOR,ItensOrcamento/PRODUTO/FABRICANTE,
-//   ItensOrcamento,ItensOrcamento/PRODUTO&$inlinecount=allpages`;
-//   return ResultRoute;
-// }
 function ReturnFilterQuery(typeSearch: iFilterQuery<iOrcamento>): string {
   // Tratamento especial para valores nulos
   if (typeSearch.value === null) {
@@ -115,6 +58,7 @@ function ReturnFilterQuery(typeSearch: iFilterQuery<iOrcamento>): string {
       ).toUpperCase()}')`;
   }
 }
+
 async function CreateQueryParams(filter: iFilter<iOrcamento>): Promise<string> {
   // 1. Separação dos filtros por campo
   const groupedFilters: { [key: string]: iFilterQuery<iOrcamento>[] } = {};
@@ -150,24 +94,6 @@ async function CreateQueryParams(filter: iFilter<iOrcamento>): Promise<string> {
 
   // 3. Adiciona filtros fixos (VENDEDOR e DATA)
   const VendedorLocal: string = await getCookie('user');
-
-  // Filtro de data (apenas para orçamentos abertos)
-  // const hasOpenBudgetsFilter = filter.filter?.some(
-  //   (item) =>
-  //     item.key === 'PV' && item.value === 'N' && item.typeSearch === 'eq'
-  // );
-
-  // let dateFilter = '';
-  // if (!hasOpenBudgetsFilter) {
-  //   dateFilter = `year(DATA) eq ${dayjs()
-  //     .subtract(1, 'day')
-  //     .format('YYYY')} and month(DATA) eq ${dayjs()
-  //     .subtract(1, 'day')
-  //     .format('MM')} and day(DATA) ge ${dayjs()
-  //     .subtract(1, 'day')
-  //     .format('DD')}`;
-  //   conditions.push(dateFilter);
-  // }
 
   let dateFilter = '';
   dateFilter = `DATA ge ${dayjs().subtract(1, 'day').format('YYYY-MM-DD')}`;

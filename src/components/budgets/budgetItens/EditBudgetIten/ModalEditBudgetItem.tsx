@@ -1,21 +1,22 @@
+// components/ModalEditBudgetItem.tsx
 'use client';
 import { Button } from '@/components/ui/button';
-import useModal from '@/hooks/useModal';
+import Modal from '@/hooks/Modal';
 import { cn } from '@/lib/utils';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React from 'react';
+import React, { useState } from 'react';
 
 interface iModalEditBudgetItem {
-  children: React.ReactElement<{ onCloseModal?: () => void }>; // Adicione esta tipagem
+  children: React.ReactElement<{ onCloseModal?: () => void }>;
   modalTitle: string;
   buttonText?: string;
   buttonIcon?: IconProp;
-  buttonStyle?: string | undefined;
-  containerStyle?: string | undefined;
-  titleStyle?: string | undefined;
-  iconStyle?: string | undefined;
-  titleButton?: string | undefined;
+  buttonStyle?: string;
+  containerStyle?: string;
+  titleStyle?: string;
+  iconStyle?: string;
+  titleButton?: string;
 }
 
 export const ModalEditBudgetItem = ({
@@ -29,13 +30,16 @@ export const ModalEditBudgetItem = ({
   iconStyle,
   titleButton = '',
 }: iModalEditBudgetItem) => {
-  const { Modal, OnCloseModal, showModal } = useModal();
+  const [isVisible, setIsVisible] = useState(false);
+
+  const handleOpen = () => setIsVisible(true);
+  const handleClose = () => setIsVisible(false);
 
   return (
     <>
       <Button
         className={cn(`gap-2`, buttonStyle)}
-        onClick={() => showModal()}
+        onClick={handleOpen}
         title={titleButton}
       >
         {buttonIcon && (
@@ -48,16 +52,15 @@ export const ModalEditBudgetItem = ({
         )}
         {buttonText}
       </Button>
-      {Modal && (
+
+      {isVisible && (
         <Modal
           Title={modalTitle}
-          containerStyle={cn(
-            `laptop:w-screen w-full laptop:h-screen tablet-a8-portrait:w-screen tablet-a8-portrait:h-screen bg-gray-200`,
-            containerStyle
-          )}
+          OnClose={handleClose}
+          containerStyle={containerStyle}
           titleStyle={titleStyle}
         >
-          {React.cloneElement(children, { onCloseModal: OnCloseModal })}
+          {React.cloneElement(children, { onCloseModal: handleClose })}
         </Modal>
       )}
     </>

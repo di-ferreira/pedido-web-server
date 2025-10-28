@@ -54,87 +54,134 @@ const ROUTE_GET_ALL_PRODUTO = '/Produto';
 const ROUTE_GET_SALE_HISTORY = '/ServiceClientes/ListaHistoricoVendas';
 
 function ReturnFilterQuery(typeSearch: iFilterQuery<iProduto>): string {
-  let result: string = '';
-  const andStr = ' AND ';
-  const orStr = ' OR ';
-
-  if (typeSearch.typeSearch === 'like' && typeSearch.typeCondition === 'and') {
-    result = `${result}${andStr}${String(
-      typeSearch.key
-    ).toUpperCase()} like '%${String(typeSearch.value).toUpperCase()}%'`;
+  // Tratamento especial para valores nulos
+  if (typeSearch.value === null) {
+    return typeSearch.typeSearch === 'ne'
+      ? `${typeSearch.key} ne null `
+      : `${typeSearch.key} eq null `;
   }
 
-  if (typeSearch.typeSearch === 'like' && typeSearch.typeCondition === 'or') {
-    result = `${result}${orStr}${String(
-      typeSearch.key
-    ).toUpperCase()} like '%${String(typeSearch.value).toUpperCase()}%'`;
-  }
-
-  if (typeSearch.typeSearch === 'eq' && typeSearch.typeCondition === 'and') {
-    result = `${result}${andStr}${String(
-      typeSearch.key
-    ).toUpperCase()} eq '${String(typeSearch.value).toUpperCase()}'`;
-  }
-
-  if (typeSearch.typeSearch === 'eq' && typeSearch.typeCondition === 'or') {
-    result = `${result}${orStr}'${String(
-      typeSearch.key
-    ).toUpperCase()} eq ${String(typeSearch.value).toUpperCase()}'`;
-  }
-
-  if (
-    typeSearch.typeSearch === 'like' &&
-    typeSearch.typeCondition === undefined
-  ) {
-    result = `${result}${String(typeSearch.key).toUpperCase()} like '%${String(
-      typeSearch.value
-    ).toUpperCase()}%'`;
-  }
-
-  if (
-    typeSearch.typeSearch === 'eq' &&
-    typeSearch.typeCondition === undefined
-  ) {
-    result = `${result}${String(typeSearch.key).toUpperCase()} eq '${String(
-      typeSearch.value
-    ).toUpperCase()}'`;
-  }
-
-  return encodeURIComponent(result);
-}
-
-async function CreateQueryParams(filter: iFilter<iProduto>): Promise<string> {
-  let ResultFilter: string = ``;
-  const FilterStr: string = `$filter=`;
-
-  //verifica os filtros
-  if (filter.filter && filter.filter.length >= 1) {
-    filter.filter.map(async (itemFilter) => {
-      if (itemFilter.value !== '') {
-        ResultFilter = ResultFilter + ReturnFilterQuery(itemFilter);
-      }
-    });
-
-    if (ResultFilter !== '') {
-      ResultFilter = FilterStr + ResultFilter;
+  // ✅ Tratamento genérico: se o valor for número, usa operadores numéricos
+  if (typeof typeSearch.value === 'number') {
+    switch (typeSearch.typeSearch) {
+      case 'gt':
+        return `${typeSearch.key} gt ${typeSearch.value} `;
+      case 'lt':
+        return `${typeSearch.key} lt ${typeSearch.value} `;
+      case 'ge':
+        return `${typeSearch.key} ge ${typeSearch.value} `;
+      case 'le':
+        return `${typeSearch.key} le ${typeSearch.value} `;
+      // Se for 'eq' ou 'ne' com número, cai no tratamento padrão abaixo (com aspas)
+      // Mas se quiser também tratar eq/ne como numérico (sem aspas), descomente:
+      // case 'eq':
+      //   return `${typeSearch.key} eq ${typeSearch.value}`;
+      // case 'ne':
+      //   return `${typeSearch.key} ne ${typeSearch.value}`;
+      default:
+        // Se for outro operador (ex: like), continua para o padrão
+        break;
     }
   }
 
-  //verifica a quantidade buscada
-  let ResultTop = filter.top !== undefined ? `$top=${filter.top}` : '$top=15';
+  // Tratamento padrão para strings e outros tipos
+  switch (typeSearch.typeSearch) {
+    // case 'like':
+    //   return `contains(${typeSearch.key}, '${String(
+    //     typeSearch.value
+    //   ).toUpperCase()}') `;
 
-  //verifica a quantidade 'pulada'
-  const ResultSkip =
-    filter.skip !== undefined ? `&$skip=${filter.skip}` : '&$skip=0';
+    case 'like':
+      return `${typeSearch.key} like '${String(
+        typeSearch.value
+      ).toUpperCase()}'`;
 
-  //ordena a busca
-  const ResultOrderBy =
-    filter.orderBy !== undefined ? `&$orderby=${filter.orderBy}` : '';
+    case 'eq':
+      return `${typeSearch.key} eq '${typeSearch.value}'`;
 
-  ResultFilter !== '' && (ResultTop = `&${ResultTop}`);
+    case 'ne':
+      return `${typeSearch.key} ne '${typeSearch.value}'`;
 
-  const ResultRoute: string = `?${ResultFilter}${ResultTop}${ResultSkip}${ResultOrderBy}&$expand=FABRICANTE,FORNECEDOR,GRUPO,ListaChaves,ListaSimilares,ListaSimilares/PRODUTO,ListaSimilares/EXTERNO&$inlinecount=allpages`;
-  return ResultRoute;
+    default:
+      return `${typeSearch.key} like '${String(
+        typeSearch.value
+      ).toUpperCase()}' `;
+    // default:
+    //   return `contains(${typeSearch.key}, '${String(
+    //     typeSearch.value
+    //   ).toUpperCase()}') `;
+  }
+}
+
+async function CreateQueryParams(filter: iFilter<iProduto>): Promise<string> {
+  // Campos que são considerados "campos de busca textual" (para OR)
+  const searchFields: (keyof iProduto)[] = [
+    'PRODUTO',
+    'REFERENCIA',
+    'NOME',
+    'APLICACOES',
+    'CODIGOBARRA',
+    'REFERENCIA2',
+  ];
+
+  // Separa os filtros em dois grupos
+  const likeFilters: iFilterQuery<iProduto>[] = [];
+  const otherFilters: iFilterQuery<iProduto>[] = [];
+
+  filter.filter?.forEach((item) => {
+    if (item.typeSearch === 'like' && searchFields.includes(item.key)) {
+      likeFilters.push(item);
+    } else {
+      otherFilters.push(item);
+    }
+  });
+
+  const conditions: string[] = [];
+
+  // 1. Agrupa todos os filtros LIKE em um único OR entre os campos de busca
+  if (likeFilters.length > 0) {
+    const likeConditions = likeFilters.map(ReturnFilterQuery).filter(Boolean);
+    if (likeConditions.length > 0) {
+      conditions.push(`(${likeConditions.join(' or ')})`);
+    }
+  }
+
+  // 2. Adiciona os demais filtros (eq, ne, gt, etc.) como AND soltos
+  const otherConditions = otherFilters.map(ReturnFilterQuery).filter(Boolean);
+  conditions.push(...otherConditions);
+
+  // 3. Filtros fixos (ATIVO e DATA_ATUALIZACAO) — evita duplicação
+  const VendedorLocal: string = await getCookie('user');
+
+  // Evita duplicação de ATIVO eq 'S'
+  const hasAtivoFilter = filter.filter?.some(
+    (f) => f.key === 'ATIVO' && f.typeSearch === 'eq' && f.value === 'S'
+  );
+  if (!hasAtivoFilter) {
+    conditions.push(`ATIVO eq 'S'`);
+  }
+
+  // Filtro fixo: atualização nos últimos 7 dias
+  // const sevenDaysAgo = dayjs().subtract(7, 'day').format('YYYY-MM-DD');
+  // conditions.push(`DATA_ATUALIZACAO ge ${sevenDaysAgo}`);
+
+  // 4. Monta a string final de filtros
+  const filterString = conditions.length
+    ? `$filter=${conditions.join(' and ')}`
+    : '';
+
+  // 5. Parâmetros de paginação e ordenação
+  const ResultTop = filter.top ? `&$top=${filter.top}` : '&$top=15';
+  const ResultSkip = filter.skip ? `&$skip=${filter.skip}` : '&$skip=0';
+  const ResultOrderBy = filter.orderBy
+    ? `&$orderby=${filter.orderBy}`
+    : '&$orderby=PRODUTO asc';
+
+  // 6. Expansões específicas para iProduto
+  const expand = `&$expand=FABRICANTE,FORNECEDOR,GRUPO,ListaChaves,ListaSimilares,ListaSimilares/PRODUTO,ListaSimilares/EXTERNO`;
+
+  // 7. Monta URL final
+  return `?${filterString}${ResultTop}${ResultSkip}${ResultOrderBy}${expand}&$inlinecount=allpages`;
 }
 
 export async function SuperFindProducts(
@@ -146,18 +193,15 @@ export async function SuperFindProducts(
     PularRegistros: filter?.skip ? filter.skip : 0,
     QuantidadeRegistros: filter?.top ? filter.top : 15,
   };
-
-  const res = await CustomFetch<iApiResult<iProduto[]>>(
-    `${ROUTE_SUPER_BUSCA}?$expand=FABRICANTE,FORNECEDOR,GRUPO,ListaChaves,ListaSimilares`,
-    {
-      method: 'POST',
-      body: JSON.stringify(bodyReq),
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `bearer ${tokenCookie}`,
-      },
-    }
-  );
+  const URL = `${ROUTE_SUPER_BUSCA}?$expand=FABRICANTE,FORNECEDOR,GRUPO,ListaChaves,ListaSimilares`;
+  const res = await CustomFetch<iApiResult<iProduto[]>>(URL, {
+    method: 'POST',
+    body: JSON.stringify(bodyReq),
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `bearer ${tokenCookie}`,
+    },
+  });
   if (res.status !== 200) {
     return {
       value: undefined,
@@ -184,6 +228,7 @@ export async function GetProducts(
   const url: string = `${ROUTE_GET_ALL_PRODUTO}${await CreateQueryParams(
     filter
   )}`;
+  console.log('url: ', url);
 
   const res = await CustomFetch<{ '@xdata.count': number; value: iProduto[] }>(
     url,
@@ -196,6 +241,7 @@ export async function GetProducts(
     }
   );
 
+  console.log('res: ', res);
   if (res.status !== 200) {
     return {
       value: undefined,

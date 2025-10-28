@@ -1,47 +1,44 @@
 'use client';
-import useModal from '@/hooks/useModal';
+import Modal from '@/hooks/Modal';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface iModalSearchProduct {
-  children: React.ReactElement<{ onCloseModal?: () => void }>; // Adicione esta tipagem
-  IsVisible: Boolean;
+  children: React.ReactElement<{ onCloseModal?: () => void }>;
+  IsVisible: boolean;
   modalTitle: string;
   buttonText?: string;
   buttonIcon?: IconProp;
-  buttonStyle?: string | undefined;
-  iconStyle?: string | undefined;
-  titleButton?: string | undefined;
+  buttonStyle?: string;
+  iconStyle?: string;
+  titleButton?: string;
 }
 
 export const SearchProductsModal = ({
   children,
-  buttonText,
-  buttonIcon,
-  modalTitle,
-  buttonStyle,
   IsVisible,
-  iconStyle,
-  titleButton = '',
+  modalTitle,
 }: iModalSearchProduct) => {
-  const { Modal, OnCloseModal, showModal } = useModal();
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    if (IsVisible) {
-      showModal();
-    } else {
-      OnCloseModal();
-    }
+    setIsVisible(IsVisible);
   }, [IsVisible]);
+
+  const handleClose = () => setIsVisible(false);
+
   return (
     <>
-      {Modal && (
+      {isVisible && (
         <Modal
           Title={modalTitle}
-          // containerStyle='laptop:w-screen w-full laptop:h-screen tablet-a8-portrait:w-screen tablet-a8-portrait:h-screen bg-gray-200'
+          OnClose={handleClose}
+          bodyHeight='80vh'
+          bodyWidth='100%'
           containerStyle='laptop:w-[75%] laptop:h-[80%]'
+          titleStyle='text-emsoft_orange-main'
         >
-          {React.cloneElement(children, { onCloseModal: OnCloseModal })}
+          {React.cloneElement(children, { onCloseModal: () => {} })}
         </Modal>
       )}
     </>

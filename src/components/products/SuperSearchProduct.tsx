@@ -20,7 +20,7 @@ interface iProps {
 }
 
 const SuperSearchProducts = ({ data, words, CallBack }: iProps) => {
-  const { Modal, OnCloseModal, showModal } = useModal();
+  const { OnCloseModal, showModal } = useModal();
   const [loading, setLoading] = useState(false);
   const [Products, setProducts] = useState<iDataResultTable<iProduto>>(data);
   const [WordProducts, setWordProducts] = useState<string>(words);

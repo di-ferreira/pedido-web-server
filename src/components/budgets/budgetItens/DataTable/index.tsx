@@ -49,7 +49,7 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
         setLoading(false);
       })
       .catch((err) => {
-        console.error('Erro ao carregar clientes:', err);
+        console.error('Erro ao carregar orçamento:', err);
         ToastNotify({
           message: `Erro: ${err.message}`,
           type: 'error',
