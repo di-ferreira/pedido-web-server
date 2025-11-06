@@ -10,6 +10,7 @@ import {
   GetProductPromotion,
   GetProducts,
   GetSaleHistory,
+  GetSimilares,
 } from '@/app/actions/produto';
 import { DataTable } from '@/components/CustomDataTable';
 import { Loading } from '@/components/Loading';
@@ -60,7 +61,7 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
   );
   const [Similares, setSimilares] = useState<iListaSimilare[]>([]);
   const [SalesHistory, setSalesHistory] = useState<iSaleHistory[]>([]);
-  let [SerachedProducts, setSerachedProducts] = useState<
+  let [SerachedProducts, setSearchedProducts] = useState<
     iDataResultTable<iProduto>
   >({
     Qtd_Registros: 0,
@@ -164,15 +165,20 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
       );
       history.value !== null && setSalesHistory((old) => [...history.value!]);
 
-      let similaresFiltrados: iListaSimilare[] = prod.ListaSimilares.filter(
-        (similar) => {
+      let prodSimilares = await GetSimilares(prod.PRODUTO);
+
+      console.log('prodSimilares: ', prodSimilares);
+
+      let similaresFiltrados: iListaSimilare[] = [];
+      if (prodSimilares.value !== undefined && prodSimilares.value !== null) {
+        similaresFiltrados = prodSimilares.value.filter((similar) => {
           return (
             similar.EXTERNO.ATIVO !== 'N' &&
             similar.EXTERNO.VENDA !== 'N' &&
             similar.EXTERNO.TRANCAR !== 'S'
           );
-        }
-      );
+        });
+      }
 
       setQtdItem((old) => (old = newQtd.toString()));
       setProductSelected(prod);
@@ -292,19 +298,19 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
 
           // loadingProduct(produto);
         } else {
-          console.log('setSerachedProducts: ', products);
+          console.log('setSearchedProducts: ', products);
           console.log(
-            'setSerachedProducts qtd: ',
+            'setSearchedProducts qtd: ',
             products.value.Qtd_Registros
           );
           console.log(
-            'setSerachedProducts filterd: ',
+            'setSearchedProducts filterd: ',
             products.value.value.filter(
               (p) => p.ATIVO !== 'N' && p.VENDA !== 'N' && p.TRANCAR !== 'S'
             )
           );
 
-          setSerachedProducts({
+          setSearchedProducts({
             Qtd_Registros: products.value.Qtd_Registros,
             value: products.value.value.filter(
               (p) => p.ATIVO !== 'N' && p.VENDA !== 'N' && p.TRANCAR !== 'S'

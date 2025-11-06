@@ -4,6 +4,7 @@ import { iApiResult, ResponseType } from '@/@types';
 import { iCliente } from '@/@types/Cliente';
 import { iFilter, iFilterQuery } from '@/@types/Filter';
 import {
+  iListaSimilare,
   iProductPromotion,
   iProduto,
   iSaleHistory,
@@ -51,6 +52,7 @@ const ROUTE_SELECT_SQL = '/ServiceSistema/SelectSQL';
 const ROUTE_ESTOQUE_LOJAS = '/EstoqueFiliais';
 
 const ROUTE_GET_ALL_PRODUTO = '/Produto';
+const ROUTE_GET_ALL_SIMILARES = '/Similares';
 const ROUTE_GET_SALE_HISTORY = '/ServiceClientes/ListaHistoricoVendas';
 
 function ReturnFilterQuery(typeSearch: iFilterQuery<iProduto>): string {
@@ -92,9 +94,9 @@ function ReturnFilterQuery(typeSearch: iFilterQuery<iProduto>): string {
     //   ).toUpperCase()}') `;
 
     case 'like':
-      return `${typeSearch.key} like '${String(
+      return `${typeSearch.key} like '%${String(
         typeSearch.value
-      ).toUpperCase()}'`;
+      ).toUpperCase()}%'`;
 
     case 'eq':
       return `${typeSearch.key} eq '${typeSearch.value}'`;
@@ -103,9 +105,9 @@ function ReturnFilterQuery(typeSearch: iFilterQuery<iProduto>): string {
       return `${typeSearch.key} ne '${typeSearch.value}'`;
 
     default:
-      return `${typeSearch.key} like '${String(
+      return `${typeSearch.key} like '%${String(
         typeSearch.value
-      ).toUpperCase()}' `;
+      ).toUpperCase()}%' `;
     // default:
     //   return `contains(${typeSearch.key}, '${String(
     //     typeSearch.value
@@ -178,7 +180,8 @@ async function CreateQueryParams(filter: iFilter<iProduto>): Promise<string> {
     : '&$orderby=PRODUTO asc';
 
   // 6. Expansões específicas para iProduto
-  const expand = `&$expand=FABRICANTE,FORNECEDOR,GRUPO,ListaChaves,ListaSimilares,ListaSimilares/PRODUTO,ListaSimilares/EXTERNO`;
+  // const expand = `&$expand=FABRICANTE,FORNECEDOR,GRUPO,ListaChaves,ListaSimilares,ListaSimilares/PRODUTO,ListaSimilares/EXTERNO`;
+  const expand = `&$expand=FABRICANTE,FORNECEDOR,GRUPO,ListaChaves`;
 
   // 7. Monta URL final
   return `?${filterString}${ResultTop}${ResultSkip}${ResultOrderBy}${expand}&$inlinecount=allpages`;
@@ -228,7 +231,6 @@ export async function GetProducts(
   const url: string = `${ROUTE_GET_ALL_PRODUTO}${await CreateQueryParams(
     filter
   )}`;
-  console.log('url: ', url);
 
   const res = await CustomFetch<{ '@xdata.count': number; value: iProduto[] }>(
     url,
@@ -241,7 +243,6 @@ export async function GetProducts(
     }
   );
 
-  console.log('res: ', res);
   if (res.status !== 200) {
     return {
       value: undefined,
@@ -483,6 +484,48 @@ export async function GetSaleHistory(
 
   return {
     value: res.body.Data,
+    error: undefined,
+  };
+}
+
+export async function GetSimilares(productCode: string) {
+  const tokenCookie = await getCookie('token');
+  const productScape = encodeURIComponent(productCode);
+
+  const res = await CustomFetch<{ value: iListaSimilare[] }>(
+    `${ROUTE_GET_ALL_SIMILARES}?$filter=PRODUTO eq '${productScape}'`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `bearer ${tokenCookie}`,
+      },
+    }
+  );
+  console.log('res: ', res);
+
+  if (res.status !== 200) {
+    return {
+      value: undefined,
+      error: {
+        code: String(res.status),
+        message: String(res.statusText),
+      },
+    };
+  }
+
+  if (res.body === null) {
+    return {
+      value: undefined,
+      error: {
+        code: '404',
+        message: 'Sem produtos similares',
+      },
+    };
+  }
+
+  return {
+    value: res.body.value,
     error: undefined,
   };
 }
