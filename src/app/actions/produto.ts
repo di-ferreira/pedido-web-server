@@ -144,7 +144,7 @@ async function CreateQueryParams(filter: iFilter<iProduto>): Promise<string> {
   if (likeFilters.length > 0) {
     const likeConditions = likeFilters.map(ReturnFilterQuery).filter(Boolean);
     if (likeConditions.length > 0) {
-      conditions.push(`(${likeConditions.join(' or ')})`);
+      conditions.push(`(${encodeURIComponent(likeConditions.join(' or '))})`);
     }
   }
 
@@ -502,7 +502,6 @@ export async function GetSimilares(productCode: string) {
       },
     }
   );
-  console.log('res: ', res);
 
   if (res.status !== 200) {
     return {
