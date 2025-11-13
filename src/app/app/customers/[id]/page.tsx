@@ -180,15 +180,18 @@ function Customers({ params }: iCustomerPage) {
       const emAtrazo = await GetPGTOsAtrazados(params.id);
       const naoVencidas = await GetPGTOsNaoVencidos(params.id);
       const emAberto = await GetPGTOsEmAberto(params.id);
-      setContasAtrazadas((old) => emAtrazo.value[0]?.VALOR ?? 0);
-      setContasAVencer((old) => naoVencidas.value?.Data[0]?.VALOR ?? 0);
-      setContasAbertas(
-        (old) =>
-          emAberto.value?.reduce(
-            (total: any, conta: { RESTA: any }) => total + conta.RESTA,
-            0
-          ) ?? 0
-      );
+      const emAbertoTotal =
+        emAberto.value?.reduce(
+          (total: any, conta: { RESTA: any }) => total + conta.RESTA,
+          0
+        ) ?? 0;
+      const debitosNaoVencidoTotal = naoVencidas.value?.Data[0]?.VALOR ?? 0;
+      const debitosVencidoTotal = emAtrazo.value[0]?.VALOR ?? 0;
+      const SaldoCompraTotal = customer.value!.LIMITE - emAbertoTotal;
+
+      setContasAtrazadas((old) => debitosVencidoTotal);
+      setContasAVencer((old) => debitosNaoVencidoTotal);
+      setContasAbertas((old) => emAbertoTotal);
       setListaDebitos(
         (old) =>
           emAberto.value?.filter((abertos: iCredito) => abertos.ATRASO > 0) ??
@@ -198,7 +201,8 @@ function Customers({ params }: iCustomerPage) {
         (old) =>
           emAberto.value?.filter((aberto: iCredito) => aberto.ATRASO <= 0) ?? []
       );
-      setSaldoCompra((old) => customer.value!.LIMITE - ContasAbertas);
+
+      setSaldoCompra((old) => SaldoCompraTotal);
     } catch (err: any) {
       ToastNotify({ message: err.message, type: 'error' });
     }

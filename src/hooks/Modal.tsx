@@ -46,18 +46,9 @@ export default function Modal({
   OnEscKeyClose(OnClose);
 
   const BtnClose = useCallback(() => {
-    console.log('Botão de fechar clicado!'); // 👈 ADICIONE ISSO
-
     OnClose();
     OnCloseButtonClick && OnCloseButtonClick();
   }, []);
-
-  // const BtnClose = () => {
-  //   console.log('Botão de fechar clicado!'); // 👈 ADICIONE ISSO
-
-  //   OnClose();
-  //   OnCloseButtonClick && OnCloseButtonClick();
-  // };
 
   return ReactDOM.createPortal(
     <section className='flex items-center justify-center fixed top-0 left-0 z-[500] w-screen h-screen bg-emsoft_dark-text bg-opacity-70'>

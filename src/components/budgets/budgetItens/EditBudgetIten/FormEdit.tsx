@@ -167,8 +167,6 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
 
       let prodSimilares = await GetSimilares(prod.PRODUTO);
 
-      console.log('prodSimilares: ', prodSimilares);
-
       let similaresFiltrados: iListaSimilare[] = [];
       if (prodSimilares.value !== undefined && prodSimilares.value !== null) {
         similaresFiltrados = prodSimilares.value.filter((similar) => {
@@ -269,12 +267,9 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
         ],
       });
 
-      console.log('products: ', products);
-
       if (products.value !== undefined && products.value.Qtd_Registros > 0) {
         if (products.value.Qtd_Registros === 1) {
           const produto = products.value.value[0];
-          console.log('produto = 1: ', produto);
 
           const isValidProduct =
             produto &&
@@ -283,7 +278,6 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
             produto.TRANCAR !== 'S';
 
           if (isValidProduct) {
-            console.log('isValidProduct: ', isValidProduct);
             setProductSelected({} as iProduto); // 👈 Limpa o anterior
             setSimilares([]);
             setSalesHistory([]);
@@ -298,18 +292,6 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
 
           // loadingProduct(produto);
         } else {
-          console.log('setSearchedProducts: ', products);
-          console.log(
-            'setSearchedProducts qtd: ',
-            products.value.Qtd_Registros
-          );
-          console.log(
-            'setSearchedProducts filterd: ',
-            products.value.value.filter(
-              (p) => p.ATIVO !== 'N' && p.VENDA !== 'N' && p.TRANCAR !== 'S'
-            )
-          );
-
           setSearchedProducts({
             Qtd_Registros: products.value.Qtd_Registros,
             value: products.value.value.filter(

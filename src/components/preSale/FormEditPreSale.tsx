@@ -128,7 +128,7 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
           if (condicao.value) {
             setCondicaoPgto(condicao.value);
             setCondicaoPgtoSelected(condicao.value[0]);
-            console.log('condicao.value[0]: ', condicao.value[0]);
+
             parcelasList(condicao.value[0]);
           }
         }
@@ -260,8 +260,6 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
         Entrega: IsDelivery ? 'S' : 'N',
         TipoEntrega: IsDelivery ? 'CARRO' : 'VEM BUSCAR',
       };
-
-      console.log('PV: ', PV);
 
       const res = await SavePreVenda(PV);
 
