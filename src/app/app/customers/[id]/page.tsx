@@ -55,8 +55,12 @@ function Customers({ params }: iCustomerPage) {
   const [ContasAtrazadas, setContasAtrazadas] = useState(0);
   const [ContasAVencer, setContasAVencer] = useState(0);
   const [ContasAbertas, setContasAbertas] = useState(0);
+  const [TotalCreditos, setTotalCreditos] = useState(0);
 
   const [ListaDebitos, setListaDebitos] = useState<iCredito[]>([]);
+  const [ListaDebitosNaoVencidos, setListaDebitosNaoVencidos] = useState<
+    iCredito[]
+  >([]);
 
   const [ListaCreditos, setListaCreditos] = useState<iCredito[]>([]);
 
@@ -180,28 +184,36 @@ function Customers({ params }: iCustomerPage) {
       const emAtrazo = await GetPGTOsAtrazados(params.id);
       const naoVencidas = await GetPGTOsNaoVencidos(params.id);
       const emAberto = await GetPGTOsEmAberto(params.id);
+      const pgtoEmAberto =
+        emAberto.value?.filter((aberto: iCredito) => aberto.RESTA > 0) ?? [];
       const emAbertoTotal =
-        emAberto.value?.reduce(
-          (total: any, conta: { RESTA: any }) => total + conta.RESTA,
-          0
-        ) ?? 0;
+        pgtoEmAberto.reduce((total: any, conta) => total + conta.RESTA, 0) ?? 0;
       const debitosNaoVencidoTotal = naoVencidas.value?.Data[0]?.VALOR ?? 0;
       const debitosVencidoTotal = emAtrazo.value[0]?.VALOR ?? 0;
-      const SaldoCompraTotal = customer.value!.LIMITE - emAbertoTotal;
+      const now = dayjs();
+      const debitosNaoVencidos =
+        emAberto.value?.filter((aberto: iCredito) =>
+          dayjs(aberto.VENCIMENTO, 'YYYY-MM-DD').isAfter(now)
+        ) ?? [];
+      const creditos =
+        emAberto.value?.filter((aberto: iCredito) => aberto.RESTA < 0) ?? [];
+
+      let creditosTotal =
+        creditos.reduce((total: any, conta) => total + conta.RESTA, 0) ?? 0;
+      creditosTotal = creditosTotal > 0 ? creditosTotal * -1 : creditosTotal;
+      const SaldoCompraTotal =
+        customer.value!.LIMITE + creditosTotal - emAbertoTotal;
 
       setContasAtrazadas((old) => debitosVencidoTotal);
       setContasAVencer((old) => debitosNaoVencidoTotal);
       setContasAbertas((old) => emAbertoTotal);
+      setListaDebitosNaoVencidos((old) => debitosNaoVencidos);
       setListaDebitos(
         (old) =>
-          emAberto.value?.filter((abertos: iCredito) => abertos.ATRASO > 0) ??
-          []
+          emAberto.value?.filter((abertos: iCredito) => abertos.RESTA > 0) ?? []
       );
-      setListaCreditos(
-        (old) =>
-          emAberto.value?.filter((aberto: iCredito) => aberto.ATRASO <= 0) ?? []
-      );
-
+      setTotalCreditos((old) => creditosTotal);
+      setListaCreditos((old) => creditos);
       setSaldoCompra((old) => SaldoCompraTotal);
     } catch (err: any) {
       ToastNotify({ message: err.message, type: 'error' });
@@ -429,6 +441,10 @@ function Customers({ params }: iCustomerPage) {
                 <p>{parseCurrency(ContasAbertas)}</p>
               </article>
               <article className='flex w-[40%] px-3 justify-between border border-b-slate-400'>
+                <p>Créditos</p>
+                <p>{parseCurrency(TotalCreditos)}</p>
+              </article>
+              <article className='flex w-[40%] px-3 justify-between border border-b-slate-400'>
                 <p>Saldo para comprar</p>
                 <p>{parseCurrency(SaldoCompra)}</p>
               </article>
@@ -505,10 +521,10 @@ function Customers({ params }: iCustomerPage) {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {ListaCreditos.length <= 0 ? (
+                {ListaDebitosNaoVencidos.length <= 0 ? (
                   <span>Não pagamentos não vencidos</span>
                 ) : (
-                  ListaCreditos.map((lc, idx) => (
+                  ListaDebitosNaoVencidos.map((lc, idx) => (
                     <TableRow key={idx}>
                       <TableCell className='font-medium'>
                         {dayjs(lc.VENCIMENTO).format('DD/MM/YYYY')}
