@@ -27,8 +27,11 @@ type VendaDashboard = {
 
 const Dashboard = async () => {
   const Vendas = await getVendasDashboard();
+
   const lastSell = await getLastVenda();
+
   const dataTotalSell = await getDataTotalVenda();
+
   const customerListDebit = await GetClientesPgtoEmAberto();
   let singleSeries = { name: 'Vendas', data: [10, 41, 35, 51, 49, 62, 69] };
   let categories = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'];

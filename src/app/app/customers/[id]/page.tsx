@@ -195,12 +195,19 @@ function Customers({ params }: iCustomerPage) {
         emAberto.value?.filter((aberto: iCredito) =>
           dayjs(aberto.VENCIMENTO, 'YYYY-MM-DD').isAfter(now)
         ) ?? [];
+      const debitosVencidos =
+        emAberto.value?.filter(
+          (abertos: iCredito) =>
+            abertos.RESTA > 0 &&
+            dayjs(abertos.VENCIMENTO, 'YYYY-MM-DD').isBefore(now)
+        ) ?? [];
+      console.log('debitosVencidos: ', debitosVencidos);
       const creditos =
         emAberto.value?.filter((aberto: iCredito) => aberto.RESTA < 0) ?? [];
 
       let creditosTotal =
         creditos.reduce((total: any, conta) => total + conta.RESTA, 0) ?? 0;
-      creditosTotal = creditosTotal > 0 ? creditosTotal * -1 : creditosTotal;
+      creditosTotal = creditosTotal < 0 ? creditosTotal * -1 : creditosTotal;
       const SaldoCompraTotal =
         customer.value!.LIMITE + creditosTotal - emAbertoTotal;
 
@@ -208,10 +215,7 @@ function Customers({ params }: iCustomerPage) {
       setContasAVencer((old) => debitosNaoVencidoTotal);
       setContasAbertas((old) => emAbertoTotal);
       setListaDebitosNaoVencidos((old) => debitosNaoVencidos);
-      setListaDebitos(
-        (old) =>
-          emAberto.value?.filter((abertos: iCredito) => abertos.RESTA > 0) ?? []
-      );
+      setListaDebitos((old) => debitosVencidos);
       setTotalCreditos((old) => creditosTotal);
       setListaCreditos((old) => creditos);
       setSaldoCompra((old) => SaldoCompraTotal);
