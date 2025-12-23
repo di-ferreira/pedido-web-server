@@ -8,6 +8,7 @@ import {
   GetPGTOsEmAberto,
   GetPGTOsNaoVencidos,
 } from '@/app/actions/cliente';
+import { Liberacoes } from '@/app/actions/liberacoes';
 import { NewOrcamento } from '@/app/actions/orcamento';
 import ToastNotify from '@/components/ToastNotify';
 import { Button } from '@/components/ui/button';
@@ -137,10 +138,31 @@ function Customers({ params }: iCustomerPage) {
     }
   }
 
-  function GerarOrcamento() {
-    let orcID = 0;
+  async function GerarOrcamento() {
     setIconLoading(true);
-    if (ContasAtrazadas > 0) {
+    let orcID = 0;
+
+    const liberacao = await Liberacoes({
+      ID: 0,
+      NOME: '',
+      CODIGO: '',
+      CHAVE: Customer.CLIENTE,
+      DATA_HORA: '',
+      QUEM: '',
+      USADO: '',
+      ONDE: '',
+      ID_ONDE: 0,
+      OBS: '',
+      MOVIMENTO: 0,
+    });
+    console.log('liberacao: ', liberacao);
+
+    if (
+      ContasAtrazadas > 0 &&
+      liberacao.value !== undefined &&
+      liberacao.value?.USADO == 'S' &&
+      liberacao.value.ID_ONDE != 9999
+    ) {
       setIconLoading(false);
       ToastNotify({
         message: `Cliente ${Customer?.NOME} possuí contas em aberto!`,
@@ -157,7 +179,6 @@ function Customers({ params }: iCustomerPage) {
       });
       return;
     }
-
     NewOrcamento({
       ...NewAddOrcamento,
       CLIENTE: Customer!,
@@ -201,7 +222,7 @@ function Customers({ params }: iCustomerPage) {
             abertos.RESTA > 0 &&
             dayjs(abertos.VENCIMENTO, 'YYYY-MM-DD').isBefore(now)
         ) ?? [];
-      console.log('debitosVencidos: ', debitosVencidos);
+
       const creditos =
         emAberto.value?.filter((aberto: iCredito) => aberto.RESTA < 0) ?? [];
 

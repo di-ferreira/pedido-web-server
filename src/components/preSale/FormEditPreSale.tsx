@@ -8,6 +8,7 @@ import {
   iPreVenda,
 } from '@/@types/PreVenda';
 import { GetPGTOsEmAberto } from '@/app/actions/cliente';
+import { Liberacoes } from '@/app/actions/liberacoes';
 import { UpdateOrcamento } from '@/app/actions/orcamento';
 import {
   GetCondicaoPGTO,
@@ -225,15 +226,35 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
         return;
       }
 
-      // Depois verifica o limite (assíncrono)
-      const limiteExcedido = await hasLimiteCliente(orc);
+      const liberacao = await Liberacoes({
+        ID: 0,
+        NOME: '',
+        CODIGO: '',
+        CHAVE: orc.CLIENTE.CLIENTE,
+        DATA_HORA: '',
+        QUEM: '',
+        USADO: '',
+        ONDE: '',
+        ID_ONDE: 0,
+        OBS: '',
+        MOVIMENTO: 0,
+      });
 
-      if (limiteExcedido) {
-        ToastNotify({
-          message: `Cliente não possui limite suficiente de compras!`,
-          type: 'error',
-        });
-        return;
+      if (
+        liberacao.value !== undefined &&
+        liberacao.value?.USADO == 'S' &&
+        liberacao.value.ID_ONDE != 9999
+      ) {
+        // Depois verifica o limite (assíncrono)
+        const limiteExcedido = await hasLimiteCliente(orc);
+
+        if (limiteExcedido) {
+          ToastNotify({
+            message: `Cliente não possui limite suficiente de compras!`,
+            type: 'error',
+          });
+          return;
+        }
       }
 
       // Se passou nas verificações, prossegue com a geração
