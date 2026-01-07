@@ -243,6 +243,8 @@ export async function GetProducts(
     }
   );
 
+  console.log('res: ', res);
+
   if (res.status !== 200) {
     return {
       value: undefined,
@@ -265,9 +267,11 @@ export async function GetProducts(
 export async function GetProduct(productCode: string) {
   const tokenCookie = await getCookie('token');
   const productScape = encodeURIComponent(productCode);
+  console.log('productCode: ', productCode);
+  console.log('productScape: ', productScape);
 
   const res = await CustomFetch<iProduto>(
-    `${ROUTE_GET_ALL_PRODUTO}('${productScape}')?$expand=FABRICANTE,ListaSimilares,ListaSimilares/PRODUTO,ListaSimilares/EXTERNO`,
+    `${ROUTE_GET_ALL_PRODUTO}?$filter=PRODUTO eq '${productScape}'&$expand=FABRICANTE,ListaSimilares,ListaSimilares/PRODUTO,ListaSimilares/EXTERNO`,
     {
       method: 'GET',
       headers: {
@@ -277,6 +281,7 @@ export async function GetProduct(productCode: string) {
     }
   );
 
+  console.log('res: ', res);
   if (res.status !== 200) {
     return {
       value: undefined,

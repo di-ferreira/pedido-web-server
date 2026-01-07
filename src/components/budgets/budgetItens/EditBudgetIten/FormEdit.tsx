@@ -6,7 +6,6 @@ import { iColumnType, iDataResultTable } from '@/@types/Table';
 import { addItem, GetOrcamento, updateItem } from '@/app/actions/orcamento';
 import {
   GetNewPriceFromTable,
-  GetProduct,
   GetProductPromotion,
   GetProducts,
   GetSaleHistory,
@@ -190,8 +189,13 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
     setLoading(true);
     setIsVisibleModalProducts(false);
 
+    UpdateProduct(product);
+
     try {
+      /*
+      // Removido para teste
       const prod = await GetProduct(product.PRODUTO);
+      
 
       // ✅ Verifique se a resposta foi bem-sucedida e tem valor
       if (prod.error !== undefined) {
@@ -213,7 +217,7 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
       }
 
       // ✅ Agora sim, temos um produto válido
-      UpdateProduct(prod.value);
+      UpdateProduct(prod.value);*/
     } catch (e: any) {
       ToastNotify({
         message: `Erro inesperado ao carregar produto: ${e.message}`,
