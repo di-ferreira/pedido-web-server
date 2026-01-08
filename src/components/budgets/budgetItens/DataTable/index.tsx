@@ -1,6 +1,7 @@
 'use client';
 import { iItensOrcamento, iOrcamento } from '@/@types/Orcamento';
 import { iColumnType } from '@/@types/Table';
+import { GetFinanceiroCliente } from '@/app/actions/cliente';
 import {
   GetOrcamento,
   removeItem,
@@ -19,7 +20,7 @@ import {
   faTrashAlt,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Suspense, useCallback, useState } from 'react';
 import GeneratePDF from '../../PdfViewer/PdfButton';
 import FormEdit from '../EditBudgetIten/FormEdit';
@@ -32,6 +33,7 @@ interface iItemBudgetTable {
 const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
   const [data, setData] = useState<iOrcamento>(orc);
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const handleItensBudgets = useCallback(() => {
     setLoading(true);
@@ -91,6 +93,29 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
       .finally(() => {
         setLoading(false);
       });
+  }
+
+  async function VerifyCustomerLimit() {
+    try {
+      const resultFinanceiro = await GetFinanceiroCliente(data.CLIENTE.CLIENTE);
+      if (resultFinanceiro.error !== undefined) {
+        throw new Error('Erro ao consultar Saldo de Compras do cliente!');
+      }
+
+      const CurrentLimit = resultFinanceiro.value!.SaldoCompra;
+      const TotalOrcamento = data.TOTAL;
+
+      if (CurrentLimit < TotalOrcamento) {
+        throw new Error('Cliente não possui limite para compra!');
+      }
+
+      router.push(`/app/pre-sales/${data.ORCAMENTO}`);
+    } catch (err: any) {
+      ToastNotify({
+        message: `Erro: ${err.message}`,
+        type: 'error',
+      });
+    }
   }
 
   const tableHeaders: iColumnType<iItensOrcamento>[] = [
@@ -290,16 +315,16 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
             <GeneratePDF orc={data} />
           </div>
         </ModalEditBudgetItem>
-        <Button>
-          <Link href={`/app/pre-sales/${data.ORCAMENTO}`}>
-            <FontAwesomeIcon
-              icon={faFileInvoiceDollar}
-              className={'text-emsoft_light-main mr-2'}
-              size='xl'
-              title={'Gerar Pré-venda'}
-            />
-            Gerar Pré-venda
-          </Link>
+        <Button onClick={VerifyCustomerLimit}>
+          {/* <Link href={`/app/pre-sales/${data.ORCAMENTO}`}> */}
+          <FontAwesomeIcon
+            icon={faFileInvoiceDollar}
+            className={'text-emsoft_light-main mr-2'}
+            size='xl'
+            title={'Gerar Pré-venda'}
+          />
+          Gerar Pré-venda
+          {/* </Link> */}
         </Button>
         <Button
           className='bg-emsoft_success-main text-emsoft_dark-text'

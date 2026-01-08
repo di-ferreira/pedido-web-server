@@ -1,7 +1,13 @@
 'use server';
 
-import { iSelectSQL, iVendedor, ResponseSQL, ResponseType } from '@/@types';
-import { iCliente, iPgtoEmAberto } from '@/@types/Cliente';
+import {
+  iCredito,
+  iSelectSQL,
+  iVendedor,
+  ResponseSQL,
+  ResponseType,
+} from '@/@types';
+import { iCliente, iFinanceiroCliente, iPgtoEmAberto } from '@/@types/Cliente';
 import { iFilter } from '@/@types/Filter';
 import { iDataResultTable } from '@/@types/Table';
 import { CustomFetch } from '@/services/api';
@@ -375,5 +381,79 @@ export async function GetClientesPgtoEmAberto() {
     value: response.body!.Data,
     error: undefined,
   };
+}
+
+export async function GetFinanceiroCliente(
+  idCliente: number
+): Promise<ResponseType<iFinanceiroCliente>> {
+  let debitosVencidoTotal: number;
+  let debitosNaoVencidoTotal: number;
+  let emAbertoTotal: number;
+  let creditosTotal: number;
+  let LimiteCredito: number;
+  let SaldoCompraTotal: number;
+  let debitosVencidos: iPgtoEmAberto[];
+  let debitosNaoVencidos: iPgtoEmAberto[];
+  let creditos: iPgtoEmAberto[];
+
+  try {
+    const customer = await GetCliente(idCliente);
+    const emAtrazo = await GetPGTOsAtrazados(idCliente);
+    const naoVencidas = await GetPGTOsNaoVencidos(idCliente);
+    const emAberto = await GetPGTOsEmAberto(idCliente);
+    const pgtoEmAberto =
+      emAberto.value?.filter((aberto: iCredito) => aberto.RESTA > 0) ?? [];
+
+    const now = dayjs();
+
+    emAbertoTotal =
+      pgtoEmAberto.reduce((total: any, conta) => total + conta.RESTA, 0) ?? 0;
+    debitosNaoVencidoTotal = naoVencidas.value?.Data[0]?.VALOR ?? 0;
+    debitosVencidoTotal = emAtrazo.value[0]?.VALOR ?? 0;
+
+    debitosNaoVencidos =
+      emAberto.value?.filter((aberto: iCredito) =>
+        dayjs(aberto.VENCIMENTO, 'YYYY-MM-DD').isAfter(now)
+      ) ?? [];
+
+    debitosVencidos =
+      emAberto.value?.filter(
+        (abertos: iCredito) =>
+          abertos.RESTA > 0 &&
+          dayjs(abertos.VENCIMENTO, 'YYYY-MM-DD').isBefore(now)
+      ) ?? [];
+
+    creditos =
+      emAberto.value?.filter((aberto: iCredito) => aberto.RESTA < 0) ?? [];
+
+    creditosTotal =
+      creditos.reduce((total: any, conta) => total + conta.RESTA, 0) ?? 0;
+
+    creditosTotal = creditosTotal < 0 ? creditosTotal * -1 : creditosTotal;
+
+    SaldoCompraTotal = customer.value!.LIMITE + creditosTotal - emAbertoTotal;
+
+    LimiteCredito = customer.value!.LIMITE;
+
+    return {
+      value: {
+        ContasAtrazadas: debitosVencidoTotal,
+        ContasAVencer: debitosNaoVencidoTotal,
+        ContasAbertas: emAbertoTotal,
+        TotalCreditos: creditosTotal,
+        LimiteCredito: LimiteCredito,
+        SaldoCompra: SaldoCompraTotal,
+        ListaDebitos: debitosVencidos,
+        ListaDebitosNaoVencidos: debitosNaoVencidos,
+        ListaCreditos: creditos,
+      },
+      error: undefined,
+    };
+  } catch (err: any) {
+    return {
+      value: undefined,
+      error: err.message,
+    };
+  }
 }
 

@@ -1,13 +1,9 @@
 'use client';
-import { iCliente } from '@/@types/Cliente';
+import { iCredito } from '@/@types';
+import { iCliente, iFinanceiroCliente } from '@/@types/Cliente';
 import { iOrcamento } from '@/@types/Orcamento';
 import { iVendedor } from '@/@types/Vendedor';
-import {
-  GetCliente,
-  GetPGTOsAtrazados,
-  GetPGTOsEmAberto,
-  GetPGTOsNaoVencidos,
-} from '@/app/actions/cliente';
+import { GetCliente, GetFinanceiroCliente } from '@/app/actions/cliente';
 import { Liberacoes } from '@/app/actions/liberacoes';
 import { NewOrcamento } from '@/app/actions/orcamento';
 import ToastNotify from '@/components/ToastNotify';
@@ -38,16 +34,6 @@ import { RiMedalFill } from 'react-icons/ri';
 interface iCustomerPage {
   params: { id: number };
 }
-interface iCredito {
-  VENCIMENTO: string;
-  DATA: string;
-  TIPO: string;
-  HISTORICO: string;
-  ATRASO: number;
-  RESTA: number;
-  DOC: string;
-  EMISSAO_BOLETO: string;
-}
 
 function Customers({ params }: iCustomerPage) {
   const router = useRouter();
@@ -57,6 +43,7 @@ function Customers({ params }: iCustomerPage) {
   const [ContasAVencer, setContasAVencer] = useState(0);
   const [ContasAbertas, setContasAbertas] = useState(0);
   const [TotalCreditos, setTotalCreditos] = useState(0);
+  const [LimiteCredito, setLimiteCredito] = useState(0);
 
   const [ListaDebitos, setListaDebitos] = useState<iCredito[]>([]);
   const [ListaDebitosNaoVencidos, setListaDebitosNaoVencidos] = useState<
@@ -155,7 +142,6 @@ function Customers({ params }: iCustomerPage) {
       OBS: '',
       MOVIMENTO: 0,
     });
-    console.log('liberacao: ', liberacao);
 
     if (
       ContasAtrazadas > 0 &&
@@ -198,48 +184,27 @@ function Customers({ params }: iCustomerPage) {
   // Carrega o item quando o componente monta ou o 'item' prop muda
   const loadData = async () => {
     try {
+      const resultFinanceiro = await GetFinanceiroCliente(params.id);
+
+      if (resultFinanceiro.error !== undefined) {
+        throw new Error(resultFinanceiro.error.message);
+      }
+
+      const financeiro: iFinanceiroCliente = resultFinanceiro.value!;
+
       const customer = await GetCliente(params.id);
 
       setcustomer((old) => customer.value!);
+      setLimiteCredito((old) => financeiro.LimiteCredito);
 
-      const emAtrazo = await GetPGTOsAtrazados(params.id);
-      const naoVencidas = await GetPGTOsNaoVencidos(params.id);
-      const emAberto = await GetPGTOsEmAberto(params.id);
-      const pgtoEmAberto =
-        emAberto.value?.filter((aberto: iCredito) => aberto.RESTA > 0) ?? [];
-      const emAbertoTotal =
-        pgtoEmAberto.reduce((total: any, conta) => total + conta.RESTA, 0) ?? 0;
-      const debitosNaoVencidoTotal = naoVencidas.value?.Data[0]?.VALOR ?? 0;
-      const debitosVencidoTotal = emAtrazo.value[0]?.VALOR ?? 0;
-      const now = dayjs();
-      const debitosNaoVencidos =
-        emAberto.value?.filter((aberto: iCredito) =>
-          dayjs(aberto.VENCIMENTO, 'YYYY-MM-DD').isAfter(now)
-        ) ?? [];
-      const debitosVencidos =
-        emAberto.value?.filter(
-          (abertos: iCredito) =>
-            abertos.RESTA > 0 &&
-            dayjs(abertos.VENCIMENTO, 'YYYY-MM-DD').isBefore(now)
-        ) ?? [];
-
-      const creditos =
-        emAberto.value?.filter((aberto: iCredito) => aberto.RESTA < 0) ?? [];
-
-      let creditosTotal =
-        creditos.reduce((total: any, conta) => total + conta.RESTA, 0) ?? 0;
-      creditosTotal = creditosTotal < 0 ? creditosTotal * -1 : creditosTotal;
-      const SaldoCompraTotal =
-        customer.value!.LIMITE + creditosTotal - emAbertoTotal;
-
-      setContasAtrazadas((old) => debitosVencidoTotal);
-      setContasAVencer((old) => debitosNaoVencidoTotal);
-      setContasAbertas((old) => emAbertoTotal);
-      setListaDebitosNaoVencidos((old) => debitosNaoVencidos);
-      setListaDebitos((old) => debitosVencidos);
-      setTotalCreditos((old) => creditosTotal);
-      setListaCreditos((old) => creditos);
-      setSaldoCompra((old) => SaldoCompraTotal);
+      setContasAtrazadas((old) => financeiro.ContasAtrazadas);
+      setContasAVencer((old) => financeiro.ContasAVencer);
+      setContasAbertas((old) => financeiro.ContasAbertas);
+      setListaDebitosNaoVencidos((old) => financeiro.ListaDebitosNaoVencidos);
+      setListaDebitos((old) => financeiro.ListaDebitos);
+      setTotalCreditos((old) => financeiro.TotalCreditos);
+      setListaCreditos((old) => financeiro.ListaCreditos);
+      setSaldoCompra((old) => financeiro.SaldoCompra);
     } catch (err: any) {
       ToastNotify({ message: err.message, type: 'error' });
     }
@@ -442,15 +407,10 @@ function Customers({ params }: iCustomerPage) {
               <article className='flex w-[40%] px-3 justify-between border border-b-slate-400'>
                 <p>Limite de crédito</p>
                 <p>
-                  {Customer.LIMITE
-                    ? Customer.LIMITE.toLocaleString('pt-br', {
-                        style: 'currency',
-                        currency: 'BRL',
-                      })
-                    : Number(0).toLocaleString('pt-br', {
-                        style: 'currency',
-                        currency: 'BRL',
-                      })}
+                  {LimiteCredito.toLocaleString('pt-br', {
+                    style: 'currency',
+                    currency: 'BRL',
+                  })}
                 </p>
               </article>
               <article className='flex w-[40%] px-3 justify-between border border-b-slate-400'>

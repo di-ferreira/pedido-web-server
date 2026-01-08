@@ -132,3 +132,13 @@ export interface ResponseSQL<T> {
   Data: T;
 }
 
+export interface iCredito {
+  VENCIMENTO: string;
+  DATA: string;
+  TIPO: string;
+  HISTORICO: string;
+  ATRASO: number;
+  RESTA: number;
+  DOC: string;
+  EMISSAO_BOLETO: string;
+}
