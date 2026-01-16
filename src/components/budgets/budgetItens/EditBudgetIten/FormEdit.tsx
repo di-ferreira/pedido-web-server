@@ -153,14 +153,14 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
 
       setBudgetItem(
         (old) =>
-          (old = {
-            ...budgetItem,
-            PRODUTO: prod,
-            VALOR: new_price,
-            QTD: newQtd,
-            SUBTOTAL: new_price * budgetItem.QTD,
-            TOTAL: new_price * budgetItem.QTD,
-          })
+        (old = {
+          ...budgetItem,
+          PRODUTO: prod,
+          VALOR: new_price,
+          QTD: newQtd,
+          SUBTOTAL: new_price * budgetItem.QTD,
+          TOTAL: new_price * budgetItem.QTD,
+        })
       );
       history.value !== null && setSalesHistory((old) => [...history.value!]);
 
@@ -271,9 +271,16 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
         ],
       });
 
+
       if (products.value !== undefined && products.value.Qtd_Registros > 0) {
-        if (products.value.Qtd_Registros === 1) {
-          const produto = products.value.value[0];
+        const filteredProducts = products.value.value.filter(
+          (p) => p.ATIVO !== 'N' && p.VENDA !== 'N' && p.TRANCAR !== 'S' && (p.QTDATUAL - p.QTD_SEGURANCA) > 0
+        );
+
+        console.log('filteredProducts: ', filteredProducts);
+
+        if (filteredProducts.length === 1) {
+          const produto = filteredProducts[0];
 
           const isValidProduct =
             produto &&
@@ -282,7 +289,7 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
             produto.TRANCAR !== 'S';
 
           if (isValidProduct) {
-            setProductSelected({} as iProduto); // 👈 Limpa o anterior
+            setProductSelected({} as iProduto);
             setSimilares([]);
             setSalesHistory([]);
             UpdateProduct(produto);
@@ -297,10 +304,8 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
           // loadingProduct(produto);
         } else {
           setSearchedProducts({
-            Qtd_Registros: products.value.Qtd_Registros,
-            value: products.value.value.filter(
-              (p) => p.ATIVO !== 'N' && p.VENDA !== 'N' && p.TRANCAR !== 'S'
-            ),
+            Qtd_Registros: filteredProducts.length,
+            value: filteredProducts,
           });
           setIsVisibleModalProducts(true);
         }
@@ -382,9 +387,9 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
     if (item) {
       setProductSelected(
         (old) =>
-          (old = {
-            ...item.PRODUTO,
-          })
+        (old = {
+          ...item.PRODUTO,
+        })
       );
 
       let new_price: number = item.PRODUTO.PRECO;
@@ -395,14 +400,14 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
 
       setBudgetItem(
         (old) =>
-          (old = {
-            ...item,
-            PRODUTO: item.PRODUTO,
-            VALOR: new_price,
-            QTD: item.QTD,
-            SUBTOTAL: item.SUBTOTAL,
-            TOTAL: item.TOTAL,
-          })
+        (old = {
+          ...item,
+          PRODUTO: item.PRODUTO,
+          VALOR: new_price,
+          QTD: item.QTD,
+          SUBTOTAL: item.SUBTOTAL,
+          TOTAL: item.TOTAL,
+        })
       );
       setWordProducts(item.PRODUTO.PRODUTO);
       setQtdItem(item.QTD.toString());

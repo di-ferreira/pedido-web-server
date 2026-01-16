@@ -175,6 +175,9 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
     return orc.ItensOrcamento.some((item) => {
       const estoqueDisponivel =
         item.PRODUTO.QTDATUAL - item.PRODUTO.QTD_GARANTIA;
+      console.log('item.PRODUTO.QTD_GARANTIA', item.PRODUTO.QTD_GARANTIA);
+      console.log('item.PRODUTO.QTDATUAL', item.PRODUTO.QTDATUAL);
+      console.log('estoqueDisponivel', estoqueDisponivel);
       return estoqueDisponivel <= 0;
     });
   }
@@ -195,9 +198,9 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
 
       const contasAbertas = emAberto
         ? emAberto.reduce(
-            (total: number, conta: { RESTA: number }) => total + conta.RESTA,
-            0
-          )
+          (total: number, conta: { RESTA: number }) => total + conta.RESTA,
+          0
+        )
         : 0;
 
       const saldoDisponivel = orc.CLIENTE.LIMITE - contasAbertas;
@@ -282,24 +285,24 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
         TipoEntrega: IsDelivery ? 'CARRO' : 'VEM BUSCAR',
       };
 
-      const res = await SavePreVenda(PV);
+      // const res = await SavePreVenda(PV);
 
-      if (res.error) throw res.error;
+      // if (res.error) throw res.error;
 
-      const resOrc = await UpdateOrcamento({
-        ...orc,
-        PV: 'S',
-      });
+      // const resOrc = await UpdateOrcamento({
+      //   ...orc,
+      //   PV: 'S',
+      // });
 
-      if (resOrc.error) throw resOrc.error;
+      // if (resOrc.error) throw resOrc.error;
 
-      if (res.value) {
-        ToastNotify({
-          message: 'Pré-venda gerada com sucesso',
-          type: 'success',
-        });
-        router.push('/app/pre-sales');
-      }
+      // if (res.value) {
+      //   ToastNotify({
+      //     message: 'Pré-venda gerada com sucesso',
+      //     type: 'success',
+      //   });
+      //   router.push('/app/pre-sales');
+      // }
     } catch (e: any) {
       ToastNotify({
         message: `Erro ao gerar pré-venda: ${e.message}`,

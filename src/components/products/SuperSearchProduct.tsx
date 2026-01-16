@@ -390,15 +390,16 @@ const SuperSearchProducts = ({ data, words, CallBack }: iProps) => {
     })
       .then(async (products: ResponseType<iDataResultTable<iProduto>>) => {
         if (products.value !== undefined) {
-          pd = products.value.value[0];
+          const filteredProducts = products.value.value.filter(
+            (p) => p.ATIVO !== 'N' && p.VENDA !== 'N' && p.TRANCAR !== 'S' && (p.QTDATUAL - p.QTD_SEGURANCA) > 0
+          );
+          pd = filteredProducts[0];
           setProducts(
             (old) =>
-              (old = {
-                Qtd_Registros: products.value!.Qtd_Registros,
-                value: products.value!.value.filter(
-                  (p) => p.ATIVO !== 'N' && p.VENDA !== 'N' && p.TRANCAR !== 'S'
-                ),
-              })
+            (old = {
+              Qtd_Registros: filteredProducts.length,
+              value: filteredProducts,
+            })
           );
         }
 
