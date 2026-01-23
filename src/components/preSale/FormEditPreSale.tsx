@@ -87,11 +87,11 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
     },
   ]);
   const [TipoEntregaSelected, setTipoEntregaSelected] = useState<iTipoEntrega>(
-    TipoEntrega[0]
+    TipoEntrega[0],
   );
 
   const [IsDelivery, setIsDelivery] = useState<boolean>(
-    TipoEntrega[0].value === 'ENTREGA'
+    TipoEntrega[0].value === 'ENTREGA',
   );
 
   const [preSale, setPreSale] = useState<iPreVenda>({
@@ -132,7 +132,7 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
 
             parcelasList(condicao.value[0]);
           }
-        }
+        },
       );
     }
   }
@@ -142,7 +142,7 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
       if (formas.value) {
         setFormaPgto(formas.value);
         let formaFilter = formas.value.find(
-          (forma) => forma.CARTAO === 'BOLETO'
+          (forma) => forma.CARTAO === 'BOLETO',
         );
         let forma: iFormaPgto = formaFilter ? formaFilter : formas.value[0];
         setFormaPgtoSelected(forma);
@@ -198,9 +198,9 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
 
       const contasAbertas = emAberto
         ? emAberto.reduce(
-          (total: number, conta: { RESTA: number }) => total + conta.RESTA,
-          0
-        )
+            (total: number, conta: { RESTA: number }) => total + conta.RESTA,
+            0,
+          )
         : 0;
 
       const saldoDisponivel = orc.CLIENTE.LIMITE - contasAbertas;
@@ -285,24 +285,24 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
         TipoEntrega: IsDelivery ? 'CARRO' : 'VEM BUSCAR',
       };
 
-      // const res = await SavePreVenda(PV);
+      const res = await SavePreVenda(PV);
 
-      // if (res.error) throw res.error;
+      if (res.error) throw res.error;
 
-      // const resOrc = await UpdateOrcamento({
-      //   ...orc,
-      //   PV: 'S',
-      // });
+      const resOrc = await UpdateOrcamento({
+        ...orc,
+        PV: 'S',
+      });
 
-      // if (resOrc.error) throw resOrc.error;
+      if (resOrc.error) throw resOrc.error;
 
-      // if (res.value) {
-      //   ToastNotify({
-      //     message: 'Pré-venda gerada com sucesso',
-      //     type: 'success',
-      //   });
-      //   router.push('/app/pre-sales');
-      // }
+      if (res.value) {
+        ToastNotify({
+          message: 'Pré-venda gerada com sucesso',
+          type: 'success',
+        });
+        router.push('/app/pre-sales');
+      }
     } catch (e: any) {
       ToastNotify({
         message: `Erro ao gerar pré-venda: ${e.message}`,
@@ -346,12 +346,12 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
                     value={String(CondicaoPgtoSelected.ID)}
                     onValueChange={(e: any) => {
                       const selectedCondicao = CondicaoPgto.find(
-                        (cp) => cp.NOME === e
+                        (cp) => cp.NOME === e,
                       );
                       if (selectedCondicao) {
                         parcelasList(selectedCondicao);
                         setCondicaoPgtoSelected(
-                          (old) => (old = selectedCondicao)
+                          (old) => (old = selectedCondicao),
                         );
                       }
                     }}
@@ -381,7 +381,7 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
                     value={String(FormaPgtoSelected?.CARTAO)}
                     onValueChange={(e: any) => {
                       const selectedForma = FormaPgto.find(
-                        (cp) => cp.CARTAO === e
+                        (cp) => cp.CARTAO === e,
                       );
                       if (selectedForma) {
                         setFormaPgtoSelected((old) => (old = selectedForma));
@@ -412,7 +412,7 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
                   onChange={(e) =>
                     setPreSale(
                       (old) =>
-                        (old = { ...preSale, ObsPedido1: e.target.value })
+                        (old = { ...preSale, ObsPedido1: e.target.value }),
                     )
                   }
                   labelText='OBS PEDIDO'
@@ -475,7 +475,7 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
                 onChange={(e) =>
                   setPreSale(
                     (old) =>
-                      (old = { ...preSale, ObsNotaFiscal: e.target.value })
+                      (old = { ...preSale, ObsNotaFiscal: e.target.value }),
                   )
                 }
                 labelText='OBS NOTA FISCAL'
