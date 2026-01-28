@@ -243,7 +243,6 @@ export async function GetProducts(
     }
   );
 
-  console.log('res: ', res.body);
 
   if (res.status !== 200) {
     return {

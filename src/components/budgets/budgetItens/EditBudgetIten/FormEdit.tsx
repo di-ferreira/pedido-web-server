@@ -274,19 +274,25 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
 
       if (products.value !== undefined && products.value.Qtd_Registros > 0) {
         const filteredProducts = products.value.value.filter(
-          (p) => p.ATIVO !== 'N' && p.VENDA !== 'N' && p.TRANCAR !== 'S' && (p.QTDATUAL - p.QTD_SEGURANCA) > 0
+          (p) => p.ATIVO !== 'N' && p.VENDA !== 'N' && p.TRANCAR !== 'S'
         );
 
         console.log('filteredProducts: ', filteredProducts);
 
-        if (filteredProducts.length === 1) {
-          const produto = filteredProducts[0];
+        let listProducts: iProduto[] = filteredProducts.map(p => {
+          p.QTDATUAL = p.QTDATUAL - p.QTD_SEGURANCA;
+          return p;
+        });
+
+        if (listProducts.length === 1) {
+          const produto = listProducts[0];
 
           const isValidProduct =
             produto &&
             produto.ATIVO !== 'N' &&
             produto.VENDA !== 'N' &&
-            produto.TRANCAR !== 'S';
+            produto.TRANCAR !== 'S' &&
+            produto.QTDATUAL > 0;
 
           if (isValidProduct) {
             setProductSelected({} as iProduto);
@@ -297,15 +303,15 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
           }
 
           ToastNotify({
-            message: 'Produto não encontrado ou indisponível para venda',
+            message: 'Produto indisponível para venda',
             type: 'error',
           });
 
           // loadingProduct(produto);
         } else {
           setSearchedProducts({
-            Qtd_Registros: filteredProducts.length,
-            value: filteredProducts,
+            Qtd_Registros: listProducts.length,
+            value: listProducts,
           });
           setIsVisibleModalProducts(true);
         }

@@ -391,16 +391,32 @@ const SuperSearchProducts = ({ data, words, CallBack }: iProps) => {
       .then(async (products: ResponseType<iDataResultTable<iProduto>>) => {
         if (products.value !== undefined) {
           const filteredProducts = products.value.value.filter(
-            (p) => p.ATIVO !== 'N' && p.VENDA !== 'N' && p.TRANCAR !== 'S' && (p.QTDATUAL - p.QTD_SEGURANCA) > 0
+            (p) => p.ATIVO !== 'N' && p.VENDA !== 'N' && p.TRANCAR !== 'S'
           );
+
+          console.log(products);
+
           pd = filteredProducts[0];
+
+          let listProducts: iProduto[] = filteredProducts.map(p => {
+            p.QTDATUAL = p.QTDATUAL - p.QTD_SEGURANCA;
+            return p;
+          });
+
           setProducts(
             (old) =>
             (old = {
-              Qtd_Registros: filteredProducts.length,
-              value: filteredProducts,
+              Qtd_Registros: listProducts.length,
+              value: listProducts,
             })
           );
+        }
+
+        if (products.error !== undefined) {
+          ToastNotify({
+            message: 'Error find Products' + products.error,
+            type: 'error',
+          });
         }
 
         if (products.error !== undefined) {
