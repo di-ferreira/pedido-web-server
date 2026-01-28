@@ -277,7 +277,6 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
           (p) => p.ATIVO !== 'N' && p.VENDA !== 'N' && p.TRANCAR !== 'S'
         );
 
-        console.log('filteredProducts: ', filteredProducts);
 
         let listProducts: iProduto[] = filteredProducts.map(p => {
           p.QTDATUAL = p.QTDATUAL - p.QTD_SEGURANCA;

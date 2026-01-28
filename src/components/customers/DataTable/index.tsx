@@ -150,6 +150,7 @@ function DataTableCustomer() {
             let orcID = 0;
             setIconLoading(true);
 
+
             GetPGTOsAtrazados(item.CLIENTE)
               .then((res) => {
                 const contasAtrazadas = res.value[0]?.VALOR ?? 0;
@@ -170,6 +171,7 @@ function DataTableCustomer() {
                   setIconLoading(false);
                   return;
                 }
+
                 NewOrcamento({
                   ...NewAddOrcamento,
                   CLIENTE: item,

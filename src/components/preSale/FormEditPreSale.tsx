@@ -108,7 +108,7 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
     ObsNotaFiscal: '',
     Entrega: TipoEntrega[0].value === 'ENTREGA' ? 'S' : 'N',
     NumeroOrdemCompraCliente: '',
-    CodigoVendedor2: 0,
+    CodigoVendedor2: orc.VENDEDOR.TIPO_VENDEDOR === 'I' ? orc.CLIENTE.VENDEDOR : 0,
     Desconto: 0,
     Origem: '',
     PedidoEcommerce: '',
@@ -175,9 +175,6 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
     return orc.ItensOrcamento.some((item) => {
       const estoqueDisponivel =
         item.PRODUTO.QTDATUAL - item.PRODUTO.QTD_GARANTIA;
-      console.log('item.PRODUTO.QTD_GARANTIA', item.PRODUTO.QTD_GARANTIA);
-      console.log('item.PRODUTO.QTDATUAL', item.PRODUTO.QTDATUAL);
-      console.log('estoqueDisponivel', estoqueDisponivel);
       return estoqueDisponivel <= 0;
     });
   }
@@ -198,9 +195,9 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
 
       const contasAbertas = emAberto
         ? emAberto.reduce(
-            (total: number, conta: { RESTA: number }) => total + conta.RESTA,
-            0,
-          )
+          (total: number, conta: { RESTA: number }) => total + conta.RESTA,
+          0,
+        )
         : 0;
 
       const saldoDisponivel = orc.CLIENTE.LIMITE - contasAbertas;
@@ -276,7 +273,6 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
           Frete: 0,
         });
       }
-
       const PV: iPreVenda = {
         ...preSale,
         Itens: ItensPV,
