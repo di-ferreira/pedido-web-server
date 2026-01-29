@@ -53,7 +53,7 @@ function Customers({ params }: iCustomerPage) {
   const [ListaCreditos, setListaCreditos] = useState<iCredito[]>([]);
 
   const [SaldoCompra, setSaldoCompra] = useState<number>(
-    Customer?.LIMITE - ContasAbertas
+    Customer?.LIMITE - ContasAbertas,
   );
 
   if (!Customer) return <p>Failed to load customer.</p>;
@@ -165,9 +165,11 @@ function Customers({ params }: iCustomerPage) {
       });
       return;
     }
+
     NewOrcamento({
       ...NewAddOrcamento,
       CLIENTE: Customer!,
+      TABELA: Customer!.Tabela,
     })
       .then((res) => {
         if (res.value !== undefined) {

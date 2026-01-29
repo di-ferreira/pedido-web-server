@@ -43,7 +43,7 @@ function ReturnFilterQuery(typeSearch: iFilterQuery<iOrcamento>): string {
   switch (typeSearch.typeSearch) {
     case 'like':
       return `contains(${typeSearch.key}, '${String(
-        typeSearch.value
+        typeSearch.value,
       ).toUpperCase()}')`;
 
     case 'eq':
@@ -54,7 +54,7 @@ function ReturnFilterQuery(typeSearch: iFilterQuery<iOrcamento>): string {
 
     default:
       return `contains(${typeSearch.key}, '${String(
-        typeSearch.value
+        typeSearch.value,
       ).toUpperCase()}')`;
   }
 }
@@ -119,7 +119,7 @@ async function CreateQueryParams(filter: iFilter<iOrcamento>): Promise<string> {
 }
 
 export async function GetOrcamentosFromVendedor(
-  filter?: iFilter<iOrcamento> | null | undefined
+  filter?: iFilter<iOrcamento> | null | undefined,
 ): Promise<ResponseType<iDataResultTable<iOrcamento>>> {
   const VendedorLocal: string = await getCookie('user');
 
@@ -130,7 +130,7 @@ export async function GetOrcamentosFromVendedor(
     : `?$filter=VENDEDOR eq ${VendedorLocal} and DATA ge ${dayjs()
         .subtract(1, 'day')
         .format(
-          'YYYY-MM-DD'
+          'YYYY-MM-DD',
         )} and (PV ne 'S' or PV eq null)&$orderby=ORCAMENTO desc&$top=10&$expand=VENDEDOR,CLIENTE,ItensOrcamento/PRODUTO/FORNECEDOR,ItensOrcamento/PRODUTO/FABRICANTE,ItensOrcamento,ItensOrcamento/PRODUTO&$inlinecount=allpages`;
 
   const response = await CustomFetch<{
@@ -165,7 +165,7 @@ export async function GetOrcamentosFromVendedor(
 }
 
 export async function GetOrcamento(
-  OrcamentoNumber: string | number
+  OrcamentoNumber: string | number,
 ): Promise<ResponseType<iOrcamento>> {
   const tokenCookie = await getCookie('token');
 
@@ -179,7 +179,7 @@ export async function GetOrcamento(
         'Content-Type': 'application/json',
         Authorization: `bearer ${tokenCookie}`,
       },
-    }
+    },
   );
 
   const result: iOrcamento = response.body!;
@@ -197,7 +197,7 @@ export async function GetOrcamento(
   const itensOrcs: iItensOrcamento[] = response.body!.ItensOrcamento.map(
     (item) => {
       return { ...item, ORCAMENTO: response.body!.ORCAMENTO };
-    }
+    },
   );
 
   return {
@@ -248,7 +248,7 @@ export async function NewOrcamento(orcamento: iOrcamento) {
         'Content-Type': 'application/json',
         Authorization: `bearer ${tokenCookie}`,
       },
-    }
+    },
   );
 
   if (responseInsert.body!.StatusCode !== 200) {
@@ -300,7 +300,7 @@ export async function UpdateOrcamento(orcamento: iOrcamento) {
         'Content-Type': 'application/json',
         Authorization: `bearer ${tokenCookie}`,
       },
-    }
+    },
   );
   if (responseInsert.status !== 200) {
     return {
@@ -357,7 +357,7 @@ export async function RemoverOrcamento(orcamento: iOrcamento) {
         accept: 'application/json',
         Authorization: `bearer ${tokenCookie}`,
       },
-    }
+    },
   );
 
   // 4. Trata erro na remoção do orçamento
@@ -378,7 +378,7 @@ export async function RemoverOrcamento(orcamento: iOrcamento) {
 }
 
 export async function removeItem(
-  itemOrcamento: iItemRemove
+  itemOrcamento: iItemRemove,
 ): Promise<ResponseType<iOrcamento>> {
   const tokenCookie = await getCookie('token');
 
@@ -394,7 +394,7 @@ export async function removeItem(
         'Content-Type': 'application/json',
         Authorization: `bearer ${tokenCookie}`,
       },
-    }
+    },
   );
 
   const response = await GetOrcamento(itemOrcamento.pIdOrcamento);
@@ -435,7 +435,7 @@ export async function addItem(itemOrcamento: iItemInserir) {
         'Content-Type': 'application/json',
         Authorization: `bearer ${tokenCookie}`,
       },
-    }
+    },
   );
 
   if (res.body!.StatusCode !== 200) {
@@ -481,7 +481,7 @@ export async function updateItem(itemOrcamento: iItemInserir) {
         'Content-Type': 'application/json',
         Authorization: `bearer ${tokenCookie}`,
       },
-    }
+    },
   );
 
   if (removeResult.body!.StatusCode !== 200) {
@@ -503,7 +503,7 @@ export async function updateItem(itemOrcamento: iItemInserir) {
         'Content-Type': 'application/json',
         Authorization: `bearer ${tokenCookie}`,
       },
-    }
+    },
   );
 
   if (resultSave.body!.StatusCode !== 200) {

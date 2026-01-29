@@ -31,7 +31,7 @@ import { headers } from './columns';
 function DataTableCustomer() {
   const router = useRouter();
   const [data, setData] = useState<ResponseType<iDataResultTable<iCliente>>>(
-    {}
+    {},
   );
   const [iconLoading, setIconLoading] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -66,7 +66,7 @@ function DataTableCustomer() {
       }
       return listFilter;
     },
-    []
+    [],
   );
 
   const handleCustomerSearch = useCallback((filter: iSearch<iCliente>) => {
@@ -81,9 +81,7 @@ function DataTableCustomer() {
         setData(res);
         setLoading(false);
       })
-      .catch((err) => {
-        console.error('Erro ao carregar clientes:', err);
-      })
+      .catch((err) => {})
       .finally(() => {
         setLoading(false);
       });
@@ -96,9 +94,7 @@ function DataTableCustomer() {
         setData(res);
         setLoading(false);
       })
-      .catch((err) => {
-        console.error('Erro ao carregar clientes:', err);
-      })
+      .catch((err) => {})
       .finally(() => {
         setLoading(false);
       });
@@ -117,7 +113,7 @@ function DataTableCustomer() {
       />
     );
   }
-  const NewAddOrcamento: iOrcamento = {
+  let NewAddOrcamento: iOrcamento = {
     ORCAMENTO: 0,
     TOTAL: 0.0,
     CLIENTE: {} as iCliente,
@@ -150,7 +146,6 @@ function DataTableCustomer() {
             let orcID = 0;
             setIconLoading(true);
 
-
             GetPGTOsAtrazados(item.CLIENTE)
               .then((res) => {
                 const contasAtrazadas = res.value[0]?.VALOR ?? 0;
@@ -172,26 +167,25 @@ function DataTableCustomer() {
                   return;
                 }
 
-                NewOrcamento({
+                NewAddOrcamento = {
                   ...NewAddOrcamento,
+                  TABELA: item.Tabela,
                   CLIENTE: item,
-                })
+                };
+
+                NewOrcamento(NewAddOrcamento)
                   .then((res) => {
                     if (res.value !== undefined) {
                       orcID = res.value.ORCAMENTO;
                     }
                   })
-                  .catch((err) => {
-                    console.error('Create budget error: ', err);
-                  })
+                  .catch((err) => {})
                   .finally(() => {
                     setIconLoading(false);
                     router.push(`/app/budgets/${orcID}`);
                   });
               })
-              .catch((err) => {
-                console.error('Create budget error: ', err);
-              })
+              .catch((err) => {})
               .finally(() => {
                 setIconLoading(false);
               });

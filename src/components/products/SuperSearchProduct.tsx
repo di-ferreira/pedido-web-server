@@ -391,24 +391,22 @@ const SuperSearchProducts = ({ data, words, CallBack }: iProps) => {
       .then(async (products: ResponseType<iDataResultTable<iProduto>>) => {
         if (products.value !== undefined) {
           const filteredProducts = products.value.value.filter(
-            (p) => p.ATIVO !== 'N' && p.VENDA !== 'N' && p.TRANCAR !== 'S'
+            (p) => p.ATIVO !== 'N' && p.VENDA !== 'N' && p.TRANCAR !== 'S',
           );
-
-          console.log(products);
 
           pd = filteredProducts[0];
 
-          let listProducts: iProduto[] = filteredProducts.map(p => {
+          let listProducts: iProduto[] = filteredProducts.map((p) => {
             p.QTDATUAL = p.QTDATUAL - p.QTD_SEGURANCA;
             return p;
           });
 
           setProducts(
             (old) =>
-            (old = {
-              Qtd_Registros: listProducts.length,
-              value: listProducts,
-            })
+              (old = {
+                Qtd_Registros: listProducts.length,
+                value: listProducts,
+              }),
           );
         }
 

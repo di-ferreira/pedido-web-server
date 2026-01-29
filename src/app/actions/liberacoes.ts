@@ -36,7 +36,7 @@ function ReturnFilterQuery(typeSearch: iFilterQuery<iLiberacoes>): string {
   switch (typeSearch.typeSearch) {
     case 'like':
       return `contains(${typeSearch.key}, '${String(
-        typeSearch.value
+        typeSearch.value,
       ).toUpperCase()}')`;
 
     case 'eq':
@@ -47,13 +47,13 @@ function ReturnFilterQuery(typeSearch: iFilterQuery<iLiberacoes>): string {
 
     default:
       return `contains(${typeSearch.key}, '${String(
-        typeSearch.value
+        typeSearch.value,
       ).toUpperCase()}')`;
   }
 }
 
 async function CreateQueryParams(
-  filter: iFilter<iLiberacoes>
+  filter: iFilter<iLiberacoes>,
 ): Promise<string> {
   // 1. Separação dos filtros por campo
   const groupedFilters: { [key: string]: iFilterQuery<iLiberacoes>[] } = {};
@@ -115,7 +115,7 @@ async function CreateQueryParams(
 }
 
 export async function CreateLiberacao(
-  liberacao: iLiberacoes
+  liberacao: iLiberacoes,
 ): Promise<ResponseType<iLiberacoes>> {
   const tokenCookie = await getCookie('token');
 
@@ -128,7 +128,7 @@ export async function CreateLiberacao(
         'Content-Type': 'application/json',
         Authorization: `bearer ${tokenCookie}`,
       },
-    }
+    },
   );
 
   if (response.status !== 201) {
@@ -148,7 +148,7 @@ export async function CreateLiberacao(
 }
 
 export async function UpdateLiberacao(
-  liberacao: iLiberacoes
+  liberacao: iLiberacoes,
 ): Promise<ResponseType<iLiberacoes>> {
   const tokenCookie = await getCookie('token');
 
@@ -161,10 +161,9 @@ export async function UpdateLiberacao(
         'Content-Type': 'application/json',
         Authorization: `bearer ${tokenCookie}`,
       },
-    }
+    },
   );
 
-  console.log('update response: ', response);
   if (response.status !== 200) {
     return {
       value: undefined,
@@ -182,7 +181,7 @@ export async function UpdateLiberacao(
 }
 
 export async function LoadLiberacao(
-  filter?: iFilter<iLiberacoes> | null | undefined
+  filter?: iFilter<iLiberacoes> | null | undefined,
 ): Promise<ResponseType<iDataResultTable<iLiberacoes>>> {
   const tokenCookie = await getCookie('token');
   const VendedorLocal: string = await getCookie('user');
@@ -192,7 +191,7 @@ export async function LoadLiberacao(
     : `?$filter=USADO eq 'N' and QUEM eq ${VendedorLocal} and DATA_HORA ge ${dayjs()
         .subtract(1, 'day')
         .format(
-          'YYYY-MM-DD HH:mm'
+          'YYYY-MM-DD HH:mm',
         )}&$orderby=iddesc&$top=50&$inlinecount=allpages`;
 
   const response = await CustomFetch<{
@@ -228,7 +227,7 @@ export async function LoadLiberacao(
 }
 
 export async function LoadLiberacaoCliente(
-  cliente: number
+  cliente: number,
 ): Promise<ResponseType<iLiberacoes>> {
   const tokenCookie = await getCookie('token');
 
@@ -244,7 +243,6 @@ export async function LoadLiberacaoCliente(
       Authorization: `bearer ${tokenCookie}`,
     },
   });
-  console.log('response: ', response);
 
   let result: iLiberacoes = response.body?.value[0]!;
 
@@ -264,7 +262,7 @@ export async function LoadLiberacaoCliente(
 }
 
 export async function Liberacoes(
-  param: iLiberacoes
+  param: iLiberacoes,
 ): Promise<ResponseType<iLiberacoes>> {
   const agora = dayjs();
   const vendedor = await getVendedorAction();

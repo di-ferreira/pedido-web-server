@@ -42,7 +42,10 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
     TOTAL: 0,
     SUBTOTAL: 0,
     DESCONTO: 0,
-    TABELA: 'SISTEMA',
+    TABELA:
+      budget.CLIENTE.Tabela !== undefined || budget.CLIENTE.Tabela !== ''
+        ? budget.CLIENTE.Tabela!
+        : 'SISTEMA',
     OBS: '',
     MD5: '',
     ITEM: 0,
@@ -56,7 +59,7 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
   });
   const [Budget, setBudget] = useState<iOrcamento>(budget);
   const [productSelected, setProductSelected] = useState<iProduto>(
-    {} as iProduto
+    {} as iProduto,
   );
   const [Similares, setSimilares] = useState<iListaSimilare[]>([]);
   const [SalesHistory, setSalesHistory] = useState<iSaleHistory[]>([]);
@@ -92,6 +95,7 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
         Total: budgetItem.TOTAL,
       },
     };
+
     if (budgetItem.ORCAMENTO > 0) {
       response = await updateItem(itemSave);
       // OnCloseModal();
@@ -153,14 +157,14 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
 
       setBudgetItem(
         (old) =>
-        (old = {
-          ...budgetItem,
-          PRODUTO: prod,
-          VALOR: new_price,
-          QTD: newQtd,
-          SUBTOTAL: new_price * budgetItem.QTD,
-          TOTAL: new_price * budgetItem.QTD,
-        })
+          (old = {
+            ...budgetItem,
+            PRODUTO: prod,
+            VALOR: new_price,
+            QTD: newQtd,
+            SUBTOTAL: new_price * budgetItem.QTD,
+            TOTAL: new_price * budgetItem.QTD,
+          }),
       );
       history.value !== null && setSalesHistory((old) => [...history.value!]);
 
@@ -271,14 +275,12 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
         ],
       });
 
-
       if (products.value !== undefined && products.value.Qtd_Registros > 0) {
         const filteredProducts = products.value.value.filter(
-          (p) => p.ATIVO !== 'N' && p.VENDA !== 'N' && p.TRANCAR !== 'S'
+          (p) => p.ATIVO !== 'N' && p.VENDA !== 'N' && p.TRANCAR !== 'S',
         );
 
-
-        let listProducts: iProduto[] = filteredProducts.map(p => {
+        let listProducts: iProduto[] = filteredProducts.map((p) => {
           p.QTDATUAL = p.QTDATUAL - p.QTD_SEGURANCA;
           return p;
         });
@@ -377,7 +379,7 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
 
     const new_price = await GetNewPriceFromTable(
       productSelected,
-      Budget.CLIENTE.Tabela
+      Budget.CLIENTE.Tabela,
     );
 
     setBudgetItem((prevBudgetItem) => ({
@@ -392,9 +394,9 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
     if (item) {
       setProductSelected(
         (old) =>
-        (old = {
-          ...item.PRODUTO,
-        })
+          (old = {
+            ...item.PRODUTO,
+          }),
       );
 
       let new_price: number = item.PRODUTO.PRECO;
@@ -405,14 +407,14 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
 
       setBudgetItem(
         (old) =>
-        (old = {
-          ...item,
-          PRODUTO: item.PRODUTO,
-          VALOR: new_price,
-          QTD: item.QTD,
-          SUBTOTAL: item.SUBTOTAL,
-          TOTAL: item.TOTAL,
-        })
+          (old = {
+            ...item,
+            PRODUTO: item.PRODUTO,
+            VALOR: new_price,
+            QTD: item.QTD,
+            SUBTOTAL: item.SUBTOTAL,
+            TOTAL: item.TOTAL,
+          }),
       );
       setWordProducts(item.PRODUTO.PRODUTO);
       setQtdItem(item.QTD.toString());

@@ -108,7 +108,8 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
     ObsNotaFiscal: '',
     Entrega: TipoEntrega[0].value === 'ENTREGA' ? 'S' : 'N',
     NumeroOrdemCompraCliente: '',
-    CodigoVendedor2: orc.VENDEDOR.TIPO_VENDEDOR === 'I' ? orc.CLIENTE.VENDEDOR : 0,
+    CodigoVendedor2:
+      orc.VENDEDOR.TIPO_VENDEDOR === 'I' ? orc.CLIENTE.VENDEDOR : 0,
     Desconto: 0,
     Origem: '',
     PedidoEcommerce: '',
@@ -195,9 +196,9 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
 
       const contasAbertas = emAberto
         ? emAberto.reduce(
-          (total: number, conta: { RESTA: number }) => total + conta.RESTA,
-          0,
-        )
+            (total: number, conta: { RESTA: number }) => total + conta.RESTA,
+            0,
+          )
         : 0;
 
       const saldoDisponivel = orc.CLIENTE.LIMITE - contasAbertas;

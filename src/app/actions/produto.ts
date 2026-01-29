@@ -95,7 +95,7 @@ function ReturnFilterQuery(typeSearch: iFilterQuery<iProduto>): string {
 
     case 'like':
       return `${typeSearch.key} like '%${String(
-        typeSearch.value
+        typeSearch.value,
       ).toUpperCase()}%'`;
 
     case 'eq':
@@ -106,7 +106,7 @@ function ReturnFilterQuery(typeSearch: iFilterQuery<iProduto>): string {
 
     default:
       return `${typeSearch.key} like '%${String(
-        typeSearch.value
+        typeSearch.value,
       ).toUpperCase()}%' `;
     // default:
     //   return `contains(${typeSearch.key}, '${String(
@@ -157,7 +157,7 @@ async function CreateQueryParams(filter: iFilter<iProduto>): Promise<string> {
 
   // Evita duplicação de ATIVO eq 'S'
   const hasAtivoFilter = filter.filter?.some(
-    (f) => f.key === 'ATIVO' && f.typeSearch === 'eq' && f.value === 'S'
+    (f) => f.key === 'ATIVO' && f.typeSearch === 'eq' && f.value === 'S',
   );
   if (!hasAtivoFilter) {
     conditions.push(`ATIVO eq 'S'`);
@@ -188,7 +188,7 @@ async function CreateQueryParams(filter: iFilter<iProduto>): Promise<string> {
 }
 
 export async function SuperFindProducts(
-  filter: iFilter<iProduto>
+  filter: iFilter<iProduto>,
 ): Promise<ResponseType<iDataResultTable<iProduto>>> {
   const tokenCookie = await getCookie('token');
   const bodyReq: iReqSuperBusca = {
@@ -225,11 +225,11 @@ export async function SuperFindProducts(
 }
 
 export async function GetProducts(
-  filter: iFilter<iProduto>
+  filter: iFilter<iProduto>,
 ): Promise<ResponseType<iDataResultTable<iProduto>>> {
   const tokenCookie = await getCookie('token');
   const url: string = `${ROUTE_GET_ALL_PRODUTO}${await CreateQueryParams(
-    filter
+    filter,
   )}`;
 
   const res = await CustomFetch<{ '@xdata.count': number; value: iProduto[] }>(
@@ -240,9 +240,8 @@ export async function GetProducts(
         'Content-Type': 'application/json',
         Authorization: `bearer ${tokenCookie}`,
       },
-    }
+    },
   );
-
 
   if (res.status !== 200) {
     return {
@@ -266,8 +265,6 @@ export async function GetProducts(
 export async function GetProduct(productCode: string) {
   const tokenCookie = await getCookie('token');
   const productScape = encodeURIComponent(productCode);
-  console.log('productCode: ', productCode);
-  console.log('productScape: ', productScape);
 
   const res = await CustomFetch<iProduto>(
     `${ROUTE_GET_ALL_PRODUTO}?$filter=PRODUTO eq '${productScape}'&$expand=FABRICANTE,ListaSimilares,ListaSimilares/PRODUTO,ListaSimilares/EXTERNO`,
@@ -277,10 +274,9 @@ export async function GetProduct(productCode: string) {
         'Content-Type': 'application/json',
         Authorization: `bearer ${tokenCookie}`,
       },
-    }
+    },
   );
 
-  console.log('res: ', res);
   if (res.status !== 200) {
     return {
       value: undefined,
@@ -298,7 +294,7 @@ export async function GetProduct(productCode: string) {
 }
 
 export async function TableFromProduct(
-  product: iProduto
+  product: iProduto,
 ): Promise<ResponseType<iTabelaVenda[]>> {
   const tokenCookie = await getCookie('token');
   let tabelas: iTabelaVenda[] = [];
@@ -363,7 +359,7 @@ export async function TableFromProduct(
 
 export async function GetNewPriceFromTable(
   product: iProduto,
-  table: string
+  table: string,
 ): Promise<ResponseType<number>> {
   const tokenCookie = await getCookie('token');
 
@@ -419,7 +415,7 @@ export async function GetNewPriceFromTable(
 }
 
 export async function GetProductPromotion(
-  product: iProduto
+  product: iProduto,
 ): Promise<ResponseType<iProductPromotion>> {
   const tokenCookie = await getCookie('token');
 
@@ -461,7 +457,7 @@ export async function GetProductPromotion(
 
 export async function GetSaleHistory(
   customer: iCliente,
-  product: iProduto
+  product: iProduto,
 ): Promise<ResponseType<iSaleHistory[]>> {
   const tokenCookie = await getCookie('token');
 
@@ -473,7 +469,7 @@ export async function GetSaleHistory(
         'Content-Type': 'application/json',
         Authorization: `bearer ${tokenCookie}`,
       },
-    }
+    },
   );
 
   if (res.status !== 200) {
@@ -504,7 +500,7 @@ export async function GetSimilares(productCode: string) {
         'Content-Type': 'application/json',
         Authorization: `bearer ${tokenCookie}`,
       },
-    }
+    },
   );
 
   if (res.status !== 200) {
