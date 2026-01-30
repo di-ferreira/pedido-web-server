@@ -181,6 +181,13 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
         });
       }
 
+      if (prod.QTDATUAL - prod.QTD_GARANTIA <= 0) {
+        ToastNotify({
+          message: 'Produto sem estoque disponível para venda',
+          type: 'error',
+        });
+      }
+
       setQtdItem((old) => (old = newQtd.toString()));
       setProductSelected(prod);
       setSimilares((old) => [...similaresFiltrados]);
@@ -193,35 +200,8 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
     setLoading(true);
     setIsVisibleModalProducts(false);
 
-    UpdateProduct(product);
-
     try {
-      /*
-      // Removido para teste
-      const prod = await GetProduct(product.PRODUTO);
-      
-
-      // ✅ Verifique se a resposta foi bem-sucedida e tem valor
-      if (prod.error !== undefined) {
-        ToastNotify({
-          message: `Erro ao carregar produto: ${
-            prod.error.message || prod.error
-          }`,
-          type: 'error',
-        });
-        return; // ❌ Não continue se houver erro
-      }
-
-      if (!prod.value) {
-        ToastNotify({
-          message: 'Produto não encontrado no sistema',
-          type: 'error',
-        });
-        return; // ❌ Não continue se value for null/undefined
-      }
-
-      // ✅ Agora sim, temos um produto válido
-      UpdateProduct(prod.value);*/
+      UpdateProduct(product);
     } catch (e: any) {
       ToastNotify({
         message: `Erro inesperado ao carregar produto: ${e.message}`,
@@ -292,8 +272,7 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
             produto &&
             produto.ATIVO !== 'N' &&
             produto.VENDA !== 'N' &&
-            produto.TRANCAR !== 'S' &&
-            produto.QTDATUAL > 0;
+            produto.TRANCAR !== 'S';
 
           if (isValidProduct) {
             setProductSelected({} as iProduto);
@@ -699,6 +678,11 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
               className={`flex w-fit h-[35px] p-3 gap-3`}
               title='Salvar produto'
               ref={inputBtnSalvarRef}
+              disabled={
+                budgetItem.PRODUTO?.QTDATUAL! -
+                  budgetItem.PRODUTO?.QTD_GARANTIA! <=
+                0
+              }
             >
               <FontAwesomeIcon
                 icon={faSave}
