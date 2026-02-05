@@ -43,8 +43,9 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
     SUBTOTAL: 0,
     DESCONTO: 0,
     TABELA:
-      budget.CLIENTE.Tabela !== undefined || budget.CLIENTE.Tabela !== ''
-        ? budget.CLIENTE.Tabela!
+      (budget.CLIENTE as iCliente).Tabela !== undefined ||
+      (budget.CLIENTE as iCliente).Tabela !== ''
+        ? (budget.CLIENTE as iCliente).Tabela!
         : 'SISTEMA',
     OBS: '',
     MD5: '',
@@ -132,7 +133,10 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
     let promotionalProduct = await GetProductPromotion(prod);
 
     if (promotionalProduct.error !== undefined) {
-      let tablePrice = await GetNewPriceFromTable(prod, Budget.CLIENTE.Tabela);
+      let tablePrice = await GetNewPriceFromTable(
+        prod,
+        (Budget.CLIENTE as iCliente).Tabela,
+      );
       new_price = tablePrice.value ? tablePrice.value : prod.PRECO;
     }
 
@@ -145,7 +149,7 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
 
   async function UpdateProduct(prod: iProduto) {
     let new_price = prod.PRECO;
-    let history = await GetSaleHistory(budget.CLIENTE, prod);
+    let history = await GetSaleHistory(budget.CLIENTE as iCliente, prod);
 
     new_price = await GetPromotionalPrice(prod);
 
@@ -358,7 +362,7 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
 
     const new_price = await GetNewPriceFromTable(
       productSelected,
-      Budget.CLIENTE.Tabela,
+      (Budget.CLIENTE as iCliente).Tabela,
     );
 
     setBudgetItem((prevBudgetItem) => ({
@@ -410,7 +414,7 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
         const res = await GetOrcamento(budget.ORCAMENTO);
         if (res.value) {
           setBudget(res.value);
-          LoadItem(res.value.CLIENTE);
+          LoadItem(res.value.CLIENTE as iCliente);
         }
       } catch (err: any) {
         ToastNotify({ message: err.message, type: 'error' });

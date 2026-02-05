@@ -1,4 +1,5 @@
 'use client';
+import { iCliente } from '@/@types/Cliente';
 import { iOrcamento } from '@/@types/Orcamento';
 import {
   iCondicaoPgto,
@@ -7,6 +8,7 @@ import {
   iParcelasPgto,
   iPreVenda,
 } from '@/@types/PreVenda';
+import { iVendedor } from '@/@types/Vendedor';
 import { GetPGTOsEmAberto } from '@/app/actions/cliente';
 import { Liberacoes } from '@/app/actions/liberacoes';
 import { UpdateOrcamento } from '@/app/actions/orcamento';
@@ -95,9 +97,9 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
   );
 
   const [preSale, setPreSale] = useState<iPreVenda>({
-    CodigoCliente: orc.CLIENTE.CLIENTE,
+    CodigoCliente: (orc.CLIENTE as iCliente).CLIENTE,
     CodigoCondicaoPagamento: 0,
-    CodigoVendedor1: orc.VENDEDOR.VENDEDOR,
+    CodigoVendedor1: (orc.VENDEDOR as iVendedor).VENDEDOR,
     DataPedido: dayjs().format('YYYY-MM-DD').toString(),
     ModeloNota: '55',
     Itens: [],
@@ -109,7 +111,9 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
     Entrega: TipoEntrega[0].value === 'ENTREGA' ? 'S' : 'N',
     NumeroOrdemCompraCliente: '',
     CodigoVendedor2:
-      orc.VENDEDOR.TIPO_VENDEDOR === 'I' ? orc.CLIENTE.VENDEDOR : 0,
+      (orc.VENDEDOR as iVendedor).TIPO_VENDEDOR === 'I'
+        ? (orc.CLIENTE as iCliente).VENDEDOR
+        : 0,
     Desconto: 0,
     Origem: '',
     PedidoEcommerce: '',
@@ -119,22 +123,23 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
 
   function getCondicao() {
     if (orc.TOTAL > 0) {
-      GetCondicaoPGTO(orc ? orc.TOTAL : 0, orc.CLIENTE.Tabela).then(
-        (condicao) => {
-          if (condicao.value === null) {
-            ToastNotify({
-              message: 'não a condições para o total do orçamento!',
-              type: 'error',
-            });
-          }
-          if (condicao.value) {
-            setCondicaoPgto(condicao.value);
-            setCondicaoPgtoSelected(condicao.value[0]);
+      GetCondicaoPGTO(
+        orc ? orc.TOTAL : 0,
+        (orc.CLIENTE as iCliente).Tabela,
+      ).then((condicao) => {
+        if (condicao.value === null) {
+          ToastNotify({
+            message: 'não a condições para o total do orçamento!',
+            type: 'error',
+          });
+        }
+        if (condicao.value) {
+          setCondicaoPgto(condicao.value);
+          setCondicaoPgtoSelected(condicao.value[0]);
 
-            parcelasList(condicao.value[0]);
-          }
-        },
-      );
+          parcelasList(condicao.value[0]);
+        }
+      });
     }
   }
 
@@ -182,7 +187,7 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
 
   async function hasLimiteCliente(orc: iOrcamento): Promise<boolean> {
     try {
-      const pgtos = await GetPGTOsEmAberto(orc.CLIENTE.CLIENTE);
+      const pgtos = await GetPGTOsEmAberto((orc.CLIENTE as iCliente).CLIENTE);
 
       if (pgtos.error !== undefined) {
         ToastNotify({
@@ -201,7 +206,7 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
           )
         : 0;
 
-      const saldoDisponivel = orc.CLIENTE.LIMITE - contasAbertas;
+      const saldoDisponivel = (orc.CLIENTE as iCliente).LIMITE - contasAbertas;
       const limiteInsuficiente = saldoDisponivel < orc.TOTAL;
 
       // Debug para identificar o problema
@@ -231,7 +236,7 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
         ID: 0,
         NOME: '',
         CODIGO: '',
-        CHAVE: orc.CLIENTE.CLIENTE,
+        CHAVE: (orc.CLIENTE as iCliente).CLIENTE,
         DATA_HORA: '',
         QUEM: '',
         USADO: '',

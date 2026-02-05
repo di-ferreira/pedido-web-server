@@ -1,3 +1,4 @@
+import { iCliente } from '@/@types/Cliente';
 import { GetOrcamento } from '@/app/actions/orcamento';
 import DataTableItensBudget from '@/components/budgets/budgetItens/DataTable';
 import { Input } from '@/components/ui/input';
@@ -29,21 +30,21 @@ const Budget = async ({ params }: iBudgetPage) => {
           <Input
             labelText='CÓDIGO'
             labelPosition='top'
-            value={budget.value.CLIENTE.CLIENTE}
+            value={(budget.value.CLIENTE as iCliente).CLIENTE}
             className='w-[10%] h-7'
             disabled
           />
           <Input
             labelText='NOME'
             labelPosition='top'
-            value={budget.value.CLIENTE.NOME}
+            value={(budget.value.CLIENTE as iCliente).NOME}
             className='w-[40%] h-7'
             disabled
           />
           <Input
             labelText='CPF/CNPJ'
             labelPosition='top'
-            value={budget.value.CLIENTE.CIC}
+            value={(budget.value.CLIENTE as iCliente).CIC}
             className='w-[20%] h-7'
             disabled
           />
@@ -52,7 +53,7 @@ const Budget = async ({ params }: iBudgetPage) => {
             labelText='TELEFONE'
             labelPosition='top'
             name='TELEFONE'
-            value={budget.value.CLIENTE.TELEFONE}
+            value={(budget.value.CLIENTE as iCliente).TELEFONE}
             className='w-[20%] h-7'
             disabled
           />
@@ -61,7 +62,7 @@ const Budget = async ({ params }: iBudgetPage) => {
             labelText='ENDEREÇO'
             labelPosition='top'
             name='CLIENTE.ENDERECO'
-            value={budget.value.CLIENTE.ENDERECO}
+            value={(budget.value.CLIENTE as iCliente).ENDERECO}
             className='w-[30%] h-7'
             disabled
           />
@@ -69,7 +70,7 @@ const Budget = async ({ params }: iBudgetPage) => {
             labelText='BAIRRO'
             labelPosition='top'
             name='CLIENTE.BAIRRO'
-            value={budget.value.CLIENTE.BAIRRO}
+            value={(budget.value.CLIENTE as iCliente).BAIRRO}
             className='w-[24%] h-7'
             disabled
           />
@@ -78,7 +79,7 @@ const Budget = async ({ params }: iBudgetPage) => {
             labelText='CIDADE'
             labelPosition='top'
             name='CLIENTE.CIDADE'
-            value={budget.value.CLIENTE.CIDADE}
+            value={(budget.value.CLIENTE as iCliente).CIDADE}
             className='w-[15%] h-7'
             disabled
           />
@@ -86,7 +87,7 @@ const Budget = async ({ params }: iBudgetPage) => {
             labelText='UF'
             labelPosition='top'
             name='CLIENTE.UF'
-            value={budget.value.CLIENTE.UF}
+            value={(budget.value.CLIENTE as iCliente).UF}
             className='w-[10%] h-7'
             disabled
           />
@@ -94,7 +95,7 @@ const Budget = async ({ params }: iBudgetPage) => {
             labelText='CEP'
             labelPosition='top'
             name='CLIENTE.CEP'
-            value={budget.value.CLIENTE.CEP}
+            value={(budget.value.CLIENTE as iCliente).CEP}
             className='w-[10%] h-7'
             disabled
           />

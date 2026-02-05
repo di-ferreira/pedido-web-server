@@ -1,4 +1,5 @@
 'use client';
+import { iCliente } from '@/@types/Cliente';
 import { iItensOrcamento, iOrcamento } from '@/@types/Orcamento';
 import { iColumnType } from '@/@types/Table';
 import { GetFinanceiroCliente } from '@/app/actions/cliente';
@@ -97,7 +98,9 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
 
   async function VerifyCustomerLimit() {
     try {
-      const resultFinanceiro = await GetFinanceiroCliente(data.CLIENTE.CLIENTE);
+      const resultFinanceiro = await GetFinanceiroCliente(
+        (data.CLIENTE as iCliente).CLIENTE,
+      );
       if (resultFinanceiro.error !== undefined) {
         throw new Error('Erro ao consultar Saldo de Compras do cliente!');
       }
@@ -271,7 +274,7 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
           labelText='TABELA'
           labelPosition='top'
           name='TABELA'
-          value={data.CLIENTE.Tabela}
+          value={(data.CLIENTE as iCliente).Tabela}
           disabled={true}
           className='w-[10%] h-7'
         />
