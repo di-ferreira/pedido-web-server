@@ -67,7 +67,7 @@ function DataTableBudget() {
 
   const handleBudgets = useCallback((filter?: iFilter<iOrcamento>) => {
     setLoading(true);
-    if (filter)
+    if (filter) {
       GetOrcamentosFromVendedor({
         orderBy: 'ORCAMENTO',
         top: filter.top,
@@ -92,7 +92,7 @@ function DataTableBudget() {
         .finally(() => {
           setLoading(false);
         });
-    else
+    } else
       GetOrcamentosFromVendedor()
         .then((res) => {
           setData(res);

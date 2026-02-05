@@ -8,7 +8,6 @@ import {
   iOrcamentoInserir,
 } from '@/@types/Orcamento';
 import {
-  FilterCondition,
   FilterGroup,
   ModelMetadata,
   QueryOptions,
@@ -27,6 +26,7 @@ const ROUTE_SAVE_ITEM_ORCAMENTO = '/ServiceVendas/NovoItemOrcamento';
 export async function GetOrcamentosFromVendedor(
   filter?: QueryOptions<iOrcamento>,
 ): Promise<ResponseType<iDataResultTable<iOrcamento>>> {
+  console.log('filter: ', filter?.filter?.conditions);
   const VendedorLocal: string = await getCookie('user');
   const tokenCookie = await getCookie('token');
   const OrcamentoMetadata = {
@@ -36,6 +36,18 @@ export async function GetOrcamentosFromVendedor(
     TOTAL: 'number' as const,
     ItensOrcamento: 'string' as const,
   } satisfies ModelMetadata<iOrcamento>;
+
+  const formattedFilter =
+    filter &&
+    filter.filter!.conditions.map((f: any) => {
+      console.log('formattedFilter: ', f.typeSearch);
+      const operator: SearchOperator = f.typeSearch;
+      return {
+        key: f.key,
+        value: f.value,
+        operator: operator || 'eq',
+      };
+    });
 
   const filterConditions: FilterGroup<iOrcamento> = filter?.filter!;
 
@@ -62,15 +74,7 @@ export async function GetOrcamentosFromVendedor(
   filter !== undefined
     ? QueryBuilder.where({
         operator: filterConditions.operator,
-        conditions: filterConditions.conditions.map(
-          (c: FilterCondition<iOrcamento>) => {
-            return {
-              key: c.key,
-              value: c.value,
-              operator: c.typeSearch as SearchOperator,
-            };
-          },
-        ),
+        conditions: formattedFilter as FilterGroup<iOrcamento>['conditions'],
       })
         .top(filter.top || 10)
         .skip(filter.skip || 0)
@@ -82,7 +86,7 @@ export async function GetOrcamentosFromVendedor(
           {
             key: 'DATA',
             operator: 'ge',
-            value: `${dayjs().subtract(2, 'month').format('YYYY-MM-DD')}`,
+            value: `${dayjs().subtract(36, 'hour').format('YYYY-MM-DD')}`,
           },
           {
             operator: 'or',
@@ -101,6 +105,7 @@ export async function GetOrcamentosFromVendedor(
         .orderBy('ORCAMENTO', 'desc');
 
   const FILTER = QueryBuilder.build();
+  console.log('FILTER: ', FILTER);
 
   const response = await CustomFetch<{
     '@xdata.count': number;
@@ -201,7 +206,10 @@ export async function NewOrcamento(orcamento: iOrcamento) {
   });
 
   const OrcamentoInsert: iOrcamentoInserir = {
-    CodigoCliente: orcamento.CLIENTE.CLIENTE,
+    CodigoCliente:
+      typeof orcamento.CLIENTE === 'number'
+        ? orcamento.CLIENTE
+        : orcamento.CLIENTE.CLIENTE,
     CodigoVendedor1: Number(VendedorLocal),
     Total: orcamento.TOTAL,
     SubTotal: orcamento.TOTAL,
@@ -296,14 +304,12 @@ export async function UpdateOrcamento(orcamento: iOrcamento) {
 
 export async function RemoverOrcamento(orcamento: iOrcamento) {
   const tokenCookie = await getCookie('token');
-  // 1. Remove todos os itens SEQUENCIALMENTE (garantindo ordem e tratamento de erro)
   for (const item of orcamento.ItensOrcamento) {
     const result = await removeItem({
       pIdOrcamento: orcamento.ORCAMENTO,
       pProduto: item.PRODUTO.PRODUTO,
     });
 
-    // 2. Se ANY item falhar, interrompe e retorna o erro
     if (result.error) {
       return {
         value: undefined,
@@ -312,7 +318,6 @@ export async function RemoverOrcamento(orcamento: iOrcamento) {
     }
   }
 
-  // 3. Só chega aqui se TODOS os itens foram removidos com sucesso
   const responseRemove = await CustomFetch<any>(
     `/Orcamento(${orcamento.ORCAMENTO})`,
     {
@@ -324,7 +329,6 @@ export async function RemoverOrcamento(orcamento: iOrcamento) {
     },
   );
 
-  // 4. Trata erro na remoção do orçamento
   if (responseRemove.status !== 204) {
     return {
       value: undefined,
