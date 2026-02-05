@@ -1,6 +1,5 @@
 'use server';
 import { iApiResult, ResponseType } from '@/@types';
-import { iFilter, iFilterQuery } from '@/@types/Filter';
 import {
   iItemInserir,
   iItemRemove,
@@ -8,7 +7,15 @@ import {
   iOrcamento,
   iOrcamentoInserir,
 } from '@/@types/Orcamento';
+import {
+  FilterCondition,
+  FilterGroup,
+  ModelMetadata,
+  QueryOptions,
+  SearchOperator,
+} from '@/@types/QueryFilter';
 import { iDataResultTable } from '@/@types/Table';
+import { ODataQueryBuilder } from '@/lib/queryFilter';
 import { CustomFetch } from '@/services/api';
 import dayjs from 'dayjs';
 import { getCookie } from '.';
@@ -17,121 +24,83 @@ const ROUTE_SAVE_ORCAMENTO = '/ServiceVendas/NovoOrcamento';
 const ROUTE_REMOVE_ITEM_ORCAMENTO = '/ServiceVendas/ExcluirItemOrcamento';
 const ROUTE_SAVE_ITEM_ORCAMENTO = '/ServiceVendas/NovoItemOrcamento';
 
-function ReturnFilterQuery(typeSearch: iFilterQuery<iOrcamento>): string {
-  // Tratamento especial para valores nulos
-  if (typeSearch.value === null) {
-    return typeSearch.typeSearch === 'ne'
-      ? `${typeSearch.key} ne null`
-      : `${typeSearch.key} eq null`;
-  }
-
-  // Tratamento para operações numéricas
-  if (['TOTAL', 'ORCAMENTO'].includes(String(typeSearch.key))) {
-    switch (typeSearch.typeSearch) {
-      case 'gt':
-        return `${typeSearch.key} gt ${typeSearch.value}`;
-      case 'lt':
-        return `${typeSearch.key} lt ${typeSearch.value}`;
-      case 'ge':
-        return `${typeSearch.key} ge ${typeSearch.value}`;
-      case 'le':
-        return `${typeSearch.key} le ${typeSearch.value}`;
-    }
-  }
-
-  // Tratamento padrão
-  switch (typeSearch.typeSearch) {
-    case 'like':
-      return `contains(${typeSearch.key}, '${String(
-        typeSearch.value,
-      ).toUpperCase()}')`;
-
-    case 'eq':
-      return `${typeSearch.key} eq '${typeSearch.value}'`;
-
-    case 'ne':
-      return `${typeSearch.key} ne '${typeSearch.value}'`;
-
-    default:
-      return `contains(${typeSearch.key}, '${String(
-        typeSearch.value,
-      ).toUpperCase()}')`;
-  }
-}
-
-async function CreateQueryParams(filter: iFilter<iOrcamento>): Promise<string> {
-  // 1. Separação dos filtros por campo
-  const groupedFilters: { [key: string]: iFilterQuery<iOrcamento>[] } = {};
-
-  // Adiciona filtros do usuário
-  filter.filter?.forEach((item) => {
-    if (!groupedFilters[item.key]) {
-      groupedFilters[item.key] = [];
-    }
-    groupedFilters[item.key].push(item);
-  });
-
-  // 2. Gera condições agrupadas
-  const conditions: string[] = [];
-
-  Object.entries(groupedFilters).forEach(([key, items]) => {
-    // Determina operador de agrupamento (padrão: 'or' para PV, 'and' para outros)
-    const groupOperator =
-      items[0].groupOperator || (key === 'PV' ? 'or' : 'and');
-
-    // Gera sub-condições
-    const subConditions = items.map(ReturnFilterQuery).filter(Boolean);
-
-    // Agrupa com operador definido
-    if (subConditions.length > 1) {
-      conditions.push(`(${subConditions.join(` ${groupOperator} `)})`);
-    }
-    // Única condição → adiciona sem parênteses
-    else if (subConditions.length === 1) {
-      conditions.push(subConditions[0]);
-    }
-  });
-
-  // 3. Adiciona filtros fixos (VENDEDOR e DATA)
-  const VendedorLocal: string = await getCookie('user');
-
-  let dateFilter = '';
-  dateFilter = `DATA ge ${dayjs().subtract(1, 'day').format('YYYY-MM-DD')}`;
-  conditions.push(dateFilter);
-
-  // Filtro do vendedor (sempre presente)
-  conditions.unshift(`VENDEDOR eq ${VendedorLocal}`);
-
-  // 4. Monta a string final
-  const filterString = conditions.length
-    ? `$filter=${conditions.join(' and ')}`
-    : '';
-
-  // 5. Parâmetros de paginação e ordenação
-  const ResultTop = filter.top ? `&$top=${filter.top}` : '&$top=15';
-  const ResultSkip = filter.skip ? `&$skip=${filter.skip}` : '&$skip=0';
-  const ResultOrderBy = filter.orderBy
-    ? `&$orderby=${filter.orderBy}`
-    : '&$orderby=ORCAMENTO desc';
-
-  // 6. Monta URL final
-  return `?${filterString}${ResultTop}${ResultSkip}${ResultOrderBy}&$expand=VENDEDOR,CLIENTE,ItensOrcamento/PRODUTO/FORNECEDOR,ItensOrcamento/PRODUTO/FABRICANTE,ItensOrcamento,ItensOrcamento/PRODUTO&$inlinecount=allpages`;
-}
-
 export async function GetOrcamentosFromVendedor(
-  filter?: iFilter<iOrcamento> | null | undefined,
+  filter?: QueryOptions<iOrcamento>,
 ): Promise<ResponseType<iDataResultTable<iOrcamento>>> {
   const VendedorLocal: string = await getCookie('user');
-
   const tokenCookie = await getCookie('token');
+  const OrcamentoMetadata = {
+    ORCAMENTO: 'number' as const,
+    VENDEDOR: 'number' as const,
+    CLIENTE: 'number' as const,
+    TOTAL: 'number' as const,
+    ItensOrcamento: 'string' as const,
+  } satisfies ModelMetadata<iOrcamento>;
 
-  const FILTER = filter
-    ? await CreateQueryParams(filter)
-    : `?$filter=VENDEDOR eq ${VendedorLocal} and DATA ge ${dayjs()
-        .subtract(1, 'day')
-        .format(
-          'YYYY-MM-DD',
-        )} and (PV ne 'S' or PV eq null)&$orderby=ORCAMENTO desc&$top=10&$expand=VENDEDOR,CLIENTE,ItensOrcamento/PRODUTO/FORNECEDOR,ItensOrcamento/PRODUTO/FABRICANTE,ItensOrcamento,ItensOrcamento/PRODUTO&$inlinecount=allpages`;
+  const filterConditions: FilterGroup<iOrcamento> = filter?.filter!;
+
+  const QueryBuilder = new ODataQueryBuilder<iOrcamento>(OrcamentoMetadata)
+    .where({
+      operator: 'and',
+      conditions: [
+        {
+          key: 'VENDEDOR',
+          operator: 'eq',
+          value: VendedorLocal,
+        },
+      ],
+    })
+    .expand(
+      'VENDEDOR',
+      'CLIENTE',
+      'ItensOrcamento/PRODUTO/FORNECEDOR',
+      'ItensOrcamento/PRODUTO/FABRICANTE',
+      'ItensOrcamento',
+      'ItensOrcamento/PRODUTO',
+    );
+
+  filter !== undefined
+    ? QueryBuilder.where({
+        operator: filterConditions.operator,
+        conditions: filterConditions.conditions.map(
+          (c: FilterCondition<iOrcamento>) => {
+            return {
+              key: c.key,
+              value: c.value,
+              operator: c.typeSearch as SearchOperator,
+            };
+          },
+        ),
+      })
+        .top(filter.top || 10)
+        .skip(filter.skip || 0)
+        .orderBy(filter.orderBy || 'ORCAMENTO', 'desc')
+        .build()
+    : QueryBuilder.where({
+        operator: 'and',
+        conditions: [
+          {
+            key: 'DATA',
+            operator: 'ge',
+            value: `${dayjs().subtract(2, 'month').format('YYYY-MM-DD')}`,
+          },
+          {
+            operator: 'or',
+            conditions: [
+              {
+                key: 'PV',
+                operator: 'ne',
+                value: 'S',
+              },
+            ],
+          },
+        ],
+      })
+        .top(10)
+        .skip(0)
+        .orderBy('ORCAMENTO', 'desc');
+
+  const FILTER = QueryBuilder.build();
 
   const response = await CustomFetch<{
     '@xdata.count': number;
@@ -281,11 +250,6 @@ export async function NewOrcamento(orcamento: iOrcamento) {
 
 export async function UpdateOrcamento(orcamento: iOrcamento) {
   const tokenCookie = await getCookie('token');
-  const VendedorLocal: string = await getCookie('user');
-
-  const itens = orcamento.ItensOrcamento.map((i) => {
-    return { ...i, ORCAMENTO: String(i.ORCAMENTO) };
-  });
 
   const responseInsert = await CustomFetch<iOrcamento>(
     `/Orcamento(${orcamento.ORCAMENTO})`,

@@ -2,6 +2,7 @@
 import { iSearch, ResponseType } from '@/@types';
 import { iFilter } from '@/@types/Filter';
 import { iOrcamento } from '@/@types/Orcamento';
+import { SearchOperator } from '@/@types/QueryFilter';
 import { iColumnType, iDataResultTable } from '@/@types/Table';
 import { GetOrcamentosFromVendedor } from '@/app/actions/orcamento';
 import { DataTable } from '@/components/CustomDataTable';
@@ -26,7 +27,7 @@ import RemoveBudget from '../RemoveBudget/FormRemoveBudget';
 
 function DataTableBudget() {
   const [data, setData] = useState<ResponseType<iDataResultTable<iOrcamento>>>(
-    {}
+    {},
   );
   const [loading, setLoading] = useState(false);
   const filterValues = [
@@ -36,24 +37,19 @@ function DataTableBudget() {
 
   const handleBudgetSearch = useCallback((filter: iSearch<iOrcamento>) => {
     const valueSearch: string = filter.filterBy;
+    const day = dayjs().subtract(2, 'months').format('YYYY-MM-DD');
 
     //PV eq NÃO?
     if (valueSearch == 'N') handleBudgets();
-    // handleBudgets({
-    //   top: 10,
-    //   skip: 0,
-    //   orderBy: 'ORCAMENTO desc' as keyof iOrcamento,
-    //   filter: [
-    //     { key: 'PV', value: 'N', typeSearch: 'eq' },
-    //     { key: 'PV', value: null, typeSearch: 'eq' },
-    //   ],
-    // });
     else
       handleBudgets({
         top: 50,
         skip: 0,
         orderBy: 'ORCAMENTO desc' as keyof iOrcamento,
-        filter: [{ key: 'PV', value: 'S', typeSearch: 'eq' }],
+        filter: [
+          { key: 'PV', value: 'S', typeSearch: 'eq' },
+          { key: 'DATA', value: day, typeSearch: 'ge' },
+        ],
       });
   }, []);
 
@@ -72,7 +68,22 @@ function DataTableBudget() {
   const handleBudgets = useCallback((filter?: iFilter<iOrcamento>) => {
     setLoading(true);
     if (filter)
-      GetOrcamentosFromVendedor(filter)
+      GetOrcamentosFromVendedor({
+        orderBy: 'ORCAMENTO',
+        top: filter.top,
+        skip: filter.skip,
+        filter: {
+          operator: 'and',
+          conditions:
+            filter.filter!.map((f) => {
+              return {
+                key: f.key,
+                value: f.value,
+                operator: (f.typeSearch as SearchOperator) || 'eq',
+              };
+            }) || [],
+        },
+      })
         .then((res) => {
           setData(res);
           setLoading(false);
