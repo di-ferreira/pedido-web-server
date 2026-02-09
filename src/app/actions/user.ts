@@ -1,11 +1,12 @@
 'use server';
-import { iVendedor, iVendedorSenha, ResponseType, userLogin } from '@/@types';
+import { iVendedorSenha, ResponseType, userLogin } from '@/@types';
+import { iVendedor } from '@/@types/Vendedor';
 import { compareHash } from '@/lib/utils';
 import { CustomFetch } from '@/services/api';
 import { getCookie, setCookie } from '.';
 
 export async function LoginUser(
-  user: userLogin
+  user: userLogin,
 ): Promise<ResponseType<iVendedor>> {
   const resultVenda = await vendaLogin();
 
@@ -36,7 +37,7 @@ export async function LoginUser(
       vendedor: vendedor.value.VENDEDOR,
       password: vendedor.value.SENHA,
     },
-    token
+    token,
   );
 
   if (resultLoginVendedor.error !== undefined) {
@@ -54,6 +55,34 @@ export async function LoginUser(
         ? vendedor.value.TIPO_VENDEDOR
         : 'E',
       TABELAS_PERMITIDAS: vendedor.value.TABELAS_PERMITIDAS,
+      ENDERECO: '',
+      BAIRRO: '',
+      CIDADE: '',
+      UF: '',
+      CEP: '',
+      TELEFONE: '',
+      SENHA: '',
+      ATUALIZAR: '',
+      COMISSAO: 0,
+      CTPS: '',
+      FUNCAO: '',
+      ADMISSAO: '',
+      DEMISSAO: '',
+      SALARIO: 0,
+      VALE_TRANSPORTE: 0,
+      NASCIMENTO: '',
+      ESTADO_CIVIL: '',
+      PIS: '',
+      NACIONALIDADE: '',
+      NATURALIDADE: '',
+      CONJUGE: '',
+      EMAIL: '',
+      CELULAR: '',
+      CARTAO_NUMERO: '',
+      CARTAO_MATRICULA: '',
+      META_MARKUP: 0,
+      META_INDEXADOR: 0,
+      SETOR: '',
     },
   };
   await setCookie('token', token);
@@ -73,7 +102,7 @@ async function vendaLogin(): Promise<ResponseType<string>> {
       }),
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-    }
+    },
   );
 
   return data.body!;
@@ -81,7 +110,7 @@ async function vendaLogin(): Promise<ResponseType<string>> {
 
 async function userVendaLogin(
   user: userLogin,
-  token: string
+  token: string,
 ): Promise<ResponseType<string>> {
   const data = await CustomFetch<ResponseType<string>>(
     '/ServiceSistema/LoginVendedor',
@@ -95,7 +124,7 @@ async function userVendaLogin(
         'Content-Type': 'application/json',
         Authorization: `bearer ${token}`,
       },
-    }
+    },
   );
 
   return data.body!;
@@ -157,6 +186,34 @@ export async function getVendedorAction(): Promise<ResponseType<iVendedor>> {
       VENDA: (responseData.body as iVendedor).VENDA,
       TIPO_VENDEDOR: (responseData.body as iVendedor).TIPO_VENDEDOR,
       TABELAS_PERMITIDAS: (responseData.body as iVendedor).TABELAS_PERMITIDAS,
+      ENDERECO: '',
+      BAIRRO: '',
+      CIDADE: '',
+      UF: '',
+      CEP: '',
+      TELEFONE: '',
+      SENHA: '',
+      ATUALIZAR: '',
+      COMISSAO: 0,
+      CTPS: '',
+      FUNCAO: '',
+      ADMISSAO: '',
+      DEMISSAO: '',
+      SALARIO: 0,
+      VALE_TRANSPORTE: 0,
+      NASCIMENTO: '',
+      ESTADO_CIVIL: '',
+      PIS: '',
+      NACIONALIDADE: '',
+      NATURALIDADE: '',
+      CONJUGE: '',
+      EMAIL: '',
+      CELULAR: '',
+      CARTAO_NUMERO: '',
+      CARTAO_MATRICULA: '',
+      META_MARKUP: 0,
+      META_INDEXADOR: 0,
+      SETOR: '',
     },
     error: undefined,
   };

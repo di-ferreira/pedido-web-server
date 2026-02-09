@@ -1,15 +1,10 @@
 'use server';
 
-import {
-  iCredito,
-  iSelectSQL,
-  iVendedor,
-  ResponseSQL,
-  ResponseType,
-} from '@/@types';
+import { iCredito, iSelectSQL, ResponseSQL, ResponseType } from '@/@types';
 import { iCliente, iFinanceiroCliente, iPgtoEmAberto } from '@/@types/Cliente';
 import { iFilter } from '@/@types/Filter';
 import { iDataResultTable } from '@/@types/Table';
+import { iVendedor } from '@/@types/Vendedor';
 import { CustomFetch } from '@/services/api';
 import dayjs from 'dayjs';
 import { getCookie } from '.';
@@ -131,7 +126,7 @@ async function CreateFilter(filter: iFilter<iCliente>): Promise<string> {
 }
 
 export async function GetClienteFromVendedor(
-  filter: iFilter<iCliente> | null | undefined
+  filter: iFilter<iCliente> | null | undefined,
 ): Promise<ResponseType<iDataResultTable<iCliente>>> {
   const VendedorLocal: string = await getCookie('user');
   const tokenCookie = await getCookie('token');
@@ -172,7 +167,7 @@ export async function GetClienteFromVendedor(
 }
 
 export async function GetCliente(
-  customerCode: string | number
+  customerCode: string | number,
 ): Promise<ResponseType<iCliente>> {
   const tokenCookie = await getCookie('token');
 
@@ -184,7 +179,7 @@ export async function GetCliente(
         'Content-Type': 'application/json',
         Authorization: `bearer ${tokenCookie}`,
       },
-    }
+    },
   );
 
   const result: iCliente = response.body!;
@@ -316,7 +311,7 @@ export async function GetPGTOsEmAberto(cliente: number) {
         'Content-Type': 'application/json',
         Authorization: `bearer ${tokenCookie}`,
       },
-    }
+    },
   );
 
   if (response.status !== 200) {
@@ -364,7 +359,7 @@ export async function GetClientesPgtoEmAberto() {
         'Content-Type': 'application/json',
         Authorization: `bearer ${tokenCookie}`,
       },
-    }
+    },
   );
 
   if (response.status !== 200) {
@@ -384,7 +379,7 @@ export async function GetClientesPgtoEmAberto() {
 }
 
 export async function GetFinanceiroCliente(
-  idCliente: number
+  idCliente: number,
 ): Promise<ResponseType<iFinanceiroCliente>> {
   let debitosVencidoTotal: number;
   let debitosNaoVencidoTotal: number;
@@ -413,14 +408,14 @@ export async function GetFinanceiroCliente(
 
     debitosNaoVencidos =
       emAberto.value?.filter((aberto: iCredito) =>
-        dayjs(aberto.VENCIMENTO, 'YYYY-MM-DD').isAfter(now)
+        dayjs(aberto.VENCIMENTO, 'YYYY-MM-DD').isAfter(now),
       ) ?? [];
 
     debitosVencidos =
       emAberto.value?.filter(
         (abertos: iCredito) =>
           abertos.RESTA > 0 &&
-          dayjs(abertos.VENCIMENTO, 'YYYY-MM-DD').isBefore(now)
+          dayjs(abertos.VENCIMENTO, 'YYYY-MM-DD').isBefore(now),
       ) ?? [];
 
     creditos =

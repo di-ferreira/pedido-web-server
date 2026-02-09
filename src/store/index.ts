@@ -1,4 +1,4 @@
-import { iVendedor } from '@/@types';
+import { iVendedor } from '@/@types/Vendedor';
 import { create } from 'zustand';
 
 type UserStore = {

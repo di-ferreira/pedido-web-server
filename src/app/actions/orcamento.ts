@@ -8,16 +8,19 @@ import {
   iOrcamentoInserir,
 } from '@/@types/Orcamento';
 import {
+  FilterCondition,
   FilterGroup,
   ModelMetadata,
   QueryOptions,
   SearchOperator,
 } from '@/@types/QueryFilter';
 import { iDataResultTable } from '@/@types/Table';
+import { iVendedor } from '@/@types/Vendedor';
 import { ODataQueryBuilder } from '@/lib/queryFilter';
 import { CustomFetch } from '@/services/api';
 import dayjs from 'dayjs';
 import { getCookie } from '.';
+import { getVendedorAction } from './user';
 const ROUTE_GET_ALL_ORCAMENTO = '/Orcamento';
 const ROUTE_SAVE_ORCAMENTO = '/ServiceVendas/NovoOrcamento';
 const ROUTE_REMOVE_ITEM_ORCAMENTO = '/ServiceVendas/ExcluirItemOrcamento';
@@ -28,6 +31,7 @@ export async function GetOrcamentosFromVendedor(
 ): Promise<ResponseType<iDataResultTable<iOrcamento>>> {
   console.log('filter: ', filter?.filter?.conditions);
   const VendedorLocal: string = await getCookie('user');
+  const Vendedor: iVendedor = (await getVendedorAction()).value!;
   const tokenCookie = await getCookie('token');
   const OrcamentoMetadata = {
     ORCAMENTO: 'number' as const,
@@ -62,15 +66,24 @@ export async function GetOrcamentosFromVendedor(
     'ItensOrcamento/PRODUTO',
   );
 
-  filter !== undefined
-    ? QueryBuilder.where({
-        operator: filterConditions.operator,
-        conditions: [
+  const filterVendedor: Array<
+    FilterCondition<iOrcamento> | FilterGroup<iOrcamento>
+  > =
+    Vendedor.TIPO_VENDEDOR === 'I'
+      ? []
+      : [
           {
             key: 'VENDEDOR',
             operator: 'eq',
             value: VendedorLocal,
           },
+        ];
+
+  filter !== undefined
+    ? QueryBuilder.where({
+        operator: filterConditions.operator,
+        conditions: [
+          ...(filterVendedor as FilterGroup<iOrcamento>['conditions']),
           ...(formattedFilter as FilterGroup<iOrcamento>['conditions']),
         ],
       })
