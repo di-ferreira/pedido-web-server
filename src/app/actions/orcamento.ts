@@ -40,8 +40,8 @@ export async function GetOrcamentosFromVendedor(
   const formattedFilter =
     filter &&
     filter.filter!.conditions.map((f: any) => {
-      console.log('formattedFilter: ', f.typeSearch);
-      const operator: SearchOperator = f.typeSearch;
+      console.log('formattedFilter: ', f);
+      const operator: SearchOperator = f.operator;
       return {
         key: f.key,
         value: f.value,
@@ -51,30 +51,28 @@ export async function GetOrcamentosFromVendedor(
 
   const filterConditions: FilterGroup<iOrcamento> = filter?.filter!;
 
-  const QueryBuilder = new ODataQueryBuilder<iOrcamento>(OrcamentoMetadata)
-    .where({
-      operator: 'and',
-      conditions: [
-        {
-          key: 'VENDEDOR',
-          operator: 'eq',
-          value: VendedorLocal,
-        },
-      ],
-    })
-    .expand(
-      'VENDEDOR',
-      'CLIENTE',
-      'ItensOrcamento/PRODUTO/FORNECEDOR',
-      'ItensOrcamento/PRODUTO/FABRICANTE',
-      'ItensOrcamento',
-      'ItensOrcamento/PRODUTO',
-    );
+  const QueryBuilder = new ODataQueryBuilder<iOrcamento>(
+    OrcamentoMetadata,
+  ).expand(
+    'VENDEDOR',
+    'CLIENTE',
+    'ItensOrcamento/PRODUTO/FORNECEDOR',
+    'ItensOrcamento/PRODUTO/FABRICANTE',
+    'ItensOrcamento',
+    'ItensOrcamento/PRODUTO',
+  );
 
   filter !== undefined
     ? QueryBuilder.where({
         operator: filterConditions.operator,
-        conditions: formattedFilter as FilterGroup<iOrcamento>['conditions'],
+        conditions: [
+          {
+            key: 'VENDEDOR',
+            operator: 'eq',
+            value: VendedorLocal,
+          },
+          ...(formattedFilter as FilterGroup<iOrcamento>['conditions']),
+        ],
       })
         .top(filter.top || 10)
         .skip(filter.skip || 0)
@@ -84,9 +82,14 @@ export async function GetOrcamentosFromVendedor(
         operator: 'and',
         conditions: [
           {
+            key: 'VENDEDOR',
+            operator: 'eq',
+            value: VendedorLocal,
+          },
+          {
             key: 'DATA',
             operator: 'ge',
-            value: `${dayjs().subtract(36, 'hour').format('YYYY-MM-DD')}`,
+            value: `${dayjs().subtract(36, 'hours').format('YYYY-MM-DD')}`,
           },
           {
             operator: 'or',
