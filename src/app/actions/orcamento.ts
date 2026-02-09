@@ -29,7 +29,6 @@ const ROUTE_SAVE_ITEM_ORCAMENTO = '/ServiceVendas/NovoItemOrcamento';
 export async function GetOrcamentosFromVendedor(
   filter?: QueryOptions<iOrcamento>,
 ): Promise<ResponseType<iDataResultTable<iOrcamento>>> {
-  console.log('filter: ', filter?.filter?.conditions);
   const VendedorLocal: string = await getCookie('user');
   const Vendedor: iVendedor = (await getVendedorAction()).value!;
   const tokenCookie = await getCookie('token');
@@ -44,7 +43,6 @@ export async function GetOrcamentosFromVendedor(
   const formattedFilter =
     filter &&
     filter.filter!.conditions.map((f: any) => {
-      console.log('formattedFilter: ', f);
       const operator: SearchOperator = f.operator;
       return {
         key: f.key,
@@ -121,7 +119,6 @@ export async function GetOrcamentosFromVendedor(
         .orderBy('ORCAMENTO', 'desc');
 
   const FILTER = QueryBuilder.build();
-  console.log('FILTER: ', FILTER);
 
   const response = await CustomFetch<{
     '@xdata.count': number;
