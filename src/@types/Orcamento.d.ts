@@ -71,7 +71,7 @@ export interface iOrcamento {
   MD5?: string;
   OS?: number;
   LIDO?: string;
-  PV?: string;
+  PV?: string | null;
   TIPO?: string;
   PEDIDO_TIPO?: string;
   SEPARACAO?: string;

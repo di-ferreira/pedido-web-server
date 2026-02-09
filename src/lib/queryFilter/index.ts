@@ -23,6 +23,12 @@ function normalizeValue<T>(
   value: unknown,
   metadata: ModelMetadata<T>,
 ): string {
+  // 1. Tratamento de Nulo Global: Se o valor for null, undefined ou a string 'null'
+  // ele deve retornar sem aspas independentemente do tipo no metadata.
+  if (value === null || value === undefined || value === 'null') {
+    return 'null';
+  }
+
   const type = metadata[key];
 
   switch (type) {
@@ -38,7 +44,8 @@ function normalizeValue<T>(
           throw new Error(`Invalid date for ${String(key)}`);
         }
 
-        return d.format('YYYY-MM-DD');
+        // Para OData, datas geralmente precisam de aspas simples: 'YYYY-MM-DD'
+        return `'${d.format('YYYY-MM-DD')}'`;
       }
 
       throw new Error(`Invalid date value for ${String(key)}`);
@@ -57,6 +64,7 @@ function normalizeValue<T>(
 
     case 'string':
     default:
+      // Como o 'null' já foi tratado no topo, aqui cairão apenas strings reais
       return `'${sanitizeString(String(value))}'`;
   }
 }
