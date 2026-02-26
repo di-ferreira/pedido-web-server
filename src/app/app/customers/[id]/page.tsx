@@ -1,6 +1,7 @@
 'use client';
 import { iCredito } from '@/@types';
 import { iCliente, iFinanceiroCliente } from '@/@types/Cliente';
+import { iLiberacoes } from '@/@types/Liberacoes';
 import { iOrcamento } from '@/@types/Orcamento';
 import { iVendedor } from '@/@types/Vendedor';
 import { GetCliente, GetFinanceiroCliente } from '@/app/actions/cliente';
@@ -128,20 +129,27 @@ function Customers({ params }: iCustomerPage) {
   async function GerarOrcamento() {
     setIconLoading(true);
     let orcID = 0;
+    let codigoLiberacao: string = ContasAtrazadas > 0 ? 'INADIMPLENCIA' : '';
+    codigoLiberacao = LimiteCredito === 0 ? 'LIMITE' : codigoLiberacao;
+    codigoLiberacao =
+      Customer.BLOQUEADO === 'S' ? 'BLOQUEADO' : codigoLiberacao;
 
-    const liberacao = await Liberacoes({
+    const paramLiberacao: iLiberacoes = {
       ID: 0,
-      NOME: '',
-      CODIGO: '',
+      NOME: 'CLIENTE',
+      CODIGO: codigoLiberacao,
       CHAVE: Customer.CLIENTE,
       DATA_HORA: '',
       QUEM: '',
-      USADO: '',
-      ONDE: '',
-      ID_ONDE: 0,
+      USADO: 'N',
+      ONDE: 'PRÉ-VENDA',
+      ID_ONDE: 9.999,
       OBS: '',
       MOVIMENTO: 0,
-    });
+    };
+
+    console.log('paramLiberacao: ', paramLiberacao);
+    const liberacao = await Liberacoes(paramLiberacao);
 
     if (
       ContasAtrazadas > 0 &&

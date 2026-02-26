@@ -1,5 +1,5 @@
 'use client';
-import { iCliente } from '@/@types/Cliente';
+import { iCliente, iFinanceiroCliente } from '@/@types/Cliente';
 import { iOrcamento } from '@/@types/Orcamento';
 import {
   iCondicaoPgto,
@@ -9,7 +9,7 @@ import {
   iPreVenda,
 } from '@/@types/PreVenda';
 import { iVendedor } from '@/@types/Vendedor';
-import { GetPGTOsEmAberto } from '@/app/actions/cliente';
+import { GetFinanceiroCliente, GetPGTOsEmAberto } from '@/app/actions/cliente';
 import { Liberacoes } from '@/app/actions/liberacoes';
 import { UpdateOrcamento } from '@/app/actions/orcamento';
 import {
@@ -17,6 +17,7 @@ import {
   GetFormasPGTO,
   SavePreVenda,
 } from '@/app/actions/preVenda';
+import { getVendedorAction } from '@/app/actions/user';
 import ToastNotify from '@/components/ToastNotify';
 import { cn } from '@/lib/utils';
 import {
@@ -232,16 +233,30 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
         return;
       }
 
+      let nomeVendedor: string = (await getVendedorAction()).value!.NOME;
+      const resultFinanceiro = await GetFinanceiroCliente(
+        (orc.CLIENTE as iCliente).CLIENTE,
+      );
+
+      if (resultFinanceiro.error !== undefined) {
+        throw new Error(resultFinanceiro.error.message);
+      }
+
+      const financeiro: iFinanceiroCliente = resultFinanceiro.value!;
+
+      let codigoLiberacao: string =
+        financeiro.SaldoCompra < orc.TOTAL ? 'LIMITE' : '';
+
       const liberacao = await Liberacoes({
         ID: 0,
-        NOME: '',
-        CODIGO: '',
+        NOME: 'CLIENTE',
+        CODIGO: codigoLiberacao,
         CHAVE: (orc.CLIENTE as iCliente).CLIENTE,
         DATA_HORA: '',
-        QUEM: '',
-        USADO: '',
-        ONDE: '',
-        ID_ONDE: 0,
+        QUEM: `Ven:${nomeVendedor}`,
+        USADO: 'N',
+        ONDE: 'PRÉ-VENDA',
+        ID_ONDE: 9.999,
         OBS: '',
         MOVIMENTO: 0,
       });

@@ -130,6 +130,7 @@ export async function CreateLiberacao(
       },
     },
   );
+  console.log('response liberação: ', response);
 
   if (response.status !== 201) {
     return {
@@ -270,23 +271,29 @@ export async function Liberacoes(
   // dataLimite.setDate(dataLimite.getDate() - 1); // DataServidor - 1 dia
 
   // Busca por critérios
+  console.log('param: ', param);
+  const paramLiberacao: iLiberacoes = {
+    ID: 0,
+    NOME: param.NOME,
+    CODIGO: param.CODIGO,
+    CHAVE: param.CHAVE,
+    DATA_HORA: agora.format('YYYY-MM-DDTHH:mm:ss'),
+    QUEM: ('Ven:' + vendedor.value!.NOME).substring(0, 10),
+    ONDE: 'PRÉ-VENDA',
+    MOVIMENTO: param.MOVIMENTO,
+    ID_ONDE: 9999,
+    USADO: 'N',
+    OBS: param.OBS,
+  };
+  console.log('paramLiberacao: ', paramLiberacao);
+
   const liberacao = (await LoadLiberacaoCliente(param.CHAVE)).value!;
+  console.log('liberacao: ', liberacao);
 
   if (!liberacao) {
     // Cria nova liberação
-    const novaLiberacao = CreateLiberacao({
-      ID: 0,
-      NOME: param.NOME,
-      CODIGO: param.CODIGO,
-      CHAVE: param.CHAVE,
-      DATA_HORA: agora.format('YYYY-MM-DD'),
-      QUEM: ('Ven:' + vendedor.value!.NOME).substring(0, 10),
-      ONDE: 'PRÉ-VENDA',
-      MOVIMENTO: param.MOVIMENTO,
-      ID_ONDE: 9999,
-      USADO: 'N',
-      OBS: param.OBS,
-    });
+    const novaLiberacao = CreateLiberacao(paramLiberacao);
+    console.log('novaLiberacao: ', await novaLiberacao);
 
     return novaLiberacao;
   } else {
@@ -304,7 +311,7 @@ export async function Liberacoes(
       // Renova a liberação
       const novaLiberacao = UpdateLiberacao({
         ...liberacao,
-        DATA_HORA: agora.format('YYYY-MM-DD'),
+        DATA_HORA: agora.format('YYYY-MM-DDTHH:mm:ss'),
         OBS: param.OBS,
       });
 
