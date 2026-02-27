@@ -3,6 +3,7 @@ import { iApiResult, ResponseType } from '@/@types';
 import { iFilter, iFilterQuery } from '@/@types/Filter';
 import { iLiberacoes } from '@/@types/Liberacoes';
 import { iDataResultTable } from '@/@types/Table';
+import { toIntSafe } from '@/lib/utils';
 import { CustomFetch } from '@/services/api';
 import dayjs from 'dayjs';
 import { getCookie } from '.';
@@ -130,7 +131,6 @@ export async function CreateLiberacao(
       },
     },
   );
-  console.log('response liberação: ', response);
 
   if (response.status !== 201) {
     return {
@@ -152,12 +152,16 @@ export async function UpdateLiberacao(
   liberacao: iLiberacoes,
 ): Promise<ResponseType<iLiberacoes>> {
   const tokenCookie = await getCookie('token');
+  console.log('liberacao update: ', liberacao);
 
   const response = await CustomFetch<iApiResult<iLiberacoes>>(
     `${ROUTE_GET_ALL_LIBERACOES}(${liberacao.ID})`,
     {
       method: 'PUT',
-      body: JSON.stringify(liberacao),
+      body: JSON.stringify({
+        ...liberacao,
+        ID_ONDE: toIntSafe(liberacao.ID_ONDE),
+      }),
       headers: {
         'Content-Type': 'application/json',
         Authorization: `bearer ${tokenCookie}`,
@@ -165,6 +169,7 @@ export async function UpdateLiberacao(
     },
   );
 
+  console.log('response: ', response.body);
   if (response.status !== 200) {
     return {
       value: undefined,
@@ -198,7 +203,7 @@ export async function LoadLiberacao(
   const response = await CustomFetch<{
     '@xdata.count': number;
     value: iLiberacoes[];
-  }>(`${ROUTE_GET_ALL_LIBERACOES}`, {
+  }>(`${ROUTE_GET_ALL_LIBERACOES}${FILTER}`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -211,6 +216,7 @@ export async function LoadLiberacao(
     value: response.body!.value,
   };
 
+  console.log('response load Liberação: ', response.body);
   if (response.status !== 200) {
     return {
       value: undefined,
@@ -229,13 +235,13 @@ export async function LoadLiberacao(
 
 export async function LoadLiberacaoCliente(
   cliente: number,
+  codigo: string,
 ): Promise<ResponseType<iLiberacoes>> {
   const tokenCookie = await getCookie('token');
 
-  const URL = `?$filter=USADO eq 'N' and ID_ONDE ne '9999' and CHAVE eq ${cliente}&$top=1`;
+  const URL = `?$filter=CHAVE eq ${cliente} and CODIGO eq '${codigo}'&$top=1&$orderby=DATA_HORA desc`;
 
   const response = await CustomFetch<{
-    '@xdata.count': number;
     value: iLiberacoes[];
   }>(`${ROUTE_GET_ALL_LIBERACOES}${URL}`, {
     method: 'GET',
@@ -245,9 +251,7 @@ export async function LoadLiberacaoCliente(
     },
   });
 
-  let result: iLiberacoes = response.body?.value[0]!;
-
-  if (response.status !== 200 && response.body?.value[0]) {
+  if (response.status !== 200) {
     return {
       value: undefined,
       error: {
@@ -255,68 +259,120 @@ export async function LoadLiberacaoCliente(
         message: String(response.statusText),
       },
     };
-  } else
-    return {
-      value: result,
-      error: undefined,
-    };
+  }
+
+  return {
+    value: response.body?.value[0],
+    error: undefined,
+  };
 }
 
 export async function Liberacoes(
   param: iLiberacoes,
 ): Promise<ResponseType<iLiberacoes>> {
-  const agora = dayjs();
+  const agora = dayjs().format('YYYY-MM-DDTHH:mm:ss');
   const vendedor = await getVendedorAction();
+  const nomeVendedor = ('Ven:' + (vendedor.value?.NOME || 'S/N')).substring(
+    0,
+    10,
+  );
 
-  // dataLimite.setDate(dataLimite.getDate() - 1); // DataServidor - 1 dia
+  const responseBusca = await LoadLiberacaoCliente(param.CHAVE, param.CODIGO);
+  const liberacaoExistente = responseBusca.value;
 
-  // Busca por critérios
-  console.log('param: ', param);
-  const paramLiberacao: iLiberacoes = {
+  const dadosNovaLiberacao: iLiberacoes = {
+    ...param,
     ID: 0,
-    NOME: param.NOME,
-    CODIGO: param.CODIGO,
-    CHAVE: param.CHAVE,
-    DATA_HORA: agora.format('YYYY-MM-DDTHH:mm:ss'),
-    QUEM: ('Ven:' + vendedor.value!.NOME).substring(0, 10),
+    DATA_HORA: agora,
+    QUEM: nomeVendedor,
     ONDE: 'PRÉ-VENDA',
-    MOVIMENTO: param.MOVIMENTO,
-    ID_ONDE: 9999,
+    ID_ONDE: Number(9999),
     USADO: 'N',
-    OBS: param.OBS,
   };
-  console.log('paramLiberacao: ', paramLiberacao);
 
-  const liberacao = (await LoadLiberacaoCliente(param.CHAVE)).value!;
-  console.log('liberacao: ', liberacao);
-
-  if (!liberacao) {
-    // Cria nova liberação
-    const novaLiberacao = CreateLiberacao(paramLiberacao);
-    console.log('novaLiberacao: ', await novaLiberacao);
-
-    return novaLiberacao;
-  } else {
-    if (liberacao.ID_ONDE !== 9999) {
-      // Atualiza como usada
-      const novaLiberacao = UpdateLiberacao({
-        ...liberacao,
-        ONDE: param.ONDE,
-        ID_ONDE: param.ID_ONDE,
-        USADO: 'S',
-      });
-
-      return novaLiberacao;
-    } else {
-      // Renova a liberação
-      const novaLiberacao = UpdateLiberacao({
-        ...liberacao,
-        DATA_HORA: agora.format('YYYY-MM-DDTHH:mm:ss'),
-        OBS: param.OBS,
-      });
-
-      return novaLiberacao;
-    }
+  if (!liberacaoExistente) {
+    return await CreateLiberacao(dadosNovaLiberacao);
   }
+
+  if (liberacaoExistente.ID_ONDE === 9999) {
+    return await UpdateLiberacao({
+      ...liberacaoExistente,
+      ID_ONDE: toIntSafe(param.ID_ONDE),
+      DATA_HORA: agora,
+      OBS: param.OBS || liberacaoExistente.OBS,
+    });
+  }
+
+  if (liberacaoExistente.USADO === 'S') {
+    return await CreateLiberacao(dadosNovaLiberacao);
+  } else {
+    return await UpdateLiberacao({
+      ...liberacaoExistente,
+      USADO: 'S',
+      DATA_HORA: agora,
+      ONDE: param.ONDE,
+    });
+  }
+}
+
+export async function SolicitarLiberacao(
+  param: iLiberacoes,
+): Promise<ResponseType<iLiberacoes>> {
+  const agora = dayjs().format('YYYY-MM-DDTHH:mm:ss');
+  const vendedor = await getVendedorAction();
+  const nomeVendedor = ('Ven:' + (vendedor.value?.NOME || 'S/N')).substring(
+    0,
+    10,
+  );
+
+  const liberacaoExistente = (
+    await LoadLiberacaoCliente(param.CHAVE, param.CODIGO)
+  ).value;
+
+  // Já existe aguardando ERP
+  if (liberacaoExistente && liberacaoExistente.ID_ONDE === 9999) {
+    return { value: liberacaoExistente, error: undefined };
+  }
+
+  // Já existe liberada e não usada
+  if (
+    liberacaoExistente &&
+    liberacaoExistente.ID_ONDE !== 9999 &&
+    liberacaoExistente.USADO === 'N'
+  ) {
+    return { value: liberacaoExistente, error: undefined };
+  }
+
+  // Criar nova solicitação
+  const novaLiberacao: iLiberacoes = {
+    ...param,
+    ID: 0,
+    DATA_HORA: agora,
+    QUEM: nomeVendedor,
+    ONDE: 'PRÉ-VENDA',
+    ID_ONDE: 9999, // aguardando ERP
+    USADO: 'N',
+  };
+
+  return await CreateLiberacao(novaLiberacao);
+}
+
+export async function ValidarLiberacao(
+  cliente: number,
+  codigo: string,
+): Promise<ResponseType<iLiberacoes>> {
+  return await LoadLiberacaoCliente(cliente, codigo);
+}
+
+export async function MarcarLiberacaoComoUsada(
+  liberacao: iLiberacoes,
+): Promise<ResponseType<iLiberacoes>> {
+  const agora = dayjs().format('YYYY-MM-DDTHH:mm:ss');
+
+  return await UpdateLiberacao({
+    ...liberacao,
+    USADO: 'S',
+    DATA_HORA: agora,
+  });
 }
 

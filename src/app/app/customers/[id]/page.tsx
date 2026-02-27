@@ -1,11 +1,14 @@
 'use client';
 import { iCredito } from '@/@types';
 import { iCliente, iFinanceiroCliente } from '@/@types/Cliente';
-import { iLiberacoes } from '@/@types/Liberacoes';
 import { iOrcamento } from '@/@types/Orcamento';
 import { iVendedor } from '@/@types/Vendedor';
 import { GetCliente, GetFinanceiroCliente } from '@/app/actions/cliente';
-import { Liberacoes } from '@/app/actions/liberacoes';
+import {
+  MarcarLiberacaoComoUsada,
+  SolicitarLiberacao,
+  ValidarLiberacao,
+} from '@/app/actions/liberacoes';
 import { NewOrcamento } from '@/app/actions/orcamento';
 import ToastNotify from '@/components/ToastNotify';
 import { Button } from '@/components/ui/button';
@@ -128,69 +131,82 @@ function Customers({ params }: iCustomerPage) {
 
   async function GerarOrcamento() {
     setIconLoading(true);
-    let orcID = 0;
-    let codigoLiberacao: string = ContasAtrazadas > 0 ? 'INADIMPLENCIA' : '';
-    codigoLiberacao = LimiteCredito === 0 ? 'LIMITE' : codigoLiberacao;
-    codigoLiberacao =
-      Customer.BLOQUEADO === 'S' ? 'BLOQUEADO' : codigoLiberacao;
 
-    const paramLiberacao: iLiberacoes = {
-      ID: 0,
-      NOME: 'CLIENTE',
-      CODIGO: codigoLiberacao,
-      CHAVE: Customer.CLIENTE,
-      DATA_HORA: '',
-      QUEM: '',
-      USADO: 'N',
-      ONDE: 'PRÉ-VENDA',
-      ID_ONDE: 9.999,
-      OBS: '',
-      MOVIMENTO: 0,
-    };
+    try {
+      const bloqueios: string[] = [];
 
-    console.log('paramLiberacao: ', paramLiberacao);
-    const liberacao = await Liberacoes(paramLiberacao);
+      if (ContasAtrazadas > 0) bloqueios.push('INADIMPLENCIA');
+      if (LimiteCredito <= 0) bloqueios.push('LIMITE');
+      if (Customer.BLOQUEADO === 'S') bloqueios.push('BLOQUEADO');
 
-    if (
-      ContasAtrazadas > 0 &&
-      liberacao.value !== undefined &&
-      liberacao.value?.USADO == 'S' &&
-      liberacao.value.ID_ONDE != 9999
-    ) {
-      setIconLoading(false);
-      ToastNotify({
-        message: `Cliente ${Customer?.NOME} possuí contas em aberto!`,
-        type: 'error',
-      });
-      return;
-    }
+      for (const codigo of bloqueios) {
+        const result = await ValidarLiberacao(Customer.CLIENTE, codigo);
 
-    if (Customer?.BLOQUEADO === 'S') {
-      setIconLoading(false);
-      ToastNotify({
-        message: `Cliente está bloqueado!`,
-        type: 'error',
-      });
-      return;
-    }
+        const liberacao = result.value;
 
-    NewOrcamento({
-      ...NewAddOrcamento,
-      CLIENTE: Customer!,
-      TABELA: Customer!.Tabela,
-    })
-      .then((res) => {
-        if (res.value !== undefined) {
-          orcID = res.value.ORCAMENTO;
+        // ❌ Não existe → solicitar e parar
+        if (!liberacao) {
+          await SolicitarLiberacao({
+            ID: 0,
+            NOME: 'CLIENTE',
+            CODIGO: codigo,
+            CHAVE: Customer.CLIENTE,
+            DATA_HORA: '',
+            QUEM: '',
+            USADO: 'N',
+            ONDE: 'PRÉ-VENDA',
+            ID_ONDE: 9999,
+            OBS: '',
+            MOVIMENTO: 0,
+          });
+
+          ToastNotify({
+            message: `Solicitação enviada para ${codigo}.`,
+            type: 'warning',
+          });
+
+          return;
         }
-      })
-      .catch((err) => {})
-      .finally(() => {
-        setIconLoading(false);
-        router.push(`/app/budgets/${orcID}`);
-      });
-  }
 
+        // ⏳ Aguardando ERP
+        if (liberacao.ID_ONDE === 9999) {
+          ToastNotify({
+            message: `Aguardando liberação do ERP (${codigo}).`,
+            type: 'warning',
+          });
+
+          return;
+        }
+
+        // 🔥 ERP liberou → apenas marcar como usado se necessário
+        if (liberacao.USADO === 'N') {
+          await MarcarLiberacaoComoUsada(liberacao);
+        }
+
+        // IMPORTANTE:
+        // Não validar novamente
+        // Não bloquear aqui
+      }
+
+      // ✅ Se chegou aqui, todos estão liberados
+      const res = await NewOrcamento({
+        ...NewAddOrcamento,
+        CLIENTE: Customer!,
+        TABELA: Customer!.Tabela,
+      });
+
+      if (res.value) {
+        router.push(`/app/budgets/${res.value.ORCAMENTO}`);
+      }
+    } catch (err: any) {
+      ToastNotify({
+        message: err.message,
+        type: 'error',
+      });
+    } finally {
+      setIconLoading(false);
+    }
+  }
   // Carrega o item quando o componente monta ou o 'item' prop muda
   const loadData = async () => {
     try {

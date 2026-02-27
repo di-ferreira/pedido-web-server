@@ -81,3 +81,19 @@ export function removeStorage(key: string): void {
   localStorage.removeItem(key);
 }
 
+export function toIntSafe(value: unknown): number {
+  if (value === null || value === undefined) return 0;
+
+  const cleaned = String(value)
+    .replace(/\./g, '') // remove separador de milhar
+    .replace(',', '.'); // caso venha decimal pt-BR
+
+  const parsed = Number(cleaned);
+
+  if (!Number.isFinite(parsed)) {
+    throw new Error(`Valor inválido para inteiro: ${value}`);
+  }
+
+  return Math.trunc(parsed);
+}
+

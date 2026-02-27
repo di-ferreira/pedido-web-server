@@ -1,14 +1,15 @@
 'use client';
 import { iSearch, ResponseType } from '@/@types';
-import { iCliente } from '@/@types/Cliente';
+import { iCliente, iFinanceiroCliente } from '@/@types/Cliente';
 import { iFilter, iFilterQuery } from '@/@types/Filter';
 import { iOrcamento } from '@/@types/Orcamento';
 import { iColumnType, iDataResultTable } from '@/@types/Table';
 import { iVendedor } from '@/@types/Vendedor';
 import {
   GetClienteFromVendedor,
-  GetPGTOsAtrazados,
+  GetFinanceiroCliente,
 } from '@/app/actions/cliente';
+import { Liberacoes } from '@/app/actions/liberacoes';
 import { NewOrcamento } from '@/app/actions/orcamento';
 import { DataTable } from '@/components/CustomDataTable';
 import ErrorMessage from '@/components/ErrorMessage';
@@ -142,53 +143,81 @@ function DataTableCustomer() {
           className='cursor-pointer text-emsoft_orange-main hover:text-emsoft_orange-light'
           size='xl'
           title='Gerar Orçamento'
-          onClick={() => {
-            let orcID = 0;
+          onClick={async () => {
             setIconLoading(true);
+            let orcID = 0;
 
-            GetPGTOsAtrazados(item.CLIENTE)
-              .then((res) => {
-                const contasAtrazadas = res.value[0]?.VALOR ?? 0;
+            try {
+              const resultFinanceiro = await GetFinanceiroCliente(item.CLIENTE);
 
-                if (contasAtrazadas > 0) {
+              if (resultFinanceiro.error) {
+                throw new Error(resultFinanceiro.error.message);
+              }
+
+              const financeiro: iFinanceiroCliente = resultFinanceiro.value!;
+
+              // 🔎 Detecta TODOS os bloqueios
+              const bloqueios: string[] = [];
+
+              if (financeiro.ContasAtrazadas > 0)
+                bloqueios.push('INADIMPLENCIA');
+
+              if (financeiro.LimiteCredito <= 0) bloqueios.push('LIMITE');
+
+              if (item.BLOQUEADO === 'S') bloqueios.push('BLOQUEADO');
+
+              // 🔥 Valida cada bloqueio separadamente
+              for (const codigo of bloqueios) {
+                const liberacao = await Liberacoes({
+                  ID: 0,
+                  NOME: 'CLIENTE',
+                  CODIGO: codigo,
+                  CHAVE: item.CLIENTE,
+                  DATA_HORA: '',
+                  QUEM: '',
+                  USADO: 'N',
+                  ONDE: 'PRÉ-VENDA',
+                  ID_ONDE: 9999,
+                  OBS: '',
+                  MOVIMENTO: 0,
+                });
+
+                if (
+                  !liberacao.value ||
+                  liberacao.value.USADO !== 'S' ||
+                  liberacao.value.ID_ONDE === 9999
+                ) {
                   ToastNotify({
-                    message: `Cliente ${item.NOME} possuí contas em aberto!`,
+                    message: `Cliente ${item.NOME} possui bloqueio de ${codigo} não liberado.`,
                     type: 'error',
                   });
-                  return;
-                }
 
-                if (item.BLOQUEADO === 'S') {
-                  ToastNotify({
-                    message: `Cliente ${item.NOME} está bloqueado!`,
-                    type: 'error',
-                  });
                   setIconLoading(false);
                   return;
                 }
+              }
 
-                NewAddOrcamento = {
-                  ...NewAddOrcamento,
-                  TABELA: item.Tabela,
-                  CLIENTE: item,
-                };
+              // ✅ Se passou por todos bloqueios → criar orçamento
+              const novoOrcamento = {
+                ...NewAddOrcamento,
+                TABELA: item.Tabela,
+                CLIENTE: item,
+              };
 
-                NewOrcamento(NewAddOrcamento)
-                  .then((res) => {
-                    if (res.value !== undefined) {
-                      orcID = res.value.ORCAMENTO;
-                    }
-                  })
-                  .catch((err) => {})
-                  .finally(() => {
-                    setIconLoading(false);
-                    router.push(`/app/budgets/${orcID}`);
-                  });
-              })
-              .catch((err) => {})
-              .finally(() => {
-                setIconLoading(false);
+              const res = await NewOrcamento(novoOrcamento);
+
+              if (res.value) {
+                orcID = res.value.ORCAMENTO;
+                router.push(`/app/budgets/${orcID}`);
+              }
+            } catch (err: any) {
+              ToastNotify({
+                message: err.message,
+                type: 'error',
               });
+            } finally {
+              setIconLoading(false);
+            }
           }}
         />
       </span>
