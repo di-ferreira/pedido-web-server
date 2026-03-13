@@ -27,10 +27,12 @@ type VendaDashboard = {
 
 const Dashboard = async () => {
   const Vendas = await getVendasDashboard();
-
+  console.log('Vendas dashboard', Vendas);
   const lastSell = await getLastVenda();
+  console.log('lastSell dashboard', lastSell);
 
   const dataTotalSell = await getDataTotalVenda();
+  console.log('dataTotalSell dashboard', dataTotalSell);
 
   const customerListDebit = await GetClientesPgtoEmAberto();
   let singleSeries = { name: 'Vendas', data: [10, 41, 35, 51, 49, 62, 69] };
@@ -99,9 +101,9 @@ const Dashboard = async () => {
               String(
                 listaVendas
                   ? listaVendas.reduce(
-                      (total, venda) => total + venda.TOTAL_VENDAS,
-                      0
-                    )
+                    (total, venda) => total + venda.TOTAL_VENDAS,
+                    0
+                  )
                   : 0
               )
             )}

@@ -77,7 +77,7 @@ export async function GetOrcamentosFromVendedor(
             value: VendedorLocal,
           },
         ];
-  console.log('filterVendedor: ', filterVendedor);
+  console.log(': ', filterVendedor);
 
   filter !== undefined
     ? QueryBuilder.where({
