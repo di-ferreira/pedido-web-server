@@ -3,7 +3,7 @@ import { iCliente } from '@/@types/Cliente';
 import { iItemInserir, iItensOrcamento, iOrcamento } from '@/@types/Orcamento';
 import { iListaSimilare, iProduto, iSaleHistory } from '@/@types/Produto';
 import { iColumnType, iDataResultTable } from '@/@types/Table';
-import { addItem, GetOrcamento, updateItem } from '@/app/actions/orcamento';
+import { GetOrcamento, addItem, updateItem } from '@/app/actions/orcamento';
 import {
   GetNewPriceFromTable,
   GetProductPromotion,
@@ -13,9 +13,9 @@ import {
 } from '@/app/actions/produto';
 import { DataTable } from '@/components/CustomDataTable';
 import { Loading } from '@/components/Loading';
+import ToastNotify from '@/components/ToastNotify';
 import { SearchProductsModal } from '@/components/products/SearchProductsModal';
 import SuperSearchProducts from '@/components/products/SuperSearchProduct';
-import ToastNotify from '@/components/ToastNotify';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -258,6 +258,7 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
           { key: 'ATIVO', value: 'S', typeCondition: 'and', typeSearch: 'eq' },
         ],
       });
+      console.log('products: ', products);
 
       if (products.value !== undefined && products.value.Qtd_Registros > 0) {
         const filteredProducts = products.value.value.filter(
