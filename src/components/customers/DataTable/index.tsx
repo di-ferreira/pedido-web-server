@@ -79,11 +79,10 @@ function DataTableCustomer() {
       filter: MountQueryFilter(filter),
     })
       .then((res) => {
-        console.log('res', res);
         setData(res);
         setLoading(false);
       })
-      .catch((err) => { })
+      .catch((err) => {})
       .finally(() => {
         setLoading(false);
       });
@@ -93,11 +92,10 @@ function DataTableCustomer() {
     setLoading(true);
     GetClienteFromVendedor(filter)
       .then((res) => {
-        console.log('res', res);
         setData(res);
         setLoading(false);
       })
-      .catch((err) => { })
+      .catch((err) => {})
       .finally(() => {
         setLoading(false);
       });
@@ -151,7 +149,6 @@ function DataTableCustomer() {
 
             try {
               const resultFinanceiro = await GetFinanceiroCliente(item.CLIENTE);
-              console.log('resultFinanceiro', resultFinanceiro);
               if (resultFinanceiro.error) {
                 throw new Error(resultFinanceiro.error.message);
               }
@@ -183,7 +180,6 @@ function DataTableCustomer() {
                   OBS: '',
                   MOVIMENTO: 0,
                 });
-                console.log('liberacao', liberacao);
                 if (
                   !liberacao.value ||
                   liberacao.value.USADO !== 'S' ||
@@ -207,7 +203,6 @@ function DataTableCustomer() {
               };
 
               const res = await NewOrcamento(novoOrcamento);
-              console.log('novoOrcamento res', res);
               if (res.value) {
                 orcID = res.value.ORCAMENTO;
                 router.push(`/app/budgets/${orcID}`);

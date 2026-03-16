@@ -152,7 +152,6 @@ export async function UpdateLiberacao(
   liberacao: iLiberacoes,
 ): Promise<ResponseType<iLiberacoes>> {
   const tokenCookie = await getCookie('token');
-  console.log('liberacao update: ', liberacao);
 
   const response = await CustomFetch<iApiResult<iLiberacoes>>(
     `${ROUTE_GET_ALL_LIBERACOES}(${liberacao.ID})`,
@@ -169,7 +168,6 @@ export async function UpdateLiberacao(
     },
   );
 
-  console.log('response: ', response.body);
   if (response.status !== 200) {
     return {
       value: undefined,
@@ -216,7 +214,6 @@ export async function LoadLiberacao(
     value: response.body!.value,
   };
 
-  console.log('response load Liberação: ', response.body);
   if (response.status !== 200) {
     return {
       value: undefined,

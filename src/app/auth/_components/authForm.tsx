@@ -36,7 +36,6 @@ export function AuthForm() {
       vendedor: Number(vendedorCode),
       password: vendedorPasswordHashed,
     });
-    console.log('login', login);
 
     if (login.value === undefined) {
       ToastNotify({

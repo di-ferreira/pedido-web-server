@@ -258,7 +258,6 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
           { key: 'ATIVO', value: 'S', typeCondition: 'and', typeSearch: 'eq' },
         ],
       });
-      console.log('products: ', products);
 
       if (products.value !== undefined && products.value.Qtd_Registros > 0) {
         const filteredProducts = products.value.value.filter(

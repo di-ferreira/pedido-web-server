@@ -64,7 +64,6 @@ export async function GetOrcamentosFromVendedor(
     'ItensOrcamento/PRODUTO',
   );
 
-  console.log('Vendedor: ', Vendedor);
   const filterVendedor: Array<
     FilterCondition<iOrcamento> | FilterGroup<iOrcamento>
   > =
@@ -77,7 +76,6 @@ export async function GetOrcamentosFromVendedor(
             value: VendedorLocal,
           },
         ];
-  console.log(': ', filterVendedor);
 
   filter !== undefined
     ? QueryBuilder.where({
@@ -122,7 +120,6 @@ export async function GetOrcamentosFromVendedor(
         .orderBy('ORCAMENTO', 'desc');
 
   const FILTER = QueryBuilder.build();
-  console.log('FILTER: ', FILTER);
 
   const response = await CustomFetch<{
     '@xdata.count': number;
