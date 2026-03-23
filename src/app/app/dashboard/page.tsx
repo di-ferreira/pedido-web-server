@@ -33,6 +33,11 @@ const Dashboard = async () => {
   let singleSeries = { name: 'Vendas', data: [10, 41, 35, 51, 49, 62, 69] };
   let categories = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'];
 
+  console.log('Vendas', Vendas);
+  console.log('lastSell', lastSell);
+  console.log('dataTotalSell', dataTotalSell);
+  console.log('customerListDebit', customerListDebit);
+
   if (
     Vendas.value === undefined ||
     lastSell.value === undefined ||

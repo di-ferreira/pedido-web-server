@@ -1,12 +1,12 @@
-import { getCookie } from 'cookies-next';
+import { KEY_NAME_TOKEN } from '@/constants';
 import { cookies } from 'next/headers';
 import Image from 'next/image';
 import { redirect } from 'next/navigation';
 import Logo from '../../../public/logo.png';
 import { AuthForm } from './_components/authForm';
 
-export default function Page() {
-  const tokenCookie = getCookie('token', { cookies });
+export default async function Page() {
+  const tokenCookie = (await cookies()).get(`${KEY_NAME_TOKEN}token`)?.value;
   if (tokenCookie !== undefined) {
     redirect('/app/dashboard');
   }

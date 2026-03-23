@@ -1,5 +1,5 @@
+import { KEY_NAME_TOKEN } from '@/constants';
 import { cn } from '@/lib/utils';
-import { getCookie } from 'cookies-next';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import React from 'react';
@@ -11,7 +11,7 @@ interface Props {
 }
 
 const SessionWrapper = ({ children, classname }: Props) => {
-  const tokenCookie = getCookie('token', { cookies });
+  const tokenCookie = cookies().get(`${KEY_NAME_TOKEN}token`)?.value;
 
   if (tokenCookie === undefined) {
     redirect('/auth');
@@ -22,7 +22,7 @@ const SessionWrapper = ({ children, classname }: Props) => {
       <main
         className={cn(
           'flex flex-col w-full overflow-x-hidden overflow-y-auto  min-h-full bg-gray-300',
-          classname
+          classname,
         )}
       >
         {children}
