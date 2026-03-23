@@ -102,7 +102,6 @@ export async function getVendasDashboard() {
       Authorization: `bearer ${tokenCookie}`,
     },
   });
-  console.log('getVendasDashboard res', res);
 
   if (res.status !== 200) {
     return {
