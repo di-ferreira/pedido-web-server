@@ -1,6 +1,6 @@
 'use server';
 
-import { iCredito, iSelectSQL, ResponseSQL, ResponseType } from '@/@types';
+import { iCredito, ResponseSQL, ResponseType } from '@/@types';
 import { iCliente, iFinanceiroCliente, iPgtoEmAberto } from '@/@types/Cliente';
 import { iFilter } from '@/@types/Filter';
 import { iDataResultTable } from '@/@types/Table';
@@ -203,25 +203,10 @@ export async function GetCliente(
 export async function GetPGTOsAtrazados(cliente: number) {
   const tokenCookie = await getCookie('token');
 
-  const body: string = JSON.stringify({
-    pSQL: SQL_PGTO_ATRAZO,
-    pPar: [
-      {
-        ParamName: 'CLIENTE',
-        ParamType: 'ftInteger',
-        ParamValues: [cliente],
-      },
-      {
-        ParamName: 'DATA',
-        ParamType: 'ftString',
-        ParamValues: [String(dayjs().format('YYYY-MM-DD'))],
-      },
-    ],
-  } as iSelectSQL);
+  const sql: string = `SELECT COUNT(R.REGISTRO) AS QTD, SUM(R.RESTA) AS VALOR FROM CTS R JOIN CAR C ON (C.CARTAO=R.TIPO) WHERE R.CONTA IN ('R','C') AND R.RESTA > 0 AND R.VENCIMENTO < '${dayjs().format('YYYY-MM-DD')}' AND R.CLIENTE=${cliente} AND COALESCE(C.financeiro_cliente,'N')='S' AND R.CANCELADO='N'`;
 
-  const response = await CustomFetch<any>(`${ROUTE_SELECT_SQL}`, {
-    method: 'POST',
-    body: body,
+  const response = await CustomFetch<any>(`${ROUTE_SELECT_SQL}?pSQL=${sql}`, {
+    method: 'GET',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `bearer ${tokenCookie}`,
@@ -247,25 +232,10 @@ export async function GetPGTOsAtrazados(cliente: number) {
 export async function GetPGTOsNaoVencidos(cliente: number) {
   const tokenCookie = await getCookie('token');
 
-  const body: string = JSON.stringify({
-    pSQL: SQL_PGTO_NAO_VENCIDAS,
-    pPar: [
-      {
-        ParamName: 'CLIENTE',
-        ParamType: 'ftInteger',
-        ParamValues: [cliente],
-      },
-      {
-        ParamName: 'DATA',
-        ParamType: 'ftString',
-        ParamValues: [String(dayjs().format('YYYY-MM-DD'))],
-      },
-    ],
-  } as iSelectSQL);
+  const sql: string = `SELECT COUNT(R.REGISTRO) AS QTD, SUM(R.RESTA) AS VALOR FROM CTS R JOIN CAR C ON (C.CARTAO=R.TIPO) WHERE R.CONTA IN ('C','R') AND R.RESTA>0 AND R.VENCIMENTO>='${String(dayjs().format('YYYY-MM-DD'))}' AND R.CLIENTE='${cliente}' AND COALESCE(C.financeiro_cliente,'N')='S' AND R.CANCELADO='N'`;
 
-  const response = await CustomFetch<any>(`${ROUTE_SELECT_SQL}`, {
-    method: 'POST',
-    body: body,
+  const response = await CustomFetch<any>(`${ROUTE_SELECT_SQL}?pSQL=${sql}`, {
+    method: 'GET',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `bearer ${tokenCookie}`,
@@ -291,22 +261,12 @@ export async function GetPGTOsNaoVencidos(cliente: number) {
 export async function GetPGTOsEmAberto(cliente: number) {
   const tokenCookie = await getCookie('token');
 
-  const body: string = JSON.stringify({
-    pSQL: SQL_CONTAS_ABERTAS,
-    pPar: [
-      {
-        ParamName: 'CLIENTE',
-        ParamType: 'ftInteger',
-        ParamValues: [cliente],
-      },
-    ],
-  } as iSelectSQL);
+  const sql: string = `select R.VENCIMENTO, R.DATA, R.TIPO, R.HISTORICO, cast('TODAY' as date) - R.VENCIMENTO as ATRASO, R.RESTA, R.DOC, R.EMISSAO_BOLETO from CTS R LEFT OUTER JOIN CAR C ON (C.cartao=R.tipo) where R.CONTA in ('R', 'C') and R.CANCELADO = 'N' and COALESCE(C.financeiro_cliente,'N')='S' AND R.CLIENTE = ${cliente} and R.RESTA <> 0 order by 1`;
 
   const response = await CustomFetch<ResponseSQL<iPgtoEmAberto[]>>(
-    `${ROUTE_SELECT_SQL}`,
+    `${ROUTE_SELECT_SQL}?pSQL=${sql}`,
     {
-      method: 'POST',
-      body: body,
+      method: 'GET',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `bearer ${tokenCookie}`,
@@ -333,22 +293,6 @@ export async function GetPGTOsEmAberto(cliente: number) {
 export async function GetClientesPgtoEmAberto() {
   const tokenCookie = await getCookie('token');
   const VendedorLocal: string = await getCookie('user');
-
-  const body: string = JSON.stringify({
-    pSQL: SQL_CLIENTES_EM_ABERTO,
-    pPar: [
-      {
-        ParamName: 'VENDEDOR',
-        ParamType: 'ftInteger',
-        ParamValues: [VendedorLocal],
-      },
-      {
-        ParamName: 'DATA',
-        ParamType: 'ftString',
-        ParamValues: [String(dayjs().format('YYYY-MM-DD'))],
-      },
-    ],
-  } as iSelectSQL);
 
   const sql: string = `select CL.nome as NOME_CLIENTE, sum(R.RESTA) as VALOR from CTS R join CAR C on (C.CARTAO = R.TIPO) join CLI CL on (CL.cliente = R.cliente) where R.CONTA in ('R', 'C') and (R.id_vendedor1 = ${VendedorLocal} or R.id_vendedor2 = ${VendedorLocal}) and R.RESTA > 0 and R.VENCIMENTO < ${String(dayjs().format('YYYY-MM-DD'))} and coalesce(C.FINANCEIRO_CLIENTE, 'N') = 'S' and R.CANCELADO = 'N' group by NOME_CLIENTE order by 2 desc`;
 
@@ -446,6 +390,7 @@ export async function GetFinanceiroCliente(
       error: undefined,
     };
   } catch (err: any) {
+    console.error('err', err);
     return {
       value: undefined,
       error: err.message,

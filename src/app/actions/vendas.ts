@@ -3,8 +3,10 @@
 import { iFilter } from '@/@types/Filter';
 import { iMovimento } from '@/@types/PreVenda';
 import { iDataResultTable } from '@/@types/Table';
+import { ODataQueryBuilder } from '@/lib/queryFilter';
 import { CustomFetch } from '@/services/api';
 import { getCookie } from '.';
+import { VendasMetadata } from './const_metadatas';
 
 const ROUTE_GET_ALL_PRE_VENDA = '/Movimento';
 const ROUTE_SELECT_SQL = '/ServiceSistema/SelectSQL';
@@ -150,7 +152,23 @@ export async function getLastVenda() {
   const VendedorLocal: string = await getCookie('user');
   const tokenCookie = await getCookie('token');
 
-  const FILTER = `?$filter=VENDEDOR eq ${VendedorLocal} and TIPOMOV eq 'VENDA' and CANCELADO eq 'N'&$top=1&$inlinecount=allpages&$orderby=DATA desc&$expand=CLIENTE,VENDEDOR,Itens_List,Itens_List/PRODUTO`;
+  //const FILTER = `?$filter=VENDEDOR eq ${VendedorLocal} and TIPOMOV eq 'VENDA' and CANCELADO eq 'N'&$top=1&$inlinecount=allpages&$orderby=DATA desc&$expand=CLIENTE,VENDEDOR,Itens_List,Itens_List/PRODUTO`;
+
+  const QueryBuilder = new ODataQueryBuilder<iMovimento>(VendasMetadata)
+    // .select('TOTAL')
+    .where({
+      operator: 'and',
+      conditions: [
+        { key: 'VENDEDOR', value: VendedorLocal, operator: 'eq' },
+        { key: 'TIPOMOV', value: 'VENDA', operator: 'eq' },
+        { key: 'CANCELADO', value: 'N', operator: 'eq' },
+      ],
+    })
+    .top(1)
+    .orderBy('DATA', 'desc')
+    .expand(['CLIENTE', 'VENDEDOR', 'Itens_List', 'Itens_List/PRODUTO']);
+
+  const FILTER = QueryBuilder.build();
 
   const response = await CustomFetch<{
     '@xdata.count': number;
