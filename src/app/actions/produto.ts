@@ -19,34 +19,24 @@ interface iReqSuperBusca {
   PularRegistros?: number;
   QuantidadeRegistros?: number;
 }
-const SQL_NEW_PRICE_FROM_TABLE = `select 
-                                  E.PRODUTO,
-                                  E.PRECO, cast(E.PRECO * ((T.PERCENTUAL / 100) + 1) as numeric(10,2)) as NOVO_PRECO
-                                  from EST E
-                                  join TAB T on (T.TABELA = :TABELA)
-                                  where E.PRODUTO = :PRODUTO `;
+const SQL_NEW_PRICE_FROM_TABLE = (produto: string, tabela: string) =>
+  `select E.PRODUTO, E.PRECO, cast(E.PRECO * ((T.PERCENTUAL / 100) + 1) as numeric(10,2)) as NOVO_PRECO from EST E join TAB T on (T.TABELA = ${tabela}) where E.PRODUTO = ${produto} `;
 
-const SQL_PRODUCTS_PROMOTION = `select  E.PRODUTO,
-                                        E.REFERENCIA,
-                                        e.nome,
-                                        e.preco,
-                                        e.qtdatual,
-                                        P.valor as OFERTA,
-                                        p.validade
-                                from EST E
-                                join promocao p on (p.produto = e.produto)
-                                where p.validade >= 'TODAY' and
-                                e.produto = :PRODUTO
-                                order by 6`;
+const SQL_PRODUCTS_PROMOTION = (produto: string) =>
+  `select  E.PRODUTO, E.REFERENCIA, e.nome, e.preco, e.qtdatual, P.valor as OFERTA, p.validade from EST E join promocao p on (p.produto = e.produto) where p.validade >= 'TODAY' and e.produto = ${produto} order by 6`;
 
-const SQL_MWM =
-  "select TRIM(T.TABELA) AS TABELA, CAST((E.fab_bruto - ((E.fab_bruto*T.PERCENTUAL)/100)) AS NUMERIC(10,2)) AS NOVO_PRECO, T.bloqueada AS BLOQUEADO from tabela_mwm T, EST E WHERE E.PRODUTO=:PRODUTO AND TRIM(T.TABELA) <> '%%'";
-const SQL_NORMAL =
-  'select T.TABELA, CAST((E.PRECO + ((E.PRECO*T.PERCENTUAL)/100)) AS NUMERIC(10,2)) AS PRECO, T.BLOQUEADO from TAB T, EST E ' +
-  'WHERE E.PRODUTO = :PRODUTO AND (((SELECT COUNT(*) FROM fab_tab F WHERE F.fabricante = E.fabricante)=0) OR ( T.TABELA IN (SELECT' +
-  ' F.TABELA FROM FAB_TAB F WHERE E.fabricante = F.fabricante AND F.tabela = T.tabela)))';
-const SQL_2D =
-  "SELECT 'TAB01' AS TABELA, fab_liquido1 AS NOVO_PRECO  FROM EST E  WHERE E.PRODUTO = :PRODUTO AND E.fab_liquido1 > 0 UNION  SELECT 'TAB02' AS TABELA, fab_liquido2 AS NOVO_PRECO FROM EST E  WHERE E.PRODUTO = :PRODUTO AND E.fab_st > 0";
+const SQL_MWM = (produto: string) => {
+  return `select TRIM(T.TABELA) AS TABELA, CAST((E.fab_bruto - ((E.fab_bruto*T.PERCENTUAL)/100)) AS NUMERIC(10,2)) AS NOVO_PRECO, T.bloqueada AS BLOQUEADO from tabela_mwm T, EST E WHERE E.PRODUTO=${produto} AND TRIM(T.TABELA) <> '%%'`;
+};
+
+const SQL_NORMAL = (produto: string) => {
+  return `select T.TABELA, CAST((E.PRECO + ((E.PRECO*T.PERCENTUAL)/100)) AS NUMERIC(10,2)) AS PRECO, T.BLOQUEADO from TAB T, EST E  WHERE E.PRODUTO = ${produto} AND (((SELECT COUNT(*) FROM fab_tab F WHERE F.fabricante = E.fabricante)=0) OR ( T.TABELA IN (SELECT F.TABELA FROM FAB_TAB F WHERE E.fabricante = F.fabricante AND F.tabela = T.tabela)))`;
+};
+
+const SQL_2D = (produto: string) => {
+  return `SELECT 'TAB01' AS TABELA, fab_liquido1 AS NOVO_PRECO  FROM EST E  WHERE E.PRODUTO = ${produto} AND E.fab_liquido1 > 0 UNION  SELECT 'TAB02' AS TABELA, fab_liquido2 AS NOVO_PRECO FROM EST E  WHERE E.PRODUTO = ${produto} AND E.fab_st > 0`;
+};
+
 const ROUTE_SUPER_BUSCA = '/ServiceProdutos/SuperBusca';
 const ROUTE_SELECT_SQL = '/ServiceSistema/SelectSQL';
 const ROUTE_ESTOQUE_LOJAS = '/EstoqueFiliais';
@@ -299,26 +289,15 @@ export async function TableFromProduct(
   const tokenCookie = await getCookie('token');
   let tabelas: iTabelaVenda[] = [];
 
-  let sql: string = SQL_NORMAL;
+  let sql: string = SQL_NORMAL(product.PRODUTO);
 
   if (product.FAB_BRUTO > 0 && product.FABRICANTE?.NOME === 'MWM')
-    sql = SQL_MWM;
-  if (product.FAB_BRUTO > 0 && product.FABRICANTE?.NOME !== 'MWM') sql = SQL_2D;
+    sql = SQL_MWM(product.PRODUTO);
+  if (product.FAB_BRUTO > 0 && product.FABRICANTE?.NOME !== 'MWM')
+    sql = SQL_2D(product.PRODUTO);
 
-  const body: string = JSON.stringify({
-    pSQL: sql,
-    pPar: [
-      {
-        ParamName: 'PRODUTO',
-        ParamType: 'ftString',
-        ParamValues: [product.PRODUTO],
-      },
-    ],
-  });
-
-  const res = await CustomFetch<any>(`${ROUTE_SELECT_SQL}`, {
-    method: 'POST',
-    body: body,
+  const res = await CustomFetch<any>(`${ROUTE_SELECT_SQL}?pSQL=${sql}`, {
+    method: 'GET',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `bearer ${tokenCookie}`,
@@ -363,25 +342,10 @@ export async function GetNewPriceFromTable(
 ): Promise<ResponseType<number>> {
   const tokenCookie = await getCookie('token');
 
-  const body: string = JSON.stringify({
-    pSQL: SQL_NEW_PRICE_FROM_TABLE,
-    pPar: [
-      {
-        ParamName: 'PRODUTO',
-        ParamType: 'ftString',
-        ParamValues: [product.PRODUTO],
-      },
-      {
-        ParamName: 'TABELA',
-        ParamType: 'ftString',
-        ParamValues: [table],
-      },
-    ],
-  });
+  const sql: string = SQL_NEW_PRICE_FROM_TABLE(product.PRODUTO, table);
 
-  const res = await CustomFetch<any>(`${ROUTE_SELECT_SQL}`, {
-    method: 'POST',
-    body: body,
+  const res = await CustomFetch<any>(`${ROUTE_SELECT_SQL}?pSQL=${sql}`, {
+    method: 'GET',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `bearer ${tokenCookie}`,
@@ -419,20 +383,10 @@ export async function GetProductPromotion(
 ): Promise<ResponseType<iProductPromotion>> {
   const tokenCookie = await getCookie('token');
 
-  const body: string = JSON.stringify({
-    pSQL: SQL_PRODUCTS_PROMOTION,
-    pPar: [
-      {
-        ParamName: 'PRODUTO',
-        ParamType: 'ftString',
-        ParamValues: [product.PRODUTO],
-      },
-    ],
-  });
+  const sql: string = SQL_PRODUCTS_PROMOTION(product.PRODUTO);
 
-  const res = await CustomFetch<any>(`${ROUTE_SELECT_SQL}`, {
-    method: 'POST',
-    body: body,
+  const res = await CustomFetch<any>(`${ROUTE_SELECT_SQL}?pSQL=${sql}`, {
+    method: 'GET',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `bearer ${tokenCookie}`,
