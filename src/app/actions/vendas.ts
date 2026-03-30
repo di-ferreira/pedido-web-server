@@ -166,7 +166,7 @@ export async function getLastVenda() {
     })
     .top(1)
     .orderBy('DATA', 'desc')
-    .expand(['CLIENTE', 'VENDEDOR', 'Itens_List', 'Itens_List/PRODUTO']);
+    .expand('CLIENTE', 'VENDEDOR', 'Itens_List', 'Itens_List/PRODUTO');
 
   const FILTER = QueryBuilder.build();
 
