@@ -18,6 +18,7 @@ import { Loading } from '@/components/Loading';
 import ToastNotify from '@/components/ToastNotify';
 import { KEY_NAME_TABLE_PAGINATION } from '@/constants';
 import { removeStorage } from '@/lib/utils';
+import { useBudget } from '@/store';
 import {
   faFileLines,
   faSpinner,
@@ -31,6 +32,7 @@ import { headers } from './columns';
 
 function DataTableCustomer() {
   const router = useRouter();
+  const budget = useBudget();
   const [data, setData] = useState<ResponseType<iDataResultTable<iCliente>>>(
     {},
   );
@@ -205,6 +207,7 @@ function DataTableCustomer() {
               const res = await NewOrcamento(novoOrcamento);
               if (res.value) {
                 orcID = res.value.ORCAMENTO;
+                budget.setCurrent(res.value);
                 router.push(`/app/budgets/${orcID}`);
               }
             } catch (err: any) {

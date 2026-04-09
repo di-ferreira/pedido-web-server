@@ -6,7 +6,7 @@ interface ModalState {
   closeModal: (itemId: string) => void;
 }
 
-export const useModalStore = create<ModalState>((set) => ({
+const useModalStore = create<ModalState>((set) => ({
   modals: {},
   openModal: (itemId) =>
     set((state) => ({
@@ -18,8 +18,10 @@ export const useModalStore = create<ModalState>((set) => ({
         Object.entries(state.modals).map(([key, value]) => [
           key,
           { ...value, isVisible: false },
-        ])
+        ]),
       ),
     })),
 }));
+
+export default useModalStore;
 

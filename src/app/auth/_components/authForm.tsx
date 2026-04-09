@@ -4,7 +4,7 @@ import ToastNotify from '@/components/ToastNotify';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { generateHash } from '@/lib/utils';
-import useUser from '@/store';
+import { useUser } from '@/store';
 import {
   faLock,
   faRightToBracket,

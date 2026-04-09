@@ -11,6 +11,7 @@ import Filter from '@/components/Filter';
 import { Loading } from '@/components/Loading';
 import { KEY_NAME_TABLE_PAGINATION } from '@/constants';
 import { removeStorage } from '@/lib/utils';
+import { useBudget } from '@/store';
 import {
   faEdit,
   faFileLines,
@@ -20,12 +21,15 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import dayjs from 'dayjs';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useState } from 'react';
 import { ModalEditBudgetItem } from '../budgetItens/EditBudgetIten/ModalEditBudgetItem';
 import GeneratePDF from '../PdfViewer/PdfButton';
 import RemoveBudget from '../RemoveBudget/FormRemoveBudget';
 
 function DataTableBudget() {
+  const budget = useBudget();
+  const router = useRouter();
   const [data, setData] = useState<ResponseType<iDataResultTable<iOrcamento>>>(
     {},
   );
@@ -104,6 +108,11 @@ function DataTableBudget() {
         });
   }, []);
 
+  const EditBudget = (item: iOrcamento) => {
+    budget.setCurrent(item);
+    router.push(`/app/budgets/${item.ORCAMENTO}`);
+  };
+
   const headers: iColumnType<iOrcamento>[] = [
     {
       key: 'ORCAMENTO',
@@ -143,50 +152,51 @@ function DataTableBudget() {
       key: 'acoes',
       title: 'AÇÕES',
       width: '5rem',
-      render: (_, item) => (
-        <span className='flex w-full items-center justify-center gap-x-5'>
-          <Link href={`/app/pre-sales/${item.ORCAMENTO}`}>
-            <FontAwesomeIcon
-              icon={faFileLines}
-              className='text-emsoft_success-main hover:text-emsoft_success-light'
-              size='xl'
-              title='Gerar Pré-venda'
-            />
-          </Link>
+      render: (_, item) => {
+        return (
+          <span className='flex w-full items-center justify-center gap-x-5'>
+            <Link href={`/app/pre-sales/${item.ORCAMENTO}`}>
+              <FontAwesomeIcon
+                icon={faFileLines}
+                className='text-emsoft_success-main hover:text-emsoft_success-light'
+                size='xl'
+                title='Gerar Pré-venda'
+              />
+            </Link>
 
-          <Link href={`/app/budgets/${item.ORCAMENTO}`}>
             <FontAwesomeIcon
               icon={faEdit}
-              className='text-emsoft_orange-main hover:text-emsoft_orange-light'
+              className='text-emsoft_orange-main hover:text-emsoft_orange-light cursor-pointer'
               size='xl'
               title='Editar'
+              onClick={() => EditBudget(item)}
             />
-          </Link>
-          <ModalEditBudgetItem
-            modalTitle={`Orçamento ${item.ORCAMENTO}`}
-            buttonIcon={faFilePdf}
-            buttonStyle='bg-transparent hover:bg-transparent m-0 p-0'
-            iconStyle='text-emsoft_blue-light hover:text-emsoft_blue-main'
-            titleButton='Gerar PDF'
-            containerStyle='laptop:w-[85vw] laptop:h-[85vh] tablet-a8-portrait:w-[85vw] tablet-a8-portrait:h-[85vh] w-[85vw] h-[85vh]'
-          >
-            <div className='w-full h-full'>
-              <GeneratePDF orc={item} />
-            </div>
-          </ModalEditBudgetItem>
-          <ModalEditBudgetItem
-            modalTitle=''
-            buttonIcon={faTrashAlt}
-            buttonStyle='bg-transparent hover:bg-transparent m-0 p-0'
-            iconStyle='text-emsoft_danger-light hover:text-emsoft_danger-main'
-            titleButton='Excluir Orçamento'
-            containerStyle='h-[150px]  w-[200px] laptop:w-[45vh] laptop:h-[20vh] tablet-a8-portrait:w-[45vh] tablet-a8-portrait:h-[20vh]'
-            titleStyle='text-xl'
-          >
-            <RemoveBudget params={item} onSuccess={refreshTable} />
-          </ModalEditBudgetItem>
-        </span>
-      ),
+            <ModalEditBudgetItem
+              modalTitle={`Orçamento ${item.ORCAMENTO}`}
+              buttonIcon={faFilePdf}
+              buttonStyle='bg-transparent hover:bg-transparent m-0 p-0'
+              iconStyle='text-emsoft_blue-light hover:text-emsoft_blue-main'
+              titleButton='Gerar PDF'
+              containerStyle='laptop:w-[85vw] laptop:h-[85vh] tablet-a8-portrait:w-[85vw] tablet-a8-portrait:h-[85vh] w-[85vw] h-[85vh]'
+            >
+              <div className='w-full h-full'>
+                <GeneratePDF orc={item} />
+              </div>
+            </ModalEditBudgetItem>
+            <ModalEditBudgetItem
+              modalTitle=''
+              buttonIcon={faTrashAlt}
+              buttonStyle='bg-transparent hover:bg-transparent m-0 p-0'
+              iconStyle='text-emsoft_danger-light hover:text-emsoft_danger-main'
+              titleButton='Excluir Orçamento'
+              containerStyle='h-[150px]  w-[200px] laptop:w-[45vh] laptop:h-[20vh] tablet-a8-portrait:w-[45vh] tablet-a8-portrait:h-[20vh]'
+              titleStyle='text-xl'
+            >
+              <RemoveBudget params={item} onSuccess={refreshTable} />
+            </ModalEditBudgetItem>
+          </span>
+        );
+      },
     },
   ];
   useEffect(() => {
