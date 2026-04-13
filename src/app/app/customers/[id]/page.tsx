@@ -9,7 +9,6 @@ import {
   SolicitarLiberacao,
   ValidarLiberacao,
 } from '@/app/actions/liberacoes';
-import { NewOrcamento } from '@/app/actions/orcamento';
 import ToastNotify from '@/components/ToastNotify';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,6 +22,7 @@ import {
 } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MaskCnpjCpf } from '@/lib/utils';
+import { useBudget } from '@/store';
 import {
   faArrowLeft,
   faFileLines,
@@ -41,7 +41,7 @@ interface iCustomerPage {
 
 function Customers({ params }: iCustomerPage) {
   const router = useRouter();
-  const [iconLoading, setIconLoading] = useState(false);
+  const { error, isLoading, newBudget, current } = useBudget();
   const [Customer, setcustomer] = useState<iCliente>({} as iCliente);
   const [ContasAtrazadas, setContasAtrazadas] = useState(0);
   const [ContasAVencer, setContasAVencer] = useState(0);
@@ -130,8 +130,6 @@ function Customers({ params }: iCustomerPage) {
   }
 
   async function GerarOrcamento() {
-    setIconLoading(true);
-
     try {
       const bloqueios: string[] = [];
 
@@ -178,33 +176,29 @@ function Customers({ params }: iCustomerPage) {
           return;
         }
 
-        // 🔥 ERP liberou → apenas marcar como usado se necessário
         if (liberacao.USADO === 'N') {
           await MarcarLiberacaoComoUsada(liberacao);
         }
-
-        // IMPORTANTE:
-        // Não validar novamente
-        // Não bloquear aqui
       }
 
-      // ✅ Se chegou aqui, todos estão liberados
-      const res = await NewOrcamento({
+      await newBudget({
         ...NewAddOrcamento,
         CLIENTE: Customer!,
         TABELA: Customer!.Tabela,
       });
 
-      if (res.value) {
-        router.push(`/app/budgets/${res.value.ORCAMENTO}`);
-      }
+      current && router.push(`/app/budgets/${current.ORCAMENTO}`);
+
+      error &&
+        ToastNotify({
+          message: error,
+          type: 'error',
+        });
     } catch (err: any) {
       ToastNotify({
         message: err.message,
         type: 'error',
       });
-    } finally {
-      setIconLoading(false);
     }
   }
   // Carrega o item quando o componente monta ou o 'item' prop muda
@@ -255,14 +249,14 @@ function Customers({ params }: iCustomerPage) {
         <Button
           className='w-40 p-3 bg-emsoft_orange-main hover:bg-emsoft_orange-light tablet-portrait:h-14 tablet-portrait:text-2xl'
           type='button'
-          disabled={iconLoading}
+          disabled={isLoading}
           onClick={GerarOrcamento}
           title='Gerar Orçamento'
         >
           Gerar Orçamento
           <FontAwesomeIcon
-            icon={iconLoading ? faSpinner : faFileLines}
-            spinPulse={iconLoading}
+            icon={isLoading ? faSpinner : faFileLines}
+            spinPulse={isLoading}
             className='h-full ml-3'
           />
         </Button>

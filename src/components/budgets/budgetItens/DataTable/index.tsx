@@ -3,16 +3,13 @@ import { iCliente } from '@/@types/Cliente';
 import { iItensOrcamento, iOrcamento } from '@/@types/Orcamento';
 import { iColumnType } from '@/@types/Table';
 import { GetFinanceiroCliente } from '@/app/actions/cliente';
-import {
-  GetOrcamento,
-  removeItem,
-  UpdateOrcamento,
-} from '@/app/actions/orcamento';
+import { removeItem } from '@/app/actions/orcamento';
 import { DataTable } from '@/components/CustomDataTable';
 import { Loading } from '@/components/Loading';
 import ToastNotify from '@/components/ToastNotify';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useBudget } from '@/store';
 import {
   faEdit,
   faFileInvoiceDollar,
@@ -22,7 +19,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useRouter } from 'next/navigation';
-import { Suspense, useCallback, useState } from 'react';
+import { Suspense } from 'react';
 import GeneratePDF from '../../PdfViewer/PdfButton';
 import FormEdit from '../EditBudgetIten/FormEdit';
 import { ModalEditBudgetItem } from '../EditBudgetIten/ModalEditBudgetItem';
@@ -32,87 +29,52 @@ interface iItemBudgetTable {
 }
 
 const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
-  const [data, setData] = useState<iOrcamento>(orc);
-  const [loading, setLoading] = useState(false);
+  const { error, isLoading, updateBudget, current, setCurrent } = useBudget();
   const router = useRouter();
 
-  const handleItensBudgets = useCallback(() => {
-    setLoading(true);
-    GetOrcamento(orc.ORCAMENTO)
-      .then((res) => {
-        if (res.value) {
-          setData(res.value);
-        }
-        if (res.error !== undefined) {
-          ToastNotify({
-            message: `Erro: ${res.error.message}`,
-            type: 'error',
-          });
-        }
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error('Erro ao carregar orçamento:', err);
+  async function UpdateBudget() {
+    try {
+      await updateBudget({
+        ...current,
+      });
+
+      if (error) {
         ToastNotify({
-          message: `Erro: ${err.message}`,
+          message: `Erro: ${error}`,
           type: 'error',
         });
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, []);
+        return;
+      }
 
-  function UpdateBudget() {
-    setLoading(true);
-
-    UpdateOrcamento({
-      ...data,
-    })
-      .then((res) => {
-        if (res.value !== undefined) {
-          setData(res.value);
-          ToastNotify({
-            message: `Sucesso: Orçamento salvo!`,
-            type: 'success',
-          });
-        }
-        if (res.error !== undefined) {
-          ToastNotify({
-            message: `Erro: ${res.error.message}`,
-            type: 'error',
-          });
-        }
-        handleItensBudgets();
-      })
-      .catch((err) => {
-        ToastNotify({
-          message: `Erro: ${err.message}`,
-          type: 'error',
-        });
-      })
-      .finally(() => {
-        setLoading(false);
+      ToastNotify({
+        message: `Sucesso: Orçamento salvo!`,
+        type: 'success',
       });
+    } catch (err: any) {
+      ToastNotify({
+        message: `Erro: ${err.message}`,
+        type: 'error',
+      });
+    }
   }
 
   async function VerifyCustomerLimit() {
     try {
       const resultFinanceiro = await GetFinanceiroCliente(
-        (data.CLIENTE as iCliente).CLIENTE,
+        (current.CLIENTE as iCliente).CLIENTE,
       );
       if (resultFinanceiro.error !== undefined) {
         throw new Error('Erro ao consultar Saldo de Compras do cliente!');
       }
 
       const CurrentLimit = resultFinanceiro.value!.SaldoCompra;
-      const TotalOrcamento = data.TOTAL;
+      const TotalOrcamento = current.TOTAL;
 
       if (CurrentLimit < TotalOrcamento) {
         throw new Error('Cliente não possui limite para compra!');
       }
 
-      router.push(`/app/pre-sales/${data.ORCAMENTO}`);
+      router.push(`/app/pre-sales/${current.ORCAMENTO}`);
     } catch (err: any) {
       ToastNotify({
         message: `Erro: ${err.message}`,
@@ -133,12 +95,14 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
             className='cursor-pointer text-emsoft_blue-main hover:text-emsoft_blue-light'
             size='xl'
             title='Remover Item'
-            onClick={() => {
-              removeItem({
+            onClick={async () => {
+              const response = await removeItem({
                 pIdOrcamento: item.ORCAMENTO,
                 pProduto: item.PRODUTO.PRODUTO,
               });
-              handleItensBudgets();
+              if (response?.value) {
+                setCurrent(response.value as iOrcamento);
+              }
             }}
           />
           <ModalEditBudgetItem
@@ -149,7 +113,7 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
             buttonStyle='bg-tranparent hover:bg-tranparent'
             containerStyle='laptop:w-[85vw] laptop:h-[85vh] tablet-a8-portrait:w-[85vw] tablet-a8-portrait:h-[85vh] w-[85vw] h-[85vh]'
           >
-            <FormEdit budget={data} item={item} CallBack={handleItensBudgets} />
+            <FormEdit budget={current} item={item} />
           </ModalEditBudgetItem>
         </span>
       ),
@@ -274,7 +238,7 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
           labelText='TABELA'
           labelPosition='top'
           name='TABELA'
-          value={(data.CLIENTE as iCliente).Tabela}
+          value={(current.CLIENTE as iCliente)?.Tabela || ''}
           disabled={true}
           className='w-[10%] h-7'
         />
@@ -282,9 +246,9 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
           labelText='OBSERVAÇÃO 1'
           labelPosition='top'
           name='OBS1'
-          value={data.OBS1 || ''}
+          value={current.OBS1 || ''}
           onChange={(e) => {
-            setData((old) => (old = { ...data, OBS1: e.target.value }));
+            setCurrent({ ...current, OBS1: e.target.value });
           }}
           className='w-[40.5%] h-7'
         />
@@ -293,9 +257,9 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
           labelText='OBSERVAÇÃO 2'
           labelPosition='top'
           name='OBS2'
-          value={data.OBS2 || ''}
+          value={current.OBS2 || ''}
           onChange={(e) => {
-            setData((old) => (old = { ...data, OBS2: e.target.value }));
+            setCurrent({ ...current, OBS2: e.target.value });
           }}
           className='w-[41%] h-7'
         />
@@ -307,19 +271,18 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
           buttonIcon={faPlusCircle}
           containerStyle='laptop:w-[85vw] laptop:h-[85vh] tablet-a8-portrait:w-[85vw] tablet-a8-portrait:h-[85vh] w-[85vw] h-[85vh]'
         >
-          <FormEdit budget={data} CallBack={handleItensBudgets} />
+          <FormEdit budget={current} />
         </ModalEditBudgetItem>
         <ModalEditBudgetItem
-          modalTitle={`Orçamento ${data.ORCAMENTO}`}
+          modalTitle={`Orçamento ${current.ORCAMENTO}`}
           buttonText={'Gerar PDF'}
           buttonIcon={faFilePdf}
         >
           <div className='w-full h-full'>
-            <GeneratePDF orc={data} />
+            <GeneratePDF orc={current} />
           </div>
         </ModalEditBudgetItem>
         <Button onClick={VerifyCustomerLimit}>
-          {/* <Link href={`/app/pre-sales/${data.ORCAMENTO}`}> */}
           <FontAwesomeIcon
             icon={faFileInvoiceDollar}
             className={'text-emsoft_light-main mr-2'}
@@ -327,7 +290,6 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
             title={'Gerar Pré-venda'}
           />
           Gerar Pré-venda
-          {/* </Link> */}
         </Button>
         <Button
           className='bg-emsoft_success-main text-emsoft_dark-text'
@@ -344,13 +306,13 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
       </div>
 
       <div className='flex flex-col gap-4 w-full h-[70%] px-5 py-2 mt-5 border-t-2 border-emsoft_orange-main overflow-x-hidden overflow-y-scroll'>
-        {loading ? (
+        {isLoading ? (
           <Loading />
         ) : (
           <Suspense fallback={<span>Carregando...</span>}>
             <DataTable
               columns={tableHeaders}
-              TableData={data.ItensOrcamento}
+              TableData={current.ItensOrcamento || []}
               IsLoading={false}
             />
           </Suspense>
@@ -359,7 +321,7 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
       <div className='flex w-full gap-x-5 items-end justify-end px-5 pt-3 mt-4 border-t-2 border-emsoft_orange-main'>
         <span className='bold text-3xl'>TOTAL:</span>
         <span className='bold text-xl'>
-          {data.TOTAL.toLocaleString('pt-br', {
+          {(current.TOTAL || 0).toLocaleString('pt-br', {
             style: 'currency',
             currency: 'BRL',
           })}

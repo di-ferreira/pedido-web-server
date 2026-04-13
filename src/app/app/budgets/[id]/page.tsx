@@ -10,7 +10,6 @@ interface iBudgetPage {
 
 function Budget({ params }: iBudgetPage) {
   const budget = useBudget();
-  console.log('budget', budget.current);
 
   useEffect(() => {
     if (!budget.current || budget.current.ORCAMENTO !== params.id) {

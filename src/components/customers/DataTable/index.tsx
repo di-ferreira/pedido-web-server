@@ -10,7 +10,6 @@ import {
   GetFinanceiroCliente,
 } from '@/app/actions/cliente';
 import { Liberacoes } from '@/app/actions/liberacoes';
-import { NewOrcamento } from '@/app/actions/orcamento';
 import { DataTable } from '@/components/CustomDataTable';
 import ErrorMessage from '@/components/ErrorMessage';
 import Filter from '@/components/Filter';
@@ -32,11 +31,10 @@ import { headers } from './columns';
 
 function DataTableCustomer() {
   const router = useRouter();
-  const budget = useBudget();
+  const { error, isLoading, newBudget, current } = useBudget();
   const [data, setData] = useState<ResponseType<iDataResultTable<iCliente>>>(
     {},
   );
-  const [iconLoading, setIconLoading] = useState(false);
   const [loading, setLoading] = useState(false);
   const filterValues = [
     { key: 'NOME', value: 'NOME' },
@@ -140,15 +138,12 @@ function DataTableCustomer() {
           />
         </Link>
         <FontAwesomeIcon
-          icon={iconLoading ? faSpinner : faFileLines}
-          spin={iconLoading}
+          icon={isLoading ? faSpinner : faFileLines}
+          spin={isLoading}
           className='cursor-pointer text-emsoft_orange-main hover:text-emsoft_orange-light'
           size='xl'
           title='Gerar Orçamento'
           onClick={async () => {
-            setIconLoading(true);
-            let orcID = 0;
-
             try {
               const resultFinanceiro = await GetFinanceiroCliente(item.CLIENTE);
               if (resultFinanceiro.error) {
@@ -192,7 +187,6 @@ function DataTableCustomer() {
                     type: 'error',
                   });
 
-                  setIconLoading(false);
                   return;
                 }
               }
@@ -204,19 +198,15 @@ function DataTableCustomer() {
                 CLIENTE: item,
               };
 
-              const res = await NewOrcamento(novoOrcamento);
-              if (res.value) {
-                orcID = res.value.ORCAMENTO;
-                budget.setCurrent(res.value);
-                router.push(`/app/budgets/${orcID}`);
-              }
+              await newBudget(novoOrcamento);
+              current && router.push(`/app/budgets/${current.ORCAMENTO}`);
+
+              error && ToastNotify({ message: error, type: 'error' });
             } catch (err: any) {
               ToastNotify({
                 message: err.message,
                 type: 'error',
               });
-            } finally {
-              setIconLoading(false);
             }
           }}
         />
