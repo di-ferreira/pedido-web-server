@@ -16,7 +16,7 @@ import Filter from '@/components/Filter';
 import { Loading } from '@/components/Loading';
 import ToastNotify from '@/components/ToastNotify';
 import { KEY_NAME_TABLE_PAGINATION } from '@/constants';
-import { removeStorage } from '@/lib/utils';
+import { FormatToCurrency, removeStorage } from '@/lib/utils';
 import { useBudget } from '@/store';
 import {
   faFileLines,
@@ -164,6 +164,17 @@ function DataTableCustomer() {
 
               // 🔥 Valida cada bloqueio separadamente
               for (const codigo of bloqueios) {
+                let message = '';
+
+                if (codigo === 'LIMITE') {
+                  message = `Cliente ${item.NOME} possui limite de crédito de ${FormatToCurrency(financeiro.LimiteCredito.toString())}.`;
+                }
+                if (codigo === 'INADIMPLENCIA') {
+                  message = `Cliente ${item.NOME} possui inadimplência de ${FormatToCurrency(financeiro.ContasAtrazadas.toString())} não liberada.`;
+                }
+                if (codigo === 'BLOQUEADO') {
+                  message = `Cliente ${item.NOME} está bloqueado.`;
+                }
                 const liberacao = await Liberacoes({
                   ID: 0,
                   NOME: 'CLIENTE',
@@ -174,7 +185,7 @@ function DataTableCustomer() {
                   USADO: 'N',
                   ONDE: 'PRÉ-VENDA',
                   ID_ONDE: 9999,
-                  OBS: '',
+                  OBS: message,
                   MOVIMENTO: 0,
                 });
                 if (
