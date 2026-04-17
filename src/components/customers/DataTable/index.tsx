@@ -1,22 +1,18 @@
 'use client';
 import { iSearch, ResponseType } from '@/@types';
-import { iCliente, iFinanceiroCliente } from '@/@types/Cliente';
+import { iCliente } from '@/@types/Cliente';
 import { iFilter, iFilterQuery } from '@/@types/Filter';
 import { iOrcamento } from '@/@types/Orcamento';
 import { iColumnType, iDataResultTable } from '@/@types/Table';
 import { iVendedor } from '@/@types/Vendedor';
-import {
-  GetClienteFromVendedor,
-  GetFinanceiroCliente,
-} from '@/app/actions/cliente';
-import { Liberacoes } from '@/app/actions/liberacoes';
+import { GetClienteFromVendedor } from '@/app/actions/cliente';
 import { DataTable } from '@/components/CustomDataTable';
 import ErrorMessage from '@/components/ErrorMessage';
 import Filter from '@/components/Filter';
 import { Loading } from '@/components/Loading';
 import ToastNotify from '@/components/ToastNotify';
 import { KEY_NAME_TABLE_PAGINATION } from '@/constants';
-import { FormatToCurrency, removeStorage } from '@/lib/utils';
+import { removeStorage } from '@/lib/utils';
 import { useBudget } from '@/store';
 import {
   faFileLines,
@@ -145,63 +141,6 @@ function DataTableCustomer() {
           title='Gerar Orçamento'
           onClick={async () => {
             try {
-              const resultFinanceiro = await GetFinanceiroCliente(item.CLIENTE);
-              if (resultFinanceiro.error) {
-                throw new Error(resultFinanceiro.error.message);
-              }
-
-              const financeiro: iFinanceiroCliente = resultFinanceiro.value!;
-
-              // 🔎 Detecta TODOS os bloqueios
-              const bloqueios: string[] = [];
-
-              if (financeiro.ContasAtrazadas > 0)
-                bloqueios.push('INADIMPLENCIA');
-
-              if (financeiro.LimiteCredito <= 0) bloqueios.push('LIMITE');
-
-              if (item.BLOQUEADO === 'S') bloqueios.push('BLOQUEADO');
-
-              // 🔥 Valida cada bloqueio separadamente
-              for (const codigo of bloqueios) {
-                let message = '';
-
-                if (codigo === 'LIMITE') {
-                  message = `Cliente ${item.NOME} possui limite de crédito de ${FormatToCurrency(financeiro.LimiteCredito.toString())}.`;
-                }
-                if (codigo === 'INADIMPLENCIA') {
-                  message = `Cliente ${item.NOME} possui inadimplência de ${FormatToCurrency(financeiro.ContasAtrazadas.toString())} não liberada.`;
-                }
-                if (codigo === 'BLOQUEADO') {
-                  message = `Cliente ${item.NOME} está bloqueado.`;
-                }
-                const liberacao = await Liberacoes({
-                  ID: 0,
-                  NOME: 'CLIENTE',
-                  CODIGO: codigo,
-                  CHAVE: item.CLIENTE,
-                  DATA_HORA: '',
-                  QUEM: '',
-                  USADO: 'N',
-                  ONDE: 'PRÉ-VENDA',
-                  ID_ONDE: 9999,
-                  OBS: message,
-                  MOVIMENTO: 0,
-                });
-                if (
-                  !liberacao.value ||
-                  liberacao.value.USADO !== 'S' ||
-                  liberacao.value.ID_ONDE === 9999
-                ) {
-                  ToastNotify({
-                    message: `Cliente ${item.NOME} possui bloqueio de ${codigo} não liberado.`,
-                    type: 'error',
-                  });
-
-                  return;
-                }
-              }
-
               // ✅ Se passou por todos bloqueios → criar orçamento
               const novoOrcamento = {
                 ...NewAddOrcamento,

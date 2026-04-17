@@ -19,7 +19,7 @@ import {
 } from '@/app/actions/preVenda';
 import { getVendedorAction } from '@/app/actions/user';
 import ToastNotify from '@/components/ToastNotify';
-import { cn } from '@/lib/utils';
+import { FormatToCurrency, cn } from '@/lib/utils';
 import {
   faFileInvoiceDollar,
   faTimes,
@@ -222,6 +222,79 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
     }
   }
 
+  async function hasBloqueioCliente(orc: iOrcamento): Promise<boolean> {
+    try {
+      const resultFinanceiro = await GetFinanceiroCliente(
+        (orc.CLIENTE as iCliente).CLIENTE,
+      );
+      if (resultFinanceiro.error !== undefined) {
+        throw new Error(resultFinanceiro.error.message);
+      }
+
+      const financeiro: iFinanceiroCliente = resultFinanceiro.value!;
+
+      let nomeVendedor: string = (await getVendedorAction()).value!.NOME;
+
+      // 🔎 Detecta TODOS os bloqueios
+      const bloqueios: string[] = [];
+
+      if (financeiro.ContasAtrazadas > 0) bloqueios.push('INADIMPLENCIA');
+
+      if (financeiro.LimiteCredito <= 0) bloqueios.push('LIMITE');
+
+      if ((orc.CLIENTE as iCliente).BLOQUEADO === 'S')
+        bloqueios.push('BLOQUEADO');
+
+      // 🔥 Valida cada bloqueio separadamente
+      for (const codigo of bloqueios) {
+        let message = '';
+
+        if (codigo === 'LIMITE') {
+          message = `Cliente ${(orc.CLIENTE as iCliente).NOME} possui limite de crédito de ${FormatToCurrency(financeiro.LimiteCredito.toString())}.`;
+        }
+        if (codigo === 'INADIMPLENCIA') {
+          message = `Cliente ${(orc.CLIENTE as iCliente).NOME} possui inadimplência de ${FormatToCurrency(financeiro.ContasAtrazadas.toString())} não liberada.`;
+        }
+        if (codigo === 'BLOQUEADO') {
+          message = `Cliente ${(orc.CLIENTE as iCliente).NOME} está bloqueado.`;
+        }
+        const liberacao = await Liberacoes({
+          ID: 0,
+          NOME: 'CLIENTE',
+          CODIGO: codigo,
+          CHAVE: (orc.CLIENTE as iCliente).CLIENTE,
+          DATA_HORA: '',
+          QUEM: `Ven:${nomeVendedor}`,
+          USADO: 'N',
+          ONDE: 'PRÉ-VENDA',
+          ID_ONDE: 9999,
+          OBS: message,
+          MOVIMENTO: 0,
+        });
+        if (
+          !liberacao.value ||
+          liberacao.value.USADO !== 'S' ||
+          liberacao.value.ID_ONDE === 9999
+        ) {
+          ToastNotify({
+            message: `Cliente ${(orc.CLIENTE as iCliente).NOME} possui bloqueio de ${codigo} não liberado.`,
+            type: 'error',
+          });
+
+          return true;
+        }
+      }
+
+      return false;
+    } catch (e: any) {
+      ToastNotify({
+        message: `Erro ao verificar bloqueios do cliente: ${e.message}`,
+        type: 'error',
+      });
+      return true;
+    }
+  }
+
   const GerarPV = async () => {
     try {
       // Primeiro verifica o estoque (síncrono)
@@ -233,49 +306,13 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
         return;
       }
 
-      let nomeVendedor: string = (await getVendedorAction()).value!.NOME;
-      const resultFinanceiro = await GetFinanceiroCliente(
-        (orc.CLIENTE as iCliente).CLIENTE,
-      );
-
-      if (resultFinanceiro.error !== undefined) {
-        throw new Error(resultFinanceiro.error.message);
-      }
-
-      const financeiro: iFinanceiroCliente = resultFinanceiro.value!;
-
-      let codigoLiberacao: string =
-        financeiro.SaldoCompra < orc.TOTAL ? 'LIMITE' : '';
-
-      const liberacao = await Liberacoes({
-        ID: 0,
-        NOME: 'CLIENTE',
-        CODIGO: codigoLiberacao,
-        CHAVE: (orc.CLIENTE as iCliente).CLIENTE,
-        DATA_HORA: '',
-        QUEM: `Ven:${nomeVendedor}`,
-        USADO: 'N',
-        ONDE: 'PRÉ-VENDA',
-        ID_ONDE: 9.999,
-        OBS: '',
-        MOVIMENTO: 0,
-      });
-
-      if (
-        liberacao.value !== undefined &&
-        liberacao.value?.USADO == 'S' &&
-        liberacao.value.ID_ONDE != 9999
-      ) {
-        // Depois verifica o limite (assíncrono)
-        const limiteExcedido = await hasLimiteCliente(orc);
-
-        if (limiteExcedido) {
-          ToastNotify({
-            message: `Cliente não possui limite suficiente de compras!`,
-            type: 'error',
-          });
-          return;
-        }
+      const bloqueio = await hasBloqueioCliente(orc);
+      if (bloqueio) {
+        ToastNotify({
+          message: `Cliente ${(orc.CLIENTE as iCliente).NOME} possui bloqueio não liberado.`,
+          type: 'error',
+        });
+        return;
       }
 
       // Se passou nas verificações, prossegue com a geração
