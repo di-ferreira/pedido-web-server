@@ -212,6 +212,8 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
         PRODUTO: products[0],
         VALOR: productSelected?.PRECO || 0,
       }));
+
+      setWordProducts(products[0].PRODUTO);
       inputQTDRef.current?.focus();
     } else if (products.length > 1) {
       setIsVisibleModalProducts(true);
@@ -583,7 +585,10 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
               type='button'
               className={`bg-emsoft_danger-main hover:bg-emsoft_danger-light flex w-fit h-[35px] p-3 gap-3`}
               title='SAIR'
-              onClick={() => onCloseModal && onCloseModal()}
+              onClick={() => {
+                onCloseModal && onCloseModal();
+                clearDetails();
+              }}
             >
               <FontAwesomeIcon
                 icon={faTimes}

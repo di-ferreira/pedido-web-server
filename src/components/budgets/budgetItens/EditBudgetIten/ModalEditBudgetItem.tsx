@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button';
 import Modal from '@/hooks/Modal';
 import { cn } from '@/lib/utils';
+import useProductStore from '@/store/useProductStore';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useState } from 'react';
@@ -31,9 +32,13 @@ export const ModalEditBudgetItem = ({
   titleButton = '',
 }: iModalEditBudgetItem) => {
   const [isVisible, setIsVisible] = useState(false);
+  const { clearDetails } = useProductStore();
 
   const handleOpen = () => setIsVisible(true);
-  const handleClose = () => setIsVisible(false);
+  const handleClose = () => {
+    setIsVisible(false);
+    clearDetails();
+  };
 
   return (
     <>
