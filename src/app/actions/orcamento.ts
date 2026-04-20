@@ -121,8 +121,6 @@ export async function GetOrcamentosFromVendedor(
 
   const FILTER = QueryBuilder.build();
 
-  console.log('FILTER', `${ROUTE_GET_ALL_ORCAMENTO}${FILTER}`);
-
   const response = await CustomFetch<{
     '@xdata.count': number;
     value: iOrcamento[];

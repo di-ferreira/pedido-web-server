@@ -60,11 +60,9 @@ function DataTableBudget() {
   const refreshTable = useCallback(() => {
     const day = dayjs().subtract(36, 'hour').format('YYYY-MM-DD');
     const currentParams = localStorage.getItem(KEY_NAME_TABLE_PAGINATION);
-    console.log('refresh currentParams', currentParams);
     const params = currentParams
       ? JSON.parse(currentParams)
       : { top: 10, skip: 0 };
-    console.log('refresh params', params);
 
     handleBudgets({
       ...params,
@@ -98,7 +96,6 @@ function DataTableBudget() {
         },
       })
         .then((res) => {
-          console.log('handleBudgets res', res);
           setData(res);
           setLoading(false);
         })
@@ -111,7 +108,6 @@ function DataTableBudget() {
     } else
       GetOrcamentosFromVendedor()
         .then((res) => {
-          console.log('handleBudgets res2', res);
           setData(res);
           setLoading(false);
         })
