@@ -27,7 +27,7 @@ import { headers } from './columns';
 
 function DataTableCustomer() {
   const router = useRouter();
-  const { error, isLoading, newBudget, current } = useBudget();
+  const { error, isLoading, newBudget, current, setCurrent } = useBudget();
   const [data, setData] = useState<ResponseType<iDataResultTable<iCliente>>>(
     {},
   );
@@ -99,6 +99,7 @@ function DataTableCustomer() {
 
   useEffect(() => {
     removeStorage(KEY_NAME_TABLE_PAGINATION);
+    setCurrent({ ItensOrcamento: [] } as unknown as iOrcamento);
     handleCustomer({ top: 10 });
   }, []);
 

@@ -41,7 +41,7 @@ interface iCustomerPage {
 
 function Customers({ params }: iCustomerPage) {
   const router = useRouter();
-  const { error, isLoading, newBudget, current } = useBudget();
+  const { error, isLoading, newBudget, current, setCurrent } = useBudget();
   const [Customer, setcustomer] = useState<iCliente>({} as iCliente);
   const [ContasAtrazadas, setContasAtrazadas] = useState(0);
   const [ContasAVencer, setContasAVencer] = useState(0);
@@ -231,6 +231,7 @@ function Customers({ params }: iCustomerPage) {
   };
 
   useEffect(() => {
+    setCurrent({} as unknown as iOrcamento);
     loadData();
     // Cleanup opcional se necessário
     return () => {

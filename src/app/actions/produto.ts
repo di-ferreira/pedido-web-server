@@ -233,8 +233,6 @@ export async function GetProducts(
     },
   );
 
-  console.log('res', res.body);
-
   if (res.status !== 200) {
     return {
       value: undefined,
@@ -387,8 +385,6 @@ export async function GetProductPromotion(
 
   const sql: string = SQL_PRODUCTS_PROMOTION(product.PRODUTO);
 
-  console.log('sql GetProductPromotion', sql);
-
   const res = await CustomFetch<any>(`${ROUTE_SELECT_SQL}?pSQL=${sql}`, {
     method: 'GET',
     headers: {
@@ -396,8 +392,6 @@ export async function GetProductPromotion(
       Authorization: `bearer ${tokenCookie}`,
     },
   });
-
-  console.log('response GetProductPromotion', res);
 
   if (res.body.Data === null) {
     return {
