@@ -2,7 +2,6 @@ import { iCliente } from '@/@types/Cliente';
 import { iOrcamento } from '@/@types/Orcamento';
 import DataTableItensBudget from '@/components/budgets/budgetItens/DataTable';
 import { Input } from '@/components/ui/input';
-import { useBudget } from '@/store';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Link from 'next/link';
@@ -12,9 +11,6 @@ interface iFormBudget {
 }
 
 function FormBudget({ orc }: iFormBudget) {
-  console.log('orc', orc);
-  const { error, isLoading, updateBudget, current, setCurrent } = useBudget();
-  console.log('current orc', current);
   return (
     <section className='flex flex-col w-full gap-4 h-full'>
       <h1

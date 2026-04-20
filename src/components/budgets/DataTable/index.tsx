@@ -58,14 +58,23 @@ function DataTableBudget() {
   }, []);
 
   const refreshTable = useCallback(() => {
+    const day = dayjs().subtract(36, 'hour').format('YYYY-MM-DD');
     const currentParams = localStorage.getItem(KEY_NAME_TABLE_PAGINATION);
+    console.log('refresh currentParams', currentParams);
     const params = currentParams
       ? JSON.parse(currentParams)
       : { top: 10, skip: 0 };
+    console.log('refresh params', params);
 
     handleBudgets({
       ...params,
-      filter: params.filter || [], // Mantém filtros atuais
+      top: 50,
+      skip: 0,
+      orderBy: 'ORCAMENTO desc' as keyof iOrcamento,
+      filter: [
+        { key: 'PV', value: 'S', typeSearch: 'eq' },
+        { key: 'DATA', value: day, typeSearch: 'ge' },
+      ],
     });
   }, []);
 
@@ -89,20 +98,26 @@ function DataTableBudget() {
         },
       })
         .then((res) => {
+          console.log('handleBudgets res', res);
           setData(res);
           setLoading(false);
         })
-        .catch((err) => {})
+        .catch((err) => {
+          console.error('handleBudgets', err);
+        })
         .finally(() => {
           setLoading(false);
         });
     } else
       GetOrcamentosFromVendedor()
         .then((res) => {
+          console.log('handleBudgets res2', res);
           setData(res);
           setLoading(false);
         })
-        .catch((err) => {})
+        .catch((err) => {
+          console.error('handleBudgets', err);
+        })
         .finally(() => {
           setLoading(false);
         });
