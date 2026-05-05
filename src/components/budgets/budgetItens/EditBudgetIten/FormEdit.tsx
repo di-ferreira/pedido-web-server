@@ -239,6 +239,10 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
 
     newQtd = Math.ceil(qtd / multiplo) * multiplo;
 
+    if (newQtd > product.QTDATUAL - product.QTD_GARANTIA) {
+      newQtd = product.QTDATUAL - product.QTD_GARANTIA;
+    }
+
     return newQtd;
   };
 

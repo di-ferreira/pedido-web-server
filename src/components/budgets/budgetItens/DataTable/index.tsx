@@ -2,13 +2,16 @@
 import { iCliente } from '@/@types/Cliente';
 import { iItensOrcamento, iOrcamento } from '@/@types/Orcamento';
 import { iColumnType } from '@/@types/Table';
+import { iVendedor } from '@/@types/Vendedor';
 import { GetFinanceiroCliente } from '@/app/actions/cliente';
+import { Liberacoes } from '@/app/actions/liberacoes';
 import { removeItem } from '@/app/actions/orcamento';
 import { DataTable } from '@/components/CustomDataTable';
 import { Loading } from '@/components/Loading';
 import ToastNotify from '@/components/ToastNotify';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { FormatToCurrency } from '@/lib/utils';
 import { useBudget } from '@/store';
 import {
   faEdit,
@@ -63,6 +66,7 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
       const resultFinanceiro = await GetFinanceiroCliente(
         (current.CLIENTE as iCliente).CLIENTE,
       );
+
       if (resultFinanceiro.error !== undefined) {
         throw new Error('Erro ao consultar Saldo de Compras do cliente!');
       }
@@ -71,7 +75,29 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
       const TotalOrcamento = current.TOTAL;
 
       if (CurrentLimit < TotalOrcamento) {
-        throw new Error('Cliente não possui limite para compra!');
+        let message = `Cliente ${(orc.CLIENTE as iCliente).NOME} possui limite de crédito de ${FormatToCurrency(CurrentLimit.toString())}.`;
+
+        const liberacao = await Liberacoes({
+          ID: 0,
+          NOME: 'CLIENTE',
+          CODIGO: 'LIMITE',
+          CHAVE: (orc.CLIENTE as iCliente).CLIENTE,
+          DATA_HORA: '',
+          QUEM: `Ven:${(current.VENDEDOR as iVendedor).NOME}`,
+          USADO: 'N',
+          ONDE: 'PRÉ-VENDA',
+          ID_ONDE: 9999,
+          OBS: message,
+          MOVIMENTO: 0,
+        });
+
+        if (
+          !liberacao.value ||
+          liberacao.value.USADO !== 'S' ||
+          liberacao.value.ID_ONDE === 9999
+        ) {
+          throw new Error('Cliente não possui limite para compra!');
+        }
       }
 
       router.push(`/app/pre-sales/${current.ORCAMENTO}`);
