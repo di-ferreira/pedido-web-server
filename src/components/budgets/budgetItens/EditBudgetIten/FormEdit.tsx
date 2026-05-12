@@ -204,6 +204,8 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
   async function findProduct() {
     const products = await searchProducts(WordProducts);
 
+    console.log('products', products);
+
     if (products.length === 1) {
       await selectProduct(products[0], current.CLIENTE as iCliente);
 

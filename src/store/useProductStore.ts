@@ -78,11 +78,25 @@ const useProductStore = create<ProductStore>((set, get) => ({
           typeSearch: 'like',
           typeCondition: 'or',
         },
+        {
+          key: 'VENDA',
+          value: 'S',
+          typeCondition: 'or',
+          typeSearch: 'eq',
+          groupOperator: 'or',
+        },
+        {
+          key: 'VENDA',
+          value: null,
+          typeCondition: 'or',
+          typeSearch: 'eq',
+          groupOperator: 'or',
+        },
         { key: 'TRANCAR', value: 'N', typeCondition: 'and', typeSearch: 'eq' },
-        { key: 'VENDA', value: 'S', typeCondition: 'and', typeSearch: 'eq' },
         { key: 'ATIVO', value: 'S', typeCondition: 'and', typeSearch: 'eq' },
       ],
     });
+
     const list = response.value?.value || [];
     set({ searchResult: list, isLoading: false });
     return list;

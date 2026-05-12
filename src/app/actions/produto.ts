@@ -106,7 +106,6 @@ function ReturnFilterQuery(typeSearch: iFilterQuery<iProduto>): string {
 }
 
 async function CreateQueryParams(filter: iFilter<iProduto>): Promise<string> {
-  // Campos que são considerados "campos de busca textual" (para OR)
   const searchFields: (keyof iProduto)[] = [
     'PRODUTO',
     'REFERENCIA',
@@ -116,36 +115,51 @@ async function CreateQueryParams(filter: iFilter<iProduto>): Promise<string> {
     'REFERENCIA2',
   ];
 
-  // Separa os filtros em dois grupos
-  const likeFilters: iFilterQuery<iProduto>[] = [];
-  const otherFilters: iFilterQuery<iProduto>[] = [];
+  const conditions: string[] = [];
+  const groups: Record<string, string[]> = {};
+  const ungroupedConditions: string[] = [];
 
+  // 1. Processamento dos filtros
   filter.filter?.forEach((item) => {
+    const query = ReturnFilterQuery(item);
+    if (!query) return;
+
+    // Se for um campo de busca textual (LIKE), forçamos o grupo 'textSearch'
     if (item.typeSearch === 'like' && searchFields.includes(item.key)) {
-      likeFilters.push(item);
-    } else {
-      otherFilters.push(item);
+      const groupName = 'textSearch';
+      groups[groupName] = groups[groupName] || [];
+      groups[groupName].push(query);
+    }
+    // Se tiver groupOperator, agrupa dinamicamente
+    else if (item.groupOperator) {
+      const groupName = `group_${item.groupOperator}`; // ou use a própria key se quiser grupos por campo
+      groups[groupName] = groups[groupName] || [];
+      groups[groupName].push(query);
+    }
+    // Filtros comuns
+    else {
+      ungroupedConditions.push(query);
     }
   });
 
-  const conditions: string[] = [];
-
-  // 1. Agrupa todos os filtros LIKE em um único OR entre os campos de busca
-  if (likeFilters.length > 0) {
-    const likeConditions = likeFilters.map(ReturnFilterQuery).filter(Boolean);
-    if (likeConditions.length > 0) {
-      conditions.push(`(${encodeURIComponent(likeConditions.join(' or '))})`);
+  // 2. Monta as strings dos grupos (ex: (A or B))
+  Object.keys(groups).forEach((groupName) => {
+    const groupItems = groups[groupName];
+    if (groupItems.length > 0) {
+      // Determina o operador interno do grupo
+      // Se o nome do grupo contiver 'or' ou for a busca textual, usamos 'or'
+      const operator =
+        groupName.includes('or') || groupName === 'textSearch'
+          ? ' or '
+          : ' and ';
+      conditions.push(`(${groupItems.join(operator)})`);
     }
-  }
+  });
 
-  // 2. Adiciona os demais filtros (eq, ne, gt, etc.) como AND soltos
-  const otherConditions = otherFilters.map(ReturnFilterQuery).filter(Boolean);
-  conditions.push(...otherConditions);
+  // 3. Adiciona os filtros soltos
+  conditions.push(...ungroupedConditions);
 
-  // 3. Filtros fixos (ATIVO e DATA_ATUALIZACAO) — evita duplicação
-  const VendedorLocal: string = await getCookie('user');
-
-  // Evita duplicação de ATIVO eq 'S'
+  // 4. Regras de negócio fixas (ATIVO)
   const hasAtivoFilter = filter.filter?.some(
     (f) => f.key === 'ATIVO' && f.typeSearch === 'eq' && f.value === 'S',
   );
@@ -153,27 +167,17 @@ async function CreateQueryParams(filter: iFilter<iProduto>): Promise<string> {
     conditions.push(`ATIVO eq 'S'`);
   }
 
-  // Filtro fixo: atualização nos últimos 7 dias
-  // const sevenDaysAgo = dayjs().subtract(7, 'day').format('YYYY-MM-DD');
-  // conditions.push(`DATA_ATUALIZACAO ge ${sevenDaysAgo}`);
-
-  // 4. Monta a string final de filtros
+  // 5. Montagem da URL (permanece similar)
   const filterString = conditions.length
     ? `$filter=${conditions.join(' and ')}`
     : '';
-
-  // 5. Parâmetros de paginação e ordenação
   const ResultTop = filter.top ? `&$top=${filter.top}` : '&$top=15';
   const ResultSkip = filter.skip ? `&$skip=${filter.skip}` : '&$skip=0';
   const ResultOrderBy = filter.orderBy
     ? `&$orderby=${filter.orderBy}`
     : '&$orderby=PRODUTO asc';
-
-  // 6. Expansões específicas para iProduto
-  // const expand = `&$expand=FABRICANTE,FORNECEDOR,GRUPO,ListaChaves,ListaSimilares,ListaSimilares/PRODUTO,ListaSimilares/EXTERNO`;
   const expand = `&$expand=FABRICANTE,FORNECEDOR,GRUPO,ListaChaves`;
 
-  // 7. Monta URL final
   return `?${filterString}${ResultTop}${ResultSkip}${ResultOrderBy}${expand}&$inlinecount=allpages`;
 }
 
@@ -221,7 +225,8 @@ export async function GetProducts(
   const url: string = `${ROUTE_GET_ALL_PRODUTO}${await CreateQueryParams(
     filter,
   )}`;
-
+  // console.log('url decodeURIComponent', decodeURIComponent(url));
+  console.log('url ', url);
   const res = await CustomFetch<{ '@xdata.count': number; value: iProduto[] }>(
     url,
     {
@@ -233,6 +238,7 @@ export async function GetProducts(
     },
   );
 
+  console.log('res', res);
   if (res.status !== 200) {
     return {
       value: undefined,
