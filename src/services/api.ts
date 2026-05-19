@@ -16,7 +16,7 @@ const DEFAULT_RETRY_OPTIONS = {
 export async function CustomFetch<T = unknown>(
   input: RequestInfo | URL,
   init?: RequestInit | undefined,
-  retryOptions: typeof DEFAULT_RETRY_OPTIONS = DEFAULT_RETRY_OPTIONS
+  retryOptions: typeof DEFAULT_RETRY_OPTIONS = DEFAULT_RETRY_OPTIONS,
 ): Promise<ResponseData<T>> {
   const { retries, delay, timeout } = retryOptions;
   let lastError: unknown;
@@ -60,7 +60,7 @@ export async function CustomFetch<T = unknown>(
 
       // ❌ Erros que merecem retry: 5xx, 429 (rate limit), 408 (timeout)
       const shouldRetry = [500, 502, 503, 504, 429, 408].includes(
-        response.status
+        response.status,
       );
 
       if (shouldRetry && attempt < retries) {
@@ -68,12 +68,12 @@ export async function CustomFetch<T = unknown>(
         console.warn(
           `[CustomFetch] Tentativa ${attempt} falhou: ${response.status} ${
             response.statusText
-          }. Nova tentativa em ${delay * Math.pow(2, attempt - 1)}ms...`
+          }. Nova tentativa em ${delay * Math.pow(2, attempt - 1)}ms...`,
         );
 
         // Espera antes da próxima tentativa (backoff exponencial)
         await new Promise((resolve) =>
-          setTimeout(resolve, delay * Math.pow(2, attempt - 1))
+          setTimeout(resolve, delay * Math.pow(2, attempt - 1)),
         );
 
         continue; // volta ao loop para tentar novamente
@@ -101,11 +101,11 @@ export async function CustomFetch<T = unknown>(
         console.warn(
           `[CustomFetch] Tentativa ${attempt} falhou por erro de rede: ${error}. Nova tentativa em ${
             delay * Math.pow(2, attempt - 1)
-          }ms...`
+          }ms...`,
         );
 
         await new Promise((resolve) =>
-          setTimeout(resolve, delay * Math.pow(2, attempt - 1))
+          setTimeout(resolve, delay * Math.pow(2, attempt - 1)),
         );
 
         continue;

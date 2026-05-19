@@ -64,29 +64,19 @@ function ReturnFilterQuery(typeSearch: iFilterQuery<iProduto>): string {
         return `${typeSearch.key} ge ${typeSearch.value} `;
       case 'le':
         return `${typeSearch.key} le ${typeSearch.value} `;
-      // Se for 'eq' ou 'ne' com número, cai no tratamento padrão abaixo (com aspas)
-      // Mas se quiser também tratar eq/ne como numérico (sem aspas), descomente:
-      // case 'eq':
-      //   return `${typeSearch.key} eq ${typeSearch.value}`;
-      // case 'ne':
-      //   return `${typeSearch.key} ne ${typeSearch.value}`;
+      case 'eq':
+        return `${typeSearch.key} eq ${typeSearch.value} `;
+      case 'ne':
+        return `${typeSearch.key} ne ${typeSearch.value} `;
       default:
-        // Se for outro operador (ex: like), continua para o padrão
         break;
     }
   }
 
   // Tratamento padrão para strings e outros tipos
   switch (typeSearch.typeSearch) {
-    // case 'like':
-    //   return `contains(${typeSearch.key}, '${String(
-    //     typeSearch.value
-    //   ).toUpperCase()}') `;
-
     case 'like':
-      return `${typeSearch.key} like '%${String(
-        typeSearch.value,
-      ).toUpperCase()}%'`;
+      return `${typeSearch.key} like '%${String(typeSearch.value).toUpperCase()}%'`;
 
     case 'eq':
       return `${typeSearch.key} eq '${typeSearch.value}'`;
@@ -95,13 +85,7 @@ function ReturnFilterQuery(typeSearch: iFilterQuery<iProduto>): string {
       return `${typeSearch.key} ne '${typeSearch.value}'`;
 
     default:
-      return `${typeSearch.key} like '%${String(
-        typeSearch.value,
-      ).toUpperCase()}%' `;
-    // default:
-    //   return `contains(${typeSearch.key}, '${String(
-    //     typeSearch.value
-    //   ).toUpperCase()}') `;
+      return `${typeSearch.key} like '%${String(typeSearch.value).toUpperCase()}%'`;
   }
 }
 
@@ -167,17 +151,21 @@ async function CreateQueryParams(filter: iFilter<iProduto>): Promise<string> {
     conditions.push(`ATIVO eq 'S'`);
   }
 
-  // 5. Montagem da URL (permanece similar)
+  // 5. Montagem da URL (Codificando apenas o conteúdo dos parâmetros)
   const filterString = conditions.length
-    ? `$filter=${conditions.join(' and ')}`
+    ? `$filter=${encodeURIComponent(conditions.join(' and '))}` // Codifica apenas os filtros
     : '';
+
   const ResultTop = filter.top ? `&$top=${filter.top}` : '&$top=15';
   const ResultSkip = filter.skip ? `&$skip=${filter.skip}` : '&$skip=0';
   const ResultOrderBy = filter.orderBy
-    ? `&$orderby=${filter.orderBy}`
+    ? `&$orderby=${encodeURIComponent(filter.orderBy)}` // Protege contra espaços do 'asc/desc'
     : '&$orderby=PRODUTO asc';
+
+  // O expand pode ficar puro se não tiver caracteres especiais, mas mapear os nomes limpos é seguro
   const expand = `&$expand=FABRICANTE,FORNECEDOR,GRUPO,ListaChaves`;
 
+  // RETORNE A STRING COM OS CARACTERES '?' E '&' NATIVOS, SEM ENCODE NA STRING TODA
   return `?${filterString}${ResultTop}${ResultSkip}${ResultOrderBy}${expand}&$inlinecount=allpages`;
 }
 
