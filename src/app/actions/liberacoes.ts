@@ -1,5 +1,5 @@
 'use server';
-import { iApiResult, ResponseType } from '@/@types';
+import { iApiResultBody, ResponseType } from '@/@types';
 import { iFilter, iFilterQuery } from '@/@types/Filter';
 import { iLiberacoes } from '@/@types/Liberacoes';
 import { iDataResultTable } from '@/@types/Table';
@@ -120,7 +120,7 @@ export async function CreateLiberacao(
 ): Promise<ResponseType<iLiberacoes>> {
   const tokenCookie = await getCookie('token');
 
-  const response = await CustomFetch<iApiResult<iLiberacoes>>(
+  const response = await CustomFetch<iApiResultBody<iLiberacoes>>(
     `${ROUTE_GET_ALL_LIBERACOES}`,
     {
       method: 'POST',
@@ -131,7 +131,7 @@ export async function CreateLiberacao(
       },
     },
   );
-
+  console.log('CreateLiberacao response', response);
   if (response.status !== 201) {
     return {
       value: undefined,
@@ -143,7 +143,7 @@ export async function CreateLiberacao(
   }
 
   return {
-    value: response.body?.Data,
+    value: response.body as unknown as iLiberacoes,
     error: undefined,
   };
 }
@@ -153,7 +153,7 @@ export async function UpdateLiberacao(
 ): Promise<ResponseType<iLiberacoes>> {
   const tokenCookie = await getCookie('token');
 
-  const response = await CustomFetch<iApiResult<iLiberacoes>>(
+  const response = await CustomFetch<iApiResultBody<iLiberacoes>>(
     `${ROUTE_GET_ALL_LIBERACOES}(${liberacao.ID})`,
     {
       method: 'PUT',
@@ -167,6 +167,7 @@ export async function UpdateLiberacao(
       },
     },
   );
+  console.log('UpdateLiberacao response', response);
 
   if (response.status !== 200) {
     return {
@@ -179,7 +180,7 @@ export async function UpdateLiberacao(
   }
 
   return {
-    value: response.body?.Data,
+    value: response.body as unknown as iLiberacoes,
     error: undefined,
   };
 }
@@ -277,6 +278,8 @@ export async function Liberacoes(
   const responseBusca = await LoadLiberacaoCliente(param.CHAVE, param.CODIGO);
   const liberacaoExistente = responseBusca.value;
 
+  console.log('responseBusca liberacaoExistente', liberacaoExistente);
+
   const dadosNovaLiberacao: iLiberacoes = {
     ...param,
     ID: 0,
@@ -287,29 +290,54 @@ export async function Liberacoes(
     USADO: 'N',
   };
 
-  if (!liberacaoExistente) {
-    return await CreateLiberacao(dadosNovaLiberacao);
-  }
+  let resultLiberacao: ResponseType<iLiberacoes> =
+    {} as ResponseType<iLiberacoes>;
 
-  if (liberacaoExistente.ID_ONDE === 9999) {
-    return await UpdateLiberacao({
-      ...liberacaoExistente,
-      ID_ONDE: toIntSafe(param.ID_ONDE),
-      DATA_HORA: agora,
-      OBS: param.OBS || liberacaoExistente.OBS,
-    });
-  }
+  if (!liberacaoExistente)
+    resultLiberacao = {
+      value: (await CreateLiberacao(dadosNovaLiberacao)).value!,
+      error: undefined,
+    };
+  console.log('responseBusca resultLiberacao1', resultLiberacao);
 
-  if (liberacaoExistente.USADO === 'S') {
-    return await CreateLiberacao(dadosNovaLiberacao);
-  } else {
-    return await UpdateLiberacao({
-      ...liberacaoExistente,
-      USADO: 'S',
-      DATA_HORA: agora,
-      ONDE: param.ONDE,
-    });
+  if (liberacaoExistente !== undefined) {
+    if (liberacaoExistente.ID_ONDE === 9999) {
+      resultLiberacao = {
+        value: (
+          await UpdateLiberacao({
+            ...liberacaoExistente,
+            ID_ONDE: toIntSafe(param.ID_ONDE),
+            DATA_HORA: agora,
+            OBS: param.OBS || liberacaoExistente.OBS,
+          })
+        ).value!,
+        error: undefined,
+      };
+    }
+    console.log('responseBusca resultLiberacao2', resultLiberacao);
+
+    if (liberacaoExistente.USADO === 'S') {
+      resultLiberacao = {
+        value: (await CreateLiberacao(dadosNovaLiberacao)).value!,
+        error: undefined,
+      };
+      console.log('responseBusca resultLiberacao3', resultLiberacao);
+    } else {
+      const updateLiberacao = await UpdateLiberacao({
+        ...liberacaoExistente,
+        USADO: 'S',
+        DATA_HORA: agora,
+        ONDE: param.ONDE,
+      });
+      console.log('responseBusca updateLiberacao', updateLiberacao);
+      resultLiberacao = {
+        value: updateLiberacao.value!,
+        error: undefined,
+      };
+      console.log('responseBusca resultLiberacao4', resultLiberacao);
+    }
   }
+  return resultLiberacao;
 }
 
 export async function SolicitarLiberacao(

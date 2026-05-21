@@ -13,6 +13,13 @@ export interface iApiResult<T> {
   StatusMessage: string;
 }
 
+export interface iApiResultBody<T> {
+  body: T;
+  RecordCount: number;
+  StatusCode: number;
+  StatusMessage: string;
+}
+
 export interface iResultApi<T> {
   status: number;
   statusText: string;
@@ -142,3 +149,4 @@ export interface iCredito {
   DOC: string;
   EMISSAO_BOLETO: string;
 }
+

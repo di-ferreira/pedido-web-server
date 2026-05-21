@@ -9,7 +9,7 @@ import {
   iPreVenda,
 } from '@/@types/PreVenda';
 import { iVendedor } from '@/@types/Vendedor';
-import { GetFinanceiroCliente, GetPGTOsEmAberto } from '@/app/actions/cliente';
+import { GetFinanceiroCliente } from '@/app/actions/cliente';
 import { Liberacoes } from '@/app/actions/liberacoes';
 import { UpdateOrcamento } from '@/app/actions/orcamento';
 import {
@@ -186,42 +186,6 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
     });
   }
 
-  async function hasLimiteCliente(orc: iOrcamento): Promise<boolean> {
-    try {
-      const pgtos = await GetPGTOsEmAberto((orc.CLIENTE as iCliente).CLIENTE);
-
-      if (pgtos.error !== undefined) {
-        ToastNotify({
-          message: 'Erro ao verificar limite do cliente',
-          type: 'error',
-        });
-        return true; // Bloqueia a operação em caso de erro
-      }
-
-      const emAberto = pgtos.value!;
-
-      const contasAbertas = emAberto
-        ? emAberto.reduce(
-            (total: number, conta: { RESTA: number }) => total + conta.RESTA,
-            0,
-          )
-        : 0;
-
-      const saldoDisponivel = (orc.CLIENTE as iCliente).LIMITE - contasAbertas;
-      const limiteInsuficiente = saldoDisponivel < orc.TOTAL;
-
-      // Debug para identificar o problema
-
-      return limiteInsuficiente;
-    } catch (e: any) {
-      ToastNotify({
-        message: `Erro ao verificar limite do cliente: ${e.message}`,
-        type: 'error',
-      });
-      return true; // Bloqueia a operação em caso de erro
-    }
-  }
-
   async function hasBloqueioCliente(orc: iOrcamento): Promise<boolean> {
     try {
       const resultFinanceiro = await GetFinanceiroCliente(
@@ -271,6 +235,8 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
           OBS: message,
           MOVIMENTO: 0,
         });
+
+        console.log('pre-venda liberações', liberacao);
         if (
           !liberacao.value ||
           liberacao.value.USADO !== 'S' ||
@@ -338,7 +304,7 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
         Entrega: IsDelivery ? 'S' : 'N',
         TipoEntrega: IsDelivery ? 'CARRO' : 'VEM BUSCAR',
       };
-
+      console.log('PV', PV);
       const res = await SavePreVenda(PV);
 
       if (res.error) throw res.error;
