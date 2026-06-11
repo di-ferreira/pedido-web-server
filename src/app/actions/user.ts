@@ -26,9 +26,6 @@ export async function LoginUser(
   }
 
   const verifyPassword = compareHash(vendedor.value.SENHA, user.password);
-  console.log('vendedor.value.SENHA: ', vendedor.value.SENHA);
-  console.log('user.password: ', user.password);
-  console.log('verifyPassword: ', verifyPassword);
 
   if (!verifyPassword)
     return {
