@@ -96,7 +96,7 @@ const useProductStore = create<ProductStore>((set, get) => ({
         { key: 'ATIVO', value: 'S', typeCondition: 'and', typeSearch: 'eq' },
       ],
     });
-    console.log('response =>', response);
+
     const list = response.value?.value || [];
     set({ searchResult: list, isLoading: false });
     return list;

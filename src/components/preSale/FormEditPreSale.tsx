@@ -126,7 +126,9 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
     if (orc.TOTAL > 0) {
       GetCondicaoPGTO(
         orc ? orc.TOTAL : 0,
-        (orc.CLIENTE as iCliente).Tabela,
+        (orc.CLIENTE as iCliente).Tabela !== null
+          ? (orc.CLIENTE as iCliente).Tabela
+          : 'SISTEMA',
       ).then((condicao) => {
         if (condicao.value === null) {
           ToastNotify({
@@ -236,7 +238,6 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
           MOVIMENTO: 0,
         });
 
-        console.log('pre-venda liberações', liberacao);
         if (
           !liberacao.value ||
           liberacao.value.USADO !== 'S' ||
@@ -304,7 +305,7 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
         Entrega: IsDelivery ? 'S' : 'N',
         TipoEntrega: IsDelivery ? 'CARRO' : 'VEM BUSCAR',
       };
-      console.log('PV', PV);
+
       const res = await SavePreVenda(PV);
 
       if (res.error) throw res.error;

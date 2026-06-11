@@ -213,8 +213,7 @@ export async function GetProducts(
   const url: string = `${ROUTE_GET_ALL_PRODUTO}${await CreateQueryParams(
     filter,
   )}`;
-  // console.log('url decodeURIComponent', decodeURIComponent(url));
-  console.log('url ', url);
+
   const res = await CustomFetch<{ '@xdata.count': number; value: iProduto[] }>(
     url,
     {
@@ -226,7 +225,6 @@ export async function GetProducts(
     },
   );
 
-  console.log('res', res);
   if (res.status !== 200) {
     return {
       value: undefined,

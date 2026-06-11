@@ -164,9 +164,10 @@ export async function GetFormasPGTO() {
 
 export async function GetCondicaoPGTO(valor: number, tabela: string) {
   const tokenCookie = await getCookie('token');
+  const sqlCondicao = SQL_CONDICAO_PGTO(valor, tabela);
 
   const response = await CustomFetch<iApiResult<iCondicaoPgto[]>>(
-    `${ROUTE_SELECT_SQL}?pSQL=${SQL_CONDICAO_PGTO(valor, tabela)}`,
+    `${ROUTE_SELECT_SQL}?pSQL=${sqlCondicao}`,
     {
       method: 'GET',
       headers: {

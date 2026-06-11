@@ -187,7 +187,8 @@ function Customers({ params }: iCustomerPage) {
         TABELA: Customer!.Tabela,
       });
 
-      current && router.push(`/app/budgets/${current.ORCAMENTO}`);
+      (current.ORCAMENTO > 0 || current.ORCAMENTO !== undefined) &&
+        router.push(`/app/budgets/${current.ORCAMENTO}`);
 
       error &&
         ToastNotify({

@@ -78,7 +78,9 @@ where R.CONTA in ('R', 'C') and
 
 async function CreateFilter(filter: iFilter<iCliente>): Promise<string> {
   const VendedorLocal: string = await getCookie('user');
+
   const vendedor: iVendedor = (await getVendedorAction()).value!;
+
   const andStr = ' AND ';
 
   let vendedorFilter: string = `VENDEDOR eq ${VendedorLocal}`;
@@ -390,7 +392,6 @@ export async function GetFinanceiroCliente(
       error: undefined,
     };
   } catch (err: any) {
-    console.error('err', err);
     return {
       value: undefined,
       error: err.message,

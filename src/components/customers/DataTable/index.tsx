@@ -150,7 +150,8 @@ function DataTableCustomer() {
               };
 
               await newBudget(novoOrcamento);
-              current && router.push(`/app/budgets/${current.ORCAMENTO}`);
+              (current.ORCAMENTO > 0 || current.ORCAMENTO !== undefined) &&
+                router.push(`/app/budgets/${current.ORCAMENTO}`);
 
               error && ToastNotify({ message: error, type: 'error' });
             } catch (err: any) {

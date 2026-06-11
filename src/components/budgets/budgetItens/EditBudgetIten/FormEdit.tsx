@@ -92,8 +92,6 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
       },
     };
 
-    console.log('item Orc itemSave', itemSave);
-
     if (item !== undefined) {
       response = await updateItem(itemSave);
       message = 'Item editado com sucesso';
@@ -101,8 +99,6 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
       response = await addItem(itemSave);
       message = 'Item adicionado com sucesso';
     }
-
-    console.log('item Orc response', response.value);
 
     if (response?.value !== undefined) {
       setCurrent(response.value as iOrcamento);
@@ -208,8 +204,6 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
   async function findProduct() {
     const products = await searchProducts(WordProducts);
 
-    console.log('products', products);
-
     if (products.length === 1) {
       await selectProduct(products[0], current.CLIENTE as iCliente);
 
@@ -248,7 +242,7 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
     if (newQtd > product.QTDATUAL - product.QTD_GARANTIA) {
       newQtd = product.QTDATUAL - product.QTD_GARANTIA;
     }
-    console.log('item Orc newQtd', newQtd);
+
     return newQtd;
   };
 
