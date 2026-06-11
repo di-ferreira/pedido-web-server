@@ -9,6 +9,7 @@ import {
   SolicitarLiberacao,
   ValidarLiberacao,
 } from '@/app/actions/liberacoes';
+import { NewOrcamento } from '@/app/actions/orcamento';
 import ToastNotify from '@/components/ToastNotify';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -41,7 +42,7 @@ interface iCustomerPage {
 
 function Customers({ params }: iCustomerPage) {
   const router = useRouter();
-  const { error, isLoading, newBudget, current, setCurrent } = useBudget();
+  const { error, isLoading, setCurrent } = useBudget();
   const [Customer, setcustomer] = useState<iCliente>({} as iCliente);
   const [ContasAtrazadas, setContasAtrazadas] = useState(0);
   const [ContasAVencer, setContasAVencer] = useState(0);
@@ -129,6 +130,27 @@ function Customers({ params }: iCustomerPage) {
     }
   }
 
+  async function SolicitacaoDeLiberacao(codigo: string) {
+    const liberacaoSolicitada = await SolicitarLiberacao({
+      ID: 0,
+      NOME: 'CLIENTE',
+      CODIGO: codigo,
+      CHAVE: Customer.CLIENTE,
+      DATA_HORA: '',
+      QUEM: '',
+      USADO: 'N',
+      ONDE: 'PRÉ-VENDA',
+      ID_ONDE: 9999,
+      OBS: '',
+      MOVIMENTO: 0,
+    });
+
+    ToastNotify({
+      message: `Solicitação enviada para ${codigo}.`,
+      type: 'warning',
+    });
+  }
+
   async function GerarOrcamento() {
     try {
       const bloqueios: string[] = [];
@@ -144,25 +166,12 @@ function Customers({ params }: iCustomerPage) {
 
         // ❌ Não existe → solicitar e parar
         if (!liberacao) {
-          await SolicitarLiberacao({
-            ID: 0,
-            NOME: 'CLIENTE',
-            CODIGO: codigo,
-            CHAVE: Customer.CLIENTE,
-            DATA_HORA: '',
-            QUEM: '',
-            USADO: 'N',
-            ONDE: 'PRÉ-VENDA',
-            ID_ONDE: 9999,
-            OBS: '',
-            MOVIMENTO: 0,
-          });
+          await SolicitacaoDeLiberacao(codigo);
+          return;
+        }
 
-          ToastNotify({
-            message: `Solicitação enviada para ${codigo}.`,
-            type: 'warning',
-          });
-
+        if (liberacao.ID_ONDE === 0 && liberacao.USADO === 'S') {
+          await SolicitacaoDeLiberacao(codigo);
           return;
         }
 
@@ -181,14 +190,31 @@ function Customers({ params }: iCustomerPage) {
         }
       }
 
-      await newBudget({
+      // await newBudget({
+      //   ...NewAddOrcamento,
+      //   CLIENTE: Customer!,
+      //   TABELA: Customer!.Tabela,
+      // });
+
+      const result = await NewOrcamento({
         ...NewAddOrcamento,
         CLIENTE: Customer!,
         TABELA: Customer!.Tabela,
       });
 
-      (current.ORCAMENTO > 0 || current.ORCAMENTO !== undefined) &&
-        router.push(`/app/budgets/${current.ORCAMENTO}`);
+      result.error &&
+        ToastNotify({
+          message: result.error.message,
+          type: 'error',
+        });
+
+      if (
+        result.value!.ORCAMENTO > 0 ||
+        result.value!.ORCAMENTO !== undefined
+      ) {
+        setCurrent(result.value!);
+        router.push(`/app/budgets/${result.value!.ORCAMENTO}`);
+      }
 
       error &&
         ToastNotify({
@@ -202,6 +228,7 @@ function Customers({ params }: iCustomerPage) {
       });
     }
   }
+
   // Carrega o item quando o componente monta ou o 'item' prop muda
   const loadData = async () => {
     try {

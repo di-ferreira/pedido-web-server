@@ -5,7 +5,16 @@ import { iFilter, iFilterQuery } from '@/@types/Filter';
 import { iOrcamento } from '@/@types/Orcamento';
 import { iColumnType, iDataResultTable } from '@/@types/Table';
 import { iVendedor } from '@/@types/Vendedor';
-import { GetClienteFromVendedor } from '@/app/actions/cliente';
+import {
+  GetClienteFromVendedor,
+  GetFinanceiroCliente,
+} from '@/app/actions/cliente';
+import {
+  MarcarLiberacaoComoUsada,
+  SolicitarLiberacao,
+  ValidarLiberacao,
+} from '@/app/actions/liberacoes';
+import { NewOrcamento } from '@/app/actions/orcamento';
 import { DataTable } from '@/components/CustomDataTable';
 import ErrorMessage from '@/components/ErrorMessage';
 import Filter from '@/components/Filter';
@@ -97,6 +106,111 @@ function DataTableCustomer() {
       });
   }, []);
 
+  async function SolicitacaoDeLiberacao(codigo: string, cliente: iCliente) {
+    const liberacaoSolicitada = await SolicitarLiberacao({
+      ID: 0,
+      NOME: 'CLIENTE',
+      CODIGO: codigo,
+      CHAVE: cliente.CLIENTE,
+      DATA_HORA: '',
+      QUEM: '',
+      USADO: 'N',
+      ONDE: 'PRÉ-VENDA',
+      ID_ONDE: 9999,
+      OBS: '',
+      MOVIMENTO: 0,
+    });
+
+    ToastNotify({
+      message: `Solicitação enviada para ${codigo}.`,
+      type: 'warning',
+    });
+  }
+  async function financeiroCliente(cliente: iCliente) {
+    try {
+      const resultFinanceiro = await GetFinanceiroCliente(cliente.CLIENTE);
+
+      if (resultFinanceiro.error !== undefined) {
+        throw new Error(resultFinanceiro.error.message);
+      }
+
+      return resultFinanceiro.value!;
+    } catch (err: any) {
+      ToastNotify({ message: err.message, type: 'error' });
+    }
+  }
+
+  async function GerarOrcamento(cliente: iCliente) {
+    try {
+      const bloqueios: string[] = [];
+      const financeiro = await financeiroCliente(cliente);
+
+      if (financeiro?.ContasAtrazadas! > 0) bloqueios.push('INADIMPLENCIA');
+      if (financeiro?.LimiteCredito! <= 0) bloqueios.push('LIMITE');
+      if (cliente.BLOQUEADO === 'S') bloqueios.push('BLOQUEADO');
+
+      for (const codigo of bloqueios) {
+        const result = await ValidarLiberacao(cliente.CLIENTE, codigo);
+
+        const liberacao = result.value;
+
+        // ❌ Não existe → solicitar e parar
+        if (!liberacao) {
+          await SolicitacaoDeLiberacao(codigo, cliente);
+          return;
+        }
+
+        if (liberacao.ID_ONDE === 0 && liberacao.USADO === 'S') {
+          await SolicitacaoDeLiberacao(codigo, cliente);
+          return;
+        }
+
+        // ⏳ Aguardando ERP
+        if (liberacao.ID_ONDE === 9999) {
+          ToastNotify({
+            message: `Aguardando liberação do ERP (${codigo}).`,
+            type: 'warning',
+          });
+
+          return;
+        }
+
+        if (liberacao.USADO === 'N') {
+          await MarcarLiberacaoComoUsada(liberacao);
+        }
+      }
+      const result = await NewOrcamento({
+        ...NewAddOrcamento,
+        CLIENTE: cliente,
+        TABELA: cliente.Tabela,
+      });
+      // await newBudget({
+      //   ...NewAddOrcamento,
+      //   CLIENTE: cliente,
+      //   TABELA: cliente.Tabela,
+      // });
+
+      result.error &&
+        ToastNotify({
+          message: result.error.message,
+          type: 'error',
+        });
+
+      if (
+        result.value!.ORCAMENTO > 0 ||
+        result.value!.ORCAMENTO !== undefined
+      ) {
+        setCurrent(result.value!);
+        router.push(`/app/budgets/${result.value!.ORCAMENTO}`);
+      }
+    } catch (err: any) {
+      ToastNotify({
+        message: err.message,
+        type: 'error',
+      });
+    }
+  }
+
   useEffect(() => {
     removeStorage(KEY_NAME_TABLE_PAGINATION);
     setCurrent({ ItensOrcamento: [] } as unknown as iOrcamento);
@@ -140,27 +254,7 @@ function DataTableCustomer() {
           className='cursor-pointer text-emsoft_orange-main hover:text-emsoft_orange-light'
           size='xl'
           title='Gerar Orçamento'
-          onClick={async () => {
-            try {
-              // ✅ Se passou por todos bloqueios → criar orçamento
-              const novoOrcamento = {
-                ...NewAddOrcamento,
-                TABELA: item.Tabela,
-                CLIENTE: item,
-              };
-
-              await newBudget(novoOrcamento);
-              (current.ORCAMENTO > 0 || current.ORCAMENTO !== undefined) &&
-                router.push(`/app/budgets/${current.ORCAMENTO}`);
-
-              error && ToastNotify({ message: error, type: 'error' });
-            } catch (err: any) {
-              ToastNotify({
-                message: err.message,
-                type: 'error',
-              });
-            }
-          }}
+          onClick={async () => GerarOrcamento(item)}
         />
       </span>
     ),
