@@ -30,5 +30,5 @@ limite falsa. A flag decisória é `CARTEIRA`:
 - [x] `src/components/preSale/FormEditPreSale.tsx`: passar `somenteAvista` quando `CARTEIRA === 'N'`
 
 ### 5. Verificação
-- [ ] `yarn lint`
-- [ ] `yarn build`
+- [x] `yarn build` — ✓ compilou + type-check OK (12/12 páginas)
+- [ ] `yarn lint` — bloqueado: o projeto não tem config de ESLint (`next lint` abre prompt interativo). Validado via type-check do build.
