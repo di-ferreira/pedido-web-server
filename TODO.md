@@ -26,8 +26,8 @@ limite falsa. A flag decisória é `CARTEIRA`:
 - [x] `src/app/app/customers/[id]/page.tsx`: portar por `CARTEIRA === 'S'` + `SaldoCompra <= 0`
 
 ### 4. Restringir condição de pagamento "à vista" (cliente sem limite)
-- [ ] `src/app/actions/preVenda.ts`: parâmetro `somenteAvista` em `SQL_CONDICAO_PGTO` + `GetCondicaoPGTO`
-- [ ] `src/components/preSale/FormEditPreSale.tsx`: passar `somenteAvista` quando `CARTEIRA === 'N'`
+- [x] `src/app/actions/preVenda.ts`: parâmetro `somenteAvista` em `SQL_CONDICAO_PGTO` + `GetCondicaoPGTO`
+- [x] `src/components/preSale/FormEditPreSale.tsx`: passar `somenteAvista` quando `CARTEIRA === 'N'`
 
 ### 5. Verificação
 - [ ] `yarn lint`

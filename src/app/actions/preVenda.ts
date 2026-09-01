@@ -15,8 +15,13 @@ import { getCookie } from '.';
 const ROUTE_GET_ALL_PRE_VENDA = '/Movimento';
 const ROUTE_SAVE_PRE_VENDA = '/ServiceVendas/NovaPreVenda';
 const ROUTE_SELECT_SQL = '/ServiceSistema/SelectSQL';
-const SQL_CONDICAO_PGTO = (valor: number, tabela: string) => {
-  return `SELECT O.id, O.nome, O.parcelas, O.valor_parcela, O.valor_parcela*O.PARCELAS AS VALOR_MINIMO, CASE O.parcelas WHEN 1  THEN O.pz01 WHEN 2  THEN CAST((O.pz01+o.pz02)/2 AS INTEGER) WHEN 3  THEN CAST((O.pz01+o.pz02+O.pz03)/3 AS INTEGER) WHEN 4  THEN CAST((O.pz01+o.pz02+O.pz03+O.pz04)/4 AS INTEGER) WHEN 5  THEN CAST((O.pz01+o.pz02+O.pz03+O.pz04+O.pz05)/5 AS INTEGER) WHEN 6  THEN CAST((O.pz01+o.pz02+O.pz03+O.pz04+O.pz05+O.pz06)/6 AS INTEGER) WHEN 7  THEN CAST((O.pz01+o.pz02+O.pz03+O.pz04+O.pz05+O.pz06+O.pz07)/7 AS INTEGER) WHEN 8  THEN CAST((O.pz01+o.pz02+O.pz03+O.pz04+O.pz05+O.pz06+O.pz07+O.pz08)/8 AS INTEGER) WHEN 9  THEN CAST((O.pz01+o.pz02+O.pz03+O.pz04+O.pz05+O.pz06+O.pz07+O.pz08+O.pz09)/9 AS INTEGER) WHEN 10 THEN CAST((O.pz01+o.pz02+O.pz03+O.pz04+O.pz05+O.pz06+O.pz07+O.pz08+O.pz09+O.pz10)/10 AS INTEGER) END AS PM, PZ01,PZ02,PZ03,PZ04,PZ05,PZ06,PZ07,PZ08,PZ09,PZ10, TIPO, DESTACAR_DESCONTO, FORMA,O.DESCONTO_MAX FROM OPP O WHERE (O.valor_parcela*O.PARCELAS)<=${valor} AND O.TIPO='V' AND O.tabela='${tabela}' ORDER BY 6`;
+const SQL_CONDICAO_PGTO = (
+  valor: number,
+  tabela: string,
+  somenteAvista = false,
+) => {
+  const filtroAvista = somenteAvista ? ' AND O.parcelas = 1' : '';
+  return `SELECT O.id, O.nome, O.parcelas, O.valor_parcela, O.valor_parcela*O.PARCELAS AS VALOR_MINIMO, CASE O.parcelas WHEN 1  THEN O.pz01 WHEN 2  THEN CAST((O.pz01+o.pz02)/2 AS INTEGER) WHEN 3  THEN CAST((O.pz01+o.pz02+o.pz03)/3 AS INTEGER) WHEN 4  THEN CAST((O.pz01+o.pz02+o.pz03+o.pz04)/4 AS INTEGER) WHEN 5  THEN CAST((O.pz01+o.pz02+o.pz03+o.pz04+o.pz05)/5 AS INTEGER) WHEN 6  THEN CAST((O.pz01+o.pz02+o.pz03+o.pz04+o.pz05+o.pz06)/6 AS INTEGER) WHEN 7  THEN CAST((O.pz01+o.pz02+o.pz03+o.pz04+o.pz05+o.pz06+o.pz07)/7 AS INTEGER) WHEN 8  THEN CAST((O.pz01+o.pz02+o.pz03+o.pz04+o.pz05+o.pz06+o.pz07+o.pz08)/8 AS INTEGER) WHEN 9  THEN CAST((O.pz01+o.pz02+o.pz03+o.pz04+o.pz05+o.pz06+o.pz07+o.pz08+o.pz09)/9 AS INTEGER) WHEN 10 THEN CAST((O.pz01+o.pz02+o.pz03+o.pz04+o.pz05+o.pz06+o.pz07+o.pz08+o.pz09+o.pz10)/10 AS INTEGER) END AS PM, PZ01,PZ02,PZ03,PZ04,PZ05,PZ06,PZ07,PZ08,PZ09,PZ10, TIPO, DESTACAR_DESCONTO, FORMA,O.DESCONTO_MAX FROM OPP O WHERE (O.valor_parcela*O.PARCELAS)<=${valor} AND O.TIPO='V' AND O.tabela='${tabela}'${filtroAvista} ORDER BY 6`;
 };
 const SQL_FORMA_PGTO =
   "SELECT C.CARTAO FROM CAR C WHERE C.CAIXA='S' order by 1";
@@ -162,9 +167,13 @@ export async function GetFormasPGTO() {
   };
 }
 
-export async function GetCondicaoPGTO(valor: number, tabela: string) {
+export async function GetCondicaoPGTO(
+  valor: number,
+  tabela: string,
+  somenteAvista = false,
+) {
   const tokenCookie = await getCookie('token');
-  const sqlCondicao = SQL_CONDICAO_PGTO(valor, tabela);
+  const sqlCondicao = SQL_CONDICAO_PGTO(valor, tabela, somenteAvista);
 
   const response = await CustomFetch<iApiResult<iCondicaoPgto[]>>(
     `${ROUTE_SELECT_SQL}?pSQL=${sqlCondicao}`,

@@ -129,6 +129,7 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
         (orc.CLIENTE as iCliente).Tabela !== null
           ? (orc.CLIENTE as iCliente).Tabela
           : 'SISTEMA',
+        (orc.CLIENTE as iCliente).CARTEIRA === 'N',
       ).then((condicao) => {
         if (condicao.value === null) {
           ToastNotify({
