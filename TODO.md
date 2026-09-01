@@ -45,7 +45,7 @@ Playwright E2E contra API de staging, SAST) para validar cada mudança.
 - [ ] **Design**: acessibilidade (ARIA, modal dialog, botões, labels) + E2E (axe-core) + teste focus trap
 - [ ] **Design**: responsividade (w-screen, w-96, breakpoints, h-screen) + E2E (sweep de viewports)
 - [x] **Front**: remover código morto (DataTable TanStack, fetchClient, modalStore, 6 deps) + build verde
-- [ ] **Front**: adicionar error boundaries (error.tsx/global-error.tsx) + E2E (estado de erro)
+- [x] **Front**: adicionar error boundaries (error.tsx/global-error.tsx) + E2E (estado de erro)
 - [ ] **Front**: decompor componentes >300 linhas + eliminar duplicação + E2E de regressão
 - [ ] **Qualidade**: tipagem (remover any, iVendedor duplicado, PreVenda.d.ts) + typecheck
 
