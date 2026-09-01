@@ -47,7 +47,7 @@ Playwright E2E contra API de staging, SAST) para validar cada mudança.
 - [x] **Front**: remover código morto (DataTable TanStack, fetchClient, modalStore, 6 deps) + build verde
 - [x] **Front**: adicionar error boundaries (error.tsx/global-error.tsx) + E2E (estado de erro)
 - [ ] **Front**: decompor componentes >300 linhas + eliminar duplicação + E2E de regressão
-- [ ] **Qualidade**: tipagem (remover any, iVendedor duplicado, PreVenda.d.ts) + typecheck
+- [x] **Qualidade**: tipagem (remover any, iVendedor duplicado, PreVenda.d.ts) + typecheck
 
 ### Fase 3 — Baixa (tooling)
 - [ ] Config (exhaustive-deps, moduleResolution, deps) + CI (lint+test+build+audit+semgrep)

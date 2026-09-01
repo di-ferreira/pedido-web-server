@@ -102,21 +102,6 @@ export interface iSelectSQL {
   pPar: iSelectParam[];
 }
 
-export type iVendedorSenha = iVendedor & {
-  SENHA: string;
-};
-
-export type iVendedor = {
-  VENDEDOR: number;
-  NOME: string;
-  CPF: null;
-  IDENTIDADE: null;
-  ATIVO: string;
-  VENDA: string;
-  TIPO_VENDEDOR: string;
-  TABELAS_PERMITIDAS: null;
-};
-
 export type userLogin = {
   vendedor: number;
   password: string;

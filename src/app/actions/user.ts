@@ -1,5 +1,5 @@
 'use server';
-import { iVendedorSenha, ResponseType, userLogin } from '@/@types';
+import { ResponseType, userLogin } from '@/@types';
 import { iVendedor } from '@/@types/Vendedor';
 import { timingSafeEqual } from 'crypto';
 import { CustomFetch } from '@/services/api';
@@ -23,7 +23,7 @@ export async function LoginUser(
 
   const token = resultVenda.value;
 
-  const vendedor: ResponseType<iVendedorSenha> = await getVendedor({
+  const vendedor: ResponseType<iVendedor> = await getVendedor({
     token,
     user: user.vendedor,
   });
@@ -140,7 +140,7 @@ async function userVendaLogin(
 async function getVendedor(data: {
   token: string;
   user: number;
-}): Promise<ResponseType<iVendedorSenha>> {
+}): Promise<ResponseType<iVendedor>> {
   const responseData = await CustomFetch(`/Colaboradores(${data.user})`, {
     method: 'GET',
     headers: {
@@ -158,7 +158,7 @@ async function getVendedor(data: {
     };
   }
   return {
-    value: responseData.body as iVendedorSenha,
+    value: responseData.body as iVendedor,
     error: undefined,
   };
 }
