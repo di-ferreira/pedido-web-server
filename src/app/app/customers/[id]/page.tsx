@@ -156,7 +156,8 @@ function Customers({ params }: iCustomerPage) {
       const bloqueios: string[] = [];
 
       if (ContasAtrazadas > 0) bloqueios.push('INADIMPLENCIA');
-      if (LimiteCredito <= 0) bloqueios.push('LIMITE');
+      if (Customer.CARTEIRA === 'S' && SaldoCompra <= 0)
+        bloqueios.push('LIMITE');
       if (Customer.BLOQUEADO === 'S') bloqueios.push('BLOQUEADO');
 
       for (const codigo of bloqueios) {

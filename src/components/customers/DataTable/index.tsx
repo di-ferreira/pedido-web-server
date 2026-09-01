@@ -146,7 +146,8 @@ function DataTableCustomer() {
       const financeiro = await financeiroCliente(cliente);
 
       if (financeiro?.ContasAtrazadas! > 0) bloqueios.push('INADIMPLENCIA');
-      if (financeiro?.LimiteCredito! <= 0) bloqueios.push('LIMITE');
+      if (financeiro?.UsaLimite && financeiro?.SaldoCompra! <= 0)
+        bloqueios.push('LIMITE');
       if (cliente.BLOQUEADO === 'S') bloqueios.push('BLOQUEADO');
 
       for (const codigo of bloqueios) {

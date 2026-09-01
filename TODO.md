@@ -22,8 +22,8 @@ limite falsa. A flag decisória é `CARTEIRA`:
 - [x] `src/components/preSale/FormEditPreSale.tsx`: portar por `UsaLimite` + `TOTAL > SaldoCompra` e ajustar a mensagem `LIMITE`
 
 ### 3. Corrigir bloqueio por limite — clientes
-- [ ] `src/components/customers/DataTable/index.tsx`: portar por `UsaLimite` + `SaldoCompra <= 0`
-- [ ] `src/app/app/customers/[id]/page.tsx`: portar por `UsaLimite` + `SaldoCompra <= 0`
+- [x] `src/components/customers/DataTable/index.tsx`: portar por `UsaLimite` + `SaldoCompra <= 0`
+- [x] `src/app/app/customers/[id]/page.tsx`: portar por `CARTEIRA === 'S'` + `SaldoCompra <= 0`
 
 ### 4. Restringir condição de pagamento "à vista" (cliente sem limite)
 - [ ] `src/app/actions/preVenda.ts`: parâmetro `somenteAvista` em `SQL_CONDICAO_PGTO` + `GetCondicaoPGTO`
