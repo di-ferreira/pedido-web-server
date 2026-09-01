@@ -19,14 +19,14 @@ Playwright E2E contra API de staging, SAST) para validar cada mudança.
 
 ## Tarefas
 
-### Fase 0 — Infra de testes + git workflow
-- [ ] Vitest + `@vitest/coverage-v8` + `vitest.config.ts` + scripts `test`/`test:coverage`
-- [ ] Playwright + `@axe-core/playwright` + `playwright.config.ts` + script `test:e2e`
-- [ ] SAST: `eslint-plugin-security` + script `semgrep` (npx) + script `audit`
-- [ ] Script `check` (lint + test + build)
-- [ ] Git workflow: `.gitmessage` (Conventional Commits) + pre-commit hook (lint + segredos)
-- [ ] `.gitignore`: `test-results/`, `playwright-report/`
-- [ ] Teste smoke (Vitest) + teste unit do `ODataQueryBuilder`
+### Fase 0 — Infra de testes + git workflow ✅
+- [x] Vitest + `@vitest/coverage-v8` + `vitest.config.ts` + scripts `test`/`test:coverage`
+- [x] Playwright + `@axe-core/playwright` + `playwright.config.ts` + script `test:e2e`
+- [x] SAST: `eslint-plugin-security` (regras de alto sinal) + `semgrep` (uv) + `npm audit`
+- [x] Script `check` (lint + test + build)
+- [x] Git workflow: `.gitmessage` (Conventional Commits) + pre-commit hook (segredos) via `core.hooksPath` + `postinstall`
+- [x] `.gitignore`: `test-results/`, `playwright-report/`
+- [x] Teste smoke (Vitest) + teste unit do `ODataQueryBuilder` (10 testes)
 
 ### Fase 1 — Alta (segurança + bugs + lógica)
 - [ ] **Segurança**: validar sessão nas Server Actions (fail-fast sem token) + teste integração (401)
