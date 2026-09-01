@@ -1,8 +1,14 @@
 {
   "extends": ["next/core-web-vitals"],
-  "plugins": ["@typescript-eslint"],
+  "plugins": ["@typescript-eslint", "security"],
   "rules": {
     "react/display-name": "off",
-    "react-hooks/exhaustive-deps": "off"
+    "react-hooks/exhaustive-deps": "off",
+    "security/detect-eval-with-expression": "warn",
+    "security/detect-non-literal-regexp": "warn",
+    "security/detect-non-literal-fs-filename": "warn",
+    "security/detect-unsafe-regex": "warn",
+    "security/detect-pseudoRandomBytes": "warn",
+    "security/detect-possible-timing-attacks": "warn"
   }
 }

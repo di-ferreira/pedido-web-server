@@ -1,0 +1,8 @@
+# <type>(<scope>): <descrição em pt-BR, imperativo, sem ponto, máx 50 chars>
+#
+# Types: feat | fix | refactor | test | chore | perf | ci | docs | style | revert
+# Scope: auth | orcamento | cliente | produto | preVenda | vendas | ui | dados | testes | tooling | ...
+#
+# [corpo opcional] — explique o PORQUÊ (não o quê), máx 72 chars por linha
+#
+# [rodapé opcional] — Breaking Changes: ... | Closes #123

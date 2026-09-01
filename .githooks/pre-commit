@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# Pre-commit hook — scan de segredos no diff estagiado
+set -euo pipefail
+
+SECRET_REGEX="(api[_-]?key|secret|token|password|passwd|bearer)[[:space:]]*[:=][[:space:]]*[\"'a-zA-Z0-9+/=._-]{8,}|AKIA[0-9A-Z]{16}|BEGIN [A-Z ]*PRIVATE KEY"
+
+DIFF="$(git diff --cached)"
+
+if printf '%s\n' "$DIFF" | grep -Eiq "$SECRET_REGEX"; then
+  echo ""
+  echo "⚠️  Possível segredo detectado no commit."
+  echo "Revise o diff (git diff --cached) antes de commitar."
+  echo "Para pular (não recomendado): git commit --no-verify"
+  echo ""
+  exit 1
+fi
+
+exit 0
