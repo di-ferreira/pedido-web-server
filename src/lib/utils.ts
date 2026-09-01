@@ -1,4 +1,3 @@
-import { compareSync, genSaltSync, hashSync } from 'bcryptjs';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -13,18 +12,6 @@ export const returnExpiresTimes = (minutes: number) => {
 
   return now.setTime(now.getTime() + milliseconds);
 };
-
-export function generateHash(password: string): string {
-  const salt = genSaltSync(10);
-
-  const hashedPassword = hashSync(password, salt);
-
-  return hashedPassword;
-}
-
-export function compareHash(password: string, hash: string): boolean {
-  return compareSync(password, hash);
-}
 
 export const MaskCnpjCpf = (value: string | undefined) => {
   if (!value) return '';

@@ -3,7 +3,6 @@ import { LoginUser } from '@/app/actions/user';
 import ToastNotify from '@/components/ToastNotify';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { generateHash } from '@/lib/utils';
 import { useUser } from '@/store';
 import {
   faLock,
@@ -30,11 +29,10 @@ export function AuthForm() {
     const formData = new FormData(e.currentTarget);
     const vendedorCode = formData.get('vendedor');
     const vendedorPassword = String(formData.get('password'));
-    const vendedorPasswordHashed = generateHash(vendedorPassword);
 
     const login = await LoginUser({
       vendedor: Number(vendedorCode),
-      password: vendedorPasswordHashed,
+      password: vendedorPassword,
     });
 
     if (login.value === undefined) {

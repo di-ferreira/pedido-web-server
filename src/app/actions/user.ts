@@ -1,9 +1,16 @@
 'use server';
 import { iVendedorSenha, ResponseType, userLogin } from '@/@types';
 import { iVendedor } from '@/@types/Vendedor';
-import { compareHash } from '@/lib/utils';
+import { timingSafeEqual } from 'crypto';
 import { CustomFetch } from '@/services/api';
 import { getCookie, requireAuth, setCookie } from '.';
+
+function safeCompare(a: string, b: string): boolean {
+  const bufA = Buffer.from(a);
+  const bufB = Buffer.from(b);
+  if (bufA.length !== bufB.length) return false;
+  return timingSafeEqual(bufA, bufB);
+}
 
 export async function LoginUser(
   user: userLogin,
@@ -25,7 +32,7 @@ export async function LoginUser(
     return { error: vendedor.error };
   }
 
-  const verifyPassword = compareHash(vendedor.value.SENHA, user.password);
+  const verifyPassword = safeCompare(vendedor.value.SENHA, user.password);
 
   if (!verifyPassword)
     return {
