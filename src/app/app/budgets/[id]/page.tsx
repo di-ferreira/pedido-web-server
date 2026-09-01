@@ -1,7 +1,8 @@
 'use client';
 import { GetOrcamento } from '@/app/actions/orcamento';
+import ToastNotify from '@/components/ToastNotify';
 import { useBudget } from '@/store';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import FormBudget from './_components/FormBudget';
 
 interface iBudgetPage {
@@ -10,6 +11,7 @@ interface iBudgetPage {
 
 function Budget({ params }: iBudgetPage) {
   const budget = useBudget();
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!budget.current || budget.current.ORCAMENTO !== params.id) {
@@ -17,11 +19,17 @@ function Budget({ params }: iBudgetPage) {
         if (result.value) {
           budget.setCurrent(result.value);
         } else {
-          return <p>Failed to load budget.</p>;
+          const msg = result.error?.message ?? 'Falha ao carregar orçamento.';
+          setError(msg);
+          ToastNotify({ message: msg, type: 'error' });
         }
       });
     }
   }, []);
+
+  if (error) {
+    return <p className='text-red-600 p-4'>{error}</p>;
+  }
 
   return <FormBudget orc={budget.current} />;
 }

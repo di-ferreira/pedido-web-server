@@ -51,13 +51,13 @@ const Customers = async ({ params }: iCustomerPage) => {
 
   if (!customer.value) return <p>Failed to load customer.</p>;
 
-  const contasAtrazadas = emAtrazo.value[0]?.VALOR ?? 0;
+  const contasAtrazadas = emAtrazo.value?.[0]?.VALOR ?? 0;
 
   const contasAVencer = naoVencidas.value?.Data[0]?.VALOR ?? 0;
 
   const contasAbertas =
     emAberto.value?.reduce(
-      (total: any, conta: { RESTA: any }) => total + conta.RESTA,
+      (total: number, conta: { RESTA: number }) => total + (conta.RESTA ?? 0),
       0
     ) ?? 0;
 
@@ -68,7 +68,8 @@ const Customers = async ({ params }: iCustomerPage) => {
     emAberto.value?.filter((aberto: iCredito) => aberto.ATRASO <= 0) ?? [];
 
   const saldoCompra =
-    customer.value.LIMITE - (contasAtrazadas + contasAVencer + contasAbertas);
+    (customer.value.LIMITE ?? 0) -
+    (contasAtrazadas + contasAVencer + contasAbertas);
 
   function verifyTypeCustomer(customer: iCliente) {
     if (customer.TIPO_CLIENTE == 'BRONZE') {

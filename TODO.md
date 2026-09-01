@@ -35,7 +35,7 @@ Playwright E2E contra API de staging, SAST) para validar cada mudança.
 - [x] **Segurança**: mover hash de senha p/ servidor + teste (login; bcryptjs fora do bundle)
 - [x] **Bug**: corrigir `ResponseType` (error objeto) + checar status antes do body + testes
 - [x] **Lógica**: centralizar `SaldoCompra` + regra de bloqueio em 1 helper + testes unit
-- [ ] **Bug**: corrigir bugs pontuais (budgets/[id], ErrorMessage, Saldo NaN) + testes de regressão
+- [x] **Bug**: corrigir bugs pontuais (budgets/[id], ErrorMessage, Saldo NaN) + testes de regressão
 
 ### Fase 2 — Média (dados + design + front + qualidade)
 - [ ] **Dados**: `CustomFetch` (Authorization + timeout + ResponseType) + testes unit
