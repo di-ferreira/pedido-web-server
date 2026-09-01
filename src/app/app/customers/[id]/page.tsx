@@ -3,6 +3,7 @@ import { iCredito } from '@/@types';
 import { iCliente, iFinanceiroCliente } from '@/@types/Cliente';
 import { iOrcamento } from '@/@types/Orcamento';
 import { iVendedor } from '@/@types/Vendedor';
+import { getBloqueios } from '@/lib/bloqueios';
 import { GetCliente, GetFinanceiroCliente } from '@/app/actions/cliente';
 import {
   MarcarLiberacaoComoUsada,
