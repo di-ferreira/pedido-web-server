@@ -13,6 +13,7 @@ import { iDataResultTable } from '@/@types/Table';
 import { sanitizeODataValue } from '@/lib/queryFilter';
 import { assertSafeSQLValue } from '@/lib/utils';
 import { CustomFetch } from '@/services/api';
+import { checkStatus } from '@/lib/utils';
 import { getCookie, requireAuth } from '.';
 const ROUTE_GET_ALL_PRE_VENDA = '/Movimento';
 const ROUTE_SAVE_PRE_VENDA = '/ServiceVendas/NovaPreVenda';
@@ -99,20 +100,14 @@ export async function GetPreVendas(
     },
   });
 
+  const statusError = checkStatus(response);
+  if (statusError) return statusError;
+
   const result: iDataResultTable<iMovimento> = {
     Qtd_Registros: response.body!['@xdata.count'],
     value: response.body!.value,
   };
 
-  if (response.status !== 200) {
-    return {
-      value: undefined,
-      error: {
-        code: String(response.status),
-        message: String(response.statusText),
-      },
-    };
-  }
   return {
     value: result,
     error: undefined,

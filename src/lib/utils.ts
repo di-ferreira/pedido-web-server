@@ -1,3 +1,4 @@
+import { ResponseType } from '@/@types';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -12,6 +13,19 @@ export const returnExpiresTimes = (minutes: number) => {
 
   return now.setTime(now.getTime() + milliseconds);
 };
+
+export function checkStatus<T>(
+  response: { status: number; statusText: string; body: T | null },
+): ResponseType<never> | null {
+  if (response.status >= 200 && response.status < 300) return null;
+  return {
+    value: undefined,
+    error: {
+      code: String(response.status),
+      message: response.statusText || 'Erro na requisição',
+    },
+  };
+}
 
 export const MaskCnpjCpf = (value: string | undefined) => {
   if (!value) return '';

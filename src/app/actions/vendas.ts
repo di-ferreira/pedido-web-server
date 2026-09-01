@@ -6,6 +6,7 @@ import { iMovimento } from '@/@types/PreVenda';
 import { iDataResultTable } from '@/@types/Table';
 import { ODataQueryBuilder, sanitizeODataValue } from '@/lib/queryFilter';
 import { CustomFetch } from '@/services/api';
+import { checkStatus } from '@/lib/utils';
 import { getCookie, requireAuth } from '.';
 import { VendasMetadata } from './const_metadatas';
 
@@ -81,20 +82,13 @@ export async function GetVendas(
     },
   });
 
+  const statusError = checkStatus(response);
+  if (statusError) return statusError;
+
   const result: iDataResultTable<iMovimento> = {
     Qtd_Registros: response.body!['@xdata.count'],
     value: response.body!.value,
   };
-
-  if (response.status !== 200) {
-    return {
-      value: undefined,
-      error: {
-        code: String(response.status),
-        message: String(response.statusText),
-      },
-    };
-  }
 
   return {
     value: result,

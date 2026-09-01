@@ -33,7 +33,7 @@ Playwright E2E contra API de staging, SAST) para validar cada mudança.
 - [x] **Segurança**: sanitizar filtros OData (`ODataQueryBuilder`) + testes unit (escaping/injeção)
 - [x] **Segurança**: parametrizar/validar `SelectSQL` + teste integração (injeção SQL)
 - [x] **Segurança**: mover hash de senha p/ servidor + teste (login; bcryptjs fora do bundle)
-- [ ] **Bug**: corrigir `ResponseType` (error objeto) + checar status antes do body + testes
+- [x] **Bug**: corrigir `ResponseType` (error objeto) + checar status antes do body + testes
 - [ ] **Lógica**: centralizar `SaldoCompra` + regra de bloqueio em 1 helper + testes unit
 - [ ] **Bug**: corrigir bugs pontuais (budgets/[id], ErrorMessage, Saldo NaN) + testes de regressão
 

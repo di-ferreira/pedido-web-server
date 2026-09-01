@@ -19,6 +19,7 @@ import { iVendedor } from '@/@types/Vendedor';
 import { ODataQueryBuilder } from '@/lib/queryFilter';
 import { CustomFetch } from '@/services/api';
 import dayjs from 'dayjs';
+import { checkStatus } from '@/lib/utils';
 import { getCookie, requireAuth } from '.';
 import { getVendedorAction } from './user';
 const ROUTE_GET_ALL_ORCAMENTO = '/Orcamento';
@@ -134,20 +135,14 @@ export async function GetOrcamentosFromVendedor(
     },
   });
 
+  const statusError = checkStatus(response);
+  if (statusError) return statusError;
+
   const result: iDataResultTable<iOrcamento> = {
     Qtd_Registros: response.body!['@xdata.count'],
     value: response.body!.value,
   };
 
-  if (response.status !== 200) {
-    return {
-      value: undefined,
-      error: {
-        code: String(response.status),
-        message: String(response.statusText),
-      },
-    };
-  }
   return {
     value: result,
     error: undefined,
@@ -174,17 +169,10 @@ export async function GetOrcamento(
     },
   );
 
-  const result: iOrcamento = response.body!;
+  const statusError = checkStatus(response);
+  if (statusError) return statusError;
 
-  if (response.status !== 200) {
-    return {
-      value: undefined,
-      error: {
-        code: String(response.status),
-        message: String(response.statusText),
-      },
-    };
-  }
+  const result: iOrcamento = response.body!;
 
   const itensOrcs: iItensOrcamento[] = response.body!.ItensOrcamento.map(
     (item) => {

@@ -9,6 +9,7 @@ import { sanitizeODataValue } from '@/lib/queryFilter';
 import { assertSafeSQLValue } from '@/lib/utils';
 import { CustomFetch } from '@/services/api';
 import dayjs from 'dayjs';
+import { checkStatus } from '@/lib/utils';
 import { getCookie, requireAuth } from '.';
 import { getVendedorAction } from './user';
 
@@ -158,20 +159,14 @@ export async function GetClienteFromVendedor(
     },
   });
 
+  const statusError = checkStatus(response);
+  if (statusError) return statusError;
+
   const result: iDataResultTable<iCliente> = {
-    Qtd_Registros: response.body!!['@xdata.count'],
+    Qtd_Registros: response.body!['@xdata.count'],
     value: response.body!.value,
   };
 
-  if (response.status !== 200) {
-    return {
-      value: undefined,
-      error: {
-        code: String(response.status),
-        message: String(response.statusText),
-      },
-    };
-  }
   return {
     value: result,
     error: undefined,
@@ -196,17 +191,10 @@ export async function GetCliente(
     },
   );
 
-  const result: iCliente = response.body!;
+  const statusError = checkStatus(response);
+  if (statusError) return statusError;
 
-  if (response.status !== 200) {
-    return {
-      value: undefined,
-      error: {
-        code: String(response.status),
-        message: String(response.statusText),
-      },
-    };
-  }
+  const result: iCliente = response.body!;
 
   return {
     value: result,

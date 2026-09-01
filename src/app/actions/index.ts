@@ -45,3 +45,5 @@ export async function requireAuth(): Promise<ResponseType<string>> {
   return { value: token };
 }
 
+
+

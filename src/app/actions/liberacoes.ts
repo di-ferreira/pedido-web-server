@@ -7,6 +7,7 @@ import { sanitizeODataValue } from '@/lib/queryFilter';
 import { toIntSafe } from '@/lib/utils';
 import { CustomFetch } from '@/services/api';
 import dayjs from 'dayjs';
+import { checkStatus } from '@/lib/utils';
 import { getCookie, requireAuth } from '.';
 import { getVendedorAction } from './user';
 
@@ -216,20 +217,13 @@ export async function LoadLiberacao(
     },
   });
 
+  const statusError = checkStatus(response);
+  if (statusError) return statusError;
+
   const result: iDataResultTable<iLiberacoes> = {
     Qtd_Registros: response.body!['@xdata.count'],
     value: response.body!.value,
   };
-
-  if (response.status !== 200) {
-    return {
-      value: undefined,
-      error: {
-        code: String(response.status),
-        message: String(response.statusText),
-      },
-    };
-  }
 
   return {
     value: result,
