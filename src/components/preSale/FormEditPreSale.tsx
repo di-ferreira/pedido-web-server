@@ -19,6 +19,7 @@ import {
 } from '@/app/actions/preVenda';
 import { getVendedorAction } from '@/app/actions/user';
 import ToastNotify from '@/components/ToastNotify';
+import { getBloqueios } from '@/lib/bloqueios';
 import { FormatToCurrency, cn } from '@/lib/utils';
 import {
   faFileInvoiceDollar,
@@ -203,15 +204,13 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
       let nomeVendedor: string = (await getVendedorAction()).value!.NOME;
 
       // 🔎 Detecta TODOS os bloqueios
-      const bloqueios: string[] = [];
-
-      if (financeiro.ContasAtrazadas > 0) bloqueios.push('INADIMPLENCIA');
-
-      if (financeiro.UsaLimite && orc.TOTAL > financeiro.SaldoCompra)
-        bloqueios.push('LIMITE');
-
-      if ((orc.CLIENTE as iCliente).BLOQUEADO === 'S')
-        bloqueios.push('BLOQUEADO');
+      const bloqueios = getBloqueios({
+        contasAtrazadas: financeiro.ContasAtrazadas,
+        usaLimite: financeiro.UsaLimite,
+        saldoCompra: financeiro.SaldoCompra,
+        totalPedido: orc.TOTAL,
+        bloqueado: (orc.CLIENTE as iCliente).BLOQUEADO,
+      });
 
       // 🔥 Valida cada bloqueio separadamente
       for (const codigo of bloqueios) {

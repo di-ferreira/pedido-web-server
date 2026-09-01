@@ -21,6 +21,7 @@ import Filter from '@/components/Filter';
 import { Loading } from '@/components/Loading';
 import ToastNotify from '@/components/ToastNotify';
 import { KEY_NAME_TABLE_PAGINATION } from '@/constants';
+import { getBloqueios } from '@/lib/bloqueios';
 import { removeStorage } from '@/lib/utils';
 import { useBudget } from '@/store';
 import {
@@ -142,13 +143,14 @@ function DataTableCustomer() {
 
   async function GerarOrcamento(cliente: iCliente) {
     try {
-      const bloqueios: string[] = [];
       const financeiro = await financeiroCliente(cliente);
 
-      if (financeiro?.ContasAtrazadas! > 0) bloqueios.push('INADIMPLENCIA');
-      if (financeiro?.UsaLimite && financeiro?.SaldoCompra! <= 0)
-        bloqueios.push('LIMITE');
-      if (cliente.BLOQUEADO === 'S') bloqueios.push('BLOQUEADO');
+      const bloqueios = getBloqueios({
+        contasAtrazadas: financeiro?.ContasAtrazadas ?? 0,
+        usaLimite: financeiro?.UsaLimite ?? false,
+        saldoCompra: financeiro?.SaldoCompra ?? 0,
+        bloqueado: cliente.BLOQUEADO,
+      });
 
       for (const codigo of bloqueios) {
         const result = await ValidarLiberacao(cliente.CLIENTE, codigo);

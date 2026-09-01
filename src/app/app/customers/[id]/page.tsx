@@ -192,12 +192,12 @@ function Customers({ params }: iCustomerPage) {
 
   async function GerarOrcamento() {
     try {
-      const bloqueios: string[] = [];
-
-      if (ContasAtrazadas > 0) bloqueios.push('INADIMPLENCIA');
-      if (Customer.CARTEIRA === 'S' && SaldoCompra <= 0)
-        bloqueios.push('LIMITE');
-      if (Customer.BLOQUEADO === 'S') bloqueios.push('BLOQUEADO');
+      const bloqueios = getBloqueios({
+        contasAtrazadas: ContasAtrazadas,
+        usaLimite: Customer.CARTEIRA === 'S',
+        saldoCompra: SaldoCompra,
+        bloqueado: Customer.BLOQUEADO,
+      });
 
       for (const codigo of bloqueios) {
         const result = await ValidarLiberacao(Customer.CLIENTE, codigo);
