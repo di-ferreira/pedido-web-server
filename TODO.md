@@ -38,7 +38,7 @@ Playwright E2E contra API de staging, SAST) para validar cada mudança.
 - [x] **Bug**: corrigir bugs pontuais (budgets/[id], ErrorMessage, Saldo NaN) + testes de regressão
 
 ### Fase 2 — Média (dados + design + front + qualidade)
-- [ ] **Dados**: `CustomFetch` (Authorization + timeout + ResponseType) + testes unit
+- [x] **Dados**: `CustomFetch` (Authorization + timeout + ResponseType) + testes unit
 - [ ] **Dados**: eliminar N+1 (`RemoverOrcamento`) + fetches redundantes + teste (contagem de calls)
 - [ ] **Dados**: extrair fetch das stores + selectors (manter Server Actions + Zustand) + testes
 - [ ] **Design**: alinhar identidade oficial EMSoft (Poppins, `--em-*`, `#1552C4`, toggle) + E2E (tema) + a11y
