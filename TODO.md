@@ -14,8 +14,8 @@ limite falsa. A flag decisória é `CARTEIRA`:
 ## Tarefas
 
 ### 1. Centralizar a flag `UsaLimite`
-- [ ] Adicionar `UsaLimite: boolean` em `iFinanceiroCliente` (`src/@types/Cliente.d.ts`)
-- [ ] Retornar `UsaLimite` (derivado de `CARTEIRA`) em `GetFinanceiroCliente` (`src/app/actions/cliente.ts`)
+- [x] Adicionar `UsaLimite: boolean` em `iFinanceiroCliente` (`src/@types/Cliente.d.ts`)
+- [x] Retornar `UsaLimite` (derivado de `CARTEIRA`) em `GetFinanceiroCliente` (`src/app/actions/cliente.ts`)
 
 ### 2. Corrigir bloqueio por limite — orçamento e pré-venda
 - [ ] `src/components/budgets/budgetItens/DataTable/index.tsx`: portar por `UsaLimite` + `TOTAL > SaldoCompra`
