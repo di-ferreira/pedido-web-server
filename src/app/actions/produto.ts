@@ -11,6 +11,7 @@ import {
   iTabelaVenda,
 } from '@/@types/Produto';
 import { iDataResultTable } from '@/@types/Table';
+import { sanitizeODataValue } from '@/lib/queryFilter';
 import { CustomFetch } from '@/services/api';
 import { getCookie, requireAuth } from '.';
 
@@ -76,16 +77,20 @@ function ReturnFilterQuery(typeSearch: iFilterQuery<iProduto>): string {
   // Tratamento padrão para strings e outros tipos
   switch (typeSearch.typeSearch) {
     case 'like':
-      return `${typeSearch.key} like '%${String(typeSearch.value).toUpperCase()}%'`;
+      return `${typeSearch.key} like '%${sanitizeODataValue(
+        String(typeSearch.value).toUpperCase(),
+      )}%'`;
 
     case 'eq':
-      return `${typeSearch.key} eq '${typeSearch.value}'`;
+      return `${typeSearch.key} eq '${sanitizeODataValue(typeSearch.value)}'`;
 
     case 'ne':
-      return `${typeSearch.key} ne '${typeSearch.value}'`;
+      return `${typeSearch.key} ne '${sanitizeODataValue(typeSearch.value)}'`;
 
     default:
-      return `${typeSearch.key} like '%${String(typeSearch.value).toUpperCase()}%'`;
+      return `${typeSearch.key} like '%${sanitizeODataValue(
+        String(typeSearch.value).toUpperCase(),
+      )}%'`;
   }
 }
 

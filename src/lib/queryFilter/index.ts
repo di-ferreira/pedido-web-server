@@ -14,6 +14,15 @@ function sanitizeString(value: string): string {
   return value.replace(/'/g, "''");
 }
 
+/**
+ * Escapa aspas simples em um valor antes de inseri-lo em uma query OData.
+ * Use em builders que ainda montam a query por concatenação, para prevenir
+ * injeção OData via valores do usuário.
+ */
+export function sanitizeODataValue(value: unknown): string {
+  return sanitizeString(String(value));
+}
+
 /* ============================
    Normalização baseada em metadata
 ============================ */
@@ -23,6 +32,11 @@ function normalizeValue<T>(
   value: unknown,
   metadata: ModelMetadata<T>,
 ): string {
+  // 0. Validação de chave: impede injeção via nome de campo fora do metadata
+  if (!Object.keys(metadata).includes(String(key))) {
+    throw new Error(`Invalid filter key: ${String(key)}`);
+  }
+
   // 1. Tratamento de Nulo Global: Se o valor for null, undefined ou a string 'null'
   // ele deve retornar sem aspas independentemente do tipo no metadata.
   if (value === null || value === undefined || value === 'null') {

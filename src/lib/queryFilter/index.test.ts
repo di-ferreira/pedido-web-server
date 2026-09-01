@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { ODataQueryBuilder } from '@/lib/queryFilter';
+import { ODataQueryBuilder, sanitizeODataValue } from '@/lib/queryFilter';
 import type { ModelMetadata } from '@/@types/QueryFilter';
 
 interface Produto {
@@ -129,5 +129,63 @@ describe('ODataQueryBuilder', () => {
     expect(result).toContain(
       "$filter=NOME eq 'a' or (PRECO gt 10 and ATIVO eq true)",
     );
+  });
+
+  it('rejeita chave fora do metadata (prevenção de injeção via campo)', () => {
+    expect(() =>
+      new ODataQueryBuilder<Produto>(metadata)
+        .where({
+          operator: 'and',
+          conditions: [
+            {
+              key: 'NOME; drop table' as unknown as keyof Produto,
+              operator: 'eq',
+              value: 'x',
+            },
+          ],
+        })
+        .build(),
+    ).toThrow('Invalid filter key');
+  });
+
+  it('neutraliza injeção com fechamento de parênteses e OR', () => {
+    const result = new ODataQueryBuilder<Produto>(metadata)
+      .where({
+        operator: 'and',
+        conditions: [
+          { key: 'NOME', operator: 'contains', value: "x') or (NOME" },
+        ],
+      })
+      .build();
+    expect(result).toContain("contains(NOME, 'x'') or (NOME')");
+  });
+
+  it('escapa múltiplas aspas em um único valor', () => {
+    const result = new ODataQueryBuilder<Produto>(metadata)
+      .where({
+        operator: 'and',
+        conditions: [{ key: 'NOME', operator: 'eq', value: "a'b'c" }],
+      })
+      .build();
+    expect(result).toContain("NOME eq 'a''b''c'");
+  });
+});
+
+describe('sanitizeODataValue', () => {
+  it('escapa aspas simples', () => {
+    expect(sanitizeODataValue("O'Brien")).toBe("O''Brien");
+  });
+
+  it('não altera valores sem aspas', () => {
+    expect(sanitizeODataValue('motor')).toBe('motor');
+  });
+
+  it('converte números e booleanos para string', () => {
+    expect(sanitizeODataValue(42)).toBe('42');
+    expect(sanitizeODataValue(true)).toBe('true');
+  });
+
+  it('neutraliza payload de injeção OData', () => {
+    expect(sanitizeODataValue("x') or (NOME")).toBe("x'') or (NOME");
   });
 });

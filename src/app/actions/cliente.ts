@@ -5,6 +5,7 @@ import { iCliente, iFinanceiroCliente, iPgtoEmAberto } from '@/@types/Cliente';
 import { iFilter } from '@/@types/Filter';
 import { iDataResultTable } from '@/@types/Table';
 import { iVendedor } from '@/@types/Vendedor';
+import { sanitizeODataValue } from '@/lib/queryFilter';
 import { CustomFetch } from '@/services/api';
 import dayjs from 'dayjs';
 import { getCookie, requireAuth } from '.';
@@ -93,13 +94,19 @@ async function CreateFilter(filter: iFilter<iCliente>): Promise<string> {
         itemFilter.typeSearch === 'like'
           ? (ResultFilter = `${ResultFilter}${andStr} contains(${
               itemFilter.key
-            }, '${String(itemFilter.value).toUpperCase()}')${andStr}`)
+            }, '${sanitizeODataValue(
+              String(itemFilter.value).toUpperCase(),
+            )}')${andStr}`)
           : itemFilter.typeSearch === 'eq' &&
-            (ResultFilter = `${ResultFilter}${andStr}${itemFilter.key} eq '${itemFilter.value}'${andStr}`);
+            (ResultFilter = `${ResultFilter}${andStr}${itemFilter.key} eq '${sanitizeODataValue(
+              itemFilter.value,
+            )}'${andStr}`);
       } else
         ResultFilter = `${ResultFilter}${andStr} contains(${
           itemFilter.key
-        }, '${String(itemFilter.value).toUpperCase()}')${andStr}`;
+        }, '${sanitizeODataValue(
+          String(itemFilter.value).toUpperCase(),
+        )}')${andStr}`;
       return (ResultFilter = ResultFilter.slice(0, -andStr.length));
     });
   }

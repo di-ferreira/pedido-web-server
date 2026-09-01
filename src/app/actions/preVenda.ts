@@ -10,6 +10,7 @@ import {
   iTransportadora,
 } from '@/@types/PreVenda';
 import { iDataResultTable } from '@/@types/Table';
+import { sanitizeODataValue } from '@/lib/queryFilter';
 import { CustomFetch } from '@/services/api';
 import { getCookie, requireAuth } from '.';
 const ROUTE_GET_ALL_PRE_VENDA = '/Movimento';
@@ -41,13 +42,19 @@ const CreateFilter = async (filter: iFilter<iMovimento>): Promise<string> => {
         itemFilter.typeSearch === 'like'
           ? (ResultFilter = `${ResultFilter}${andStr}${
               itemFilter.key
-            } like '% ${String(itemFilter.value).toUpperCase()} %'${andStr}`)
+            } like '% ${sanitizeODataValue(
+              String(itemFilter.value).toUpperCase(),
+            )} %'${andStr}`)
           : itemFilter.typeSearch === 'eq' &&
-            (ResultFilter = `${ResultFilter}${andStr}${itemFilter.key} eq '${itemFilter.value}'${andStr}`);
+            (ResultFilter = `${ResultFilter}${andStr}${itemFilter.key} eq '${sanitizeODataValue(
+              itemFilter.value,
+            )}'${andStr}`);
       else
         ResultFilter = `${ResultFilter}${andStr}${
           itemFilter.key
-        } like '% ${String(itemFilter.value).toUpperCase()} %'${andStr}`;
+        } like '% ${sanitizeODataValue(
+          String(itemFilter.value).toUpperCase(),
+        )} %'${andStr}`;
       return ResultFilter;
     });
     ResultFilter = ResultFilter.slice(0, -andStr.length);

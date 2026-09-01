@@ -3,6 +3,7 @@ import { iApiResultBody, ResponseType } from '@/@types';
 import { iFilter, iFilterQuery } from '@/@types/Filter';
 import { iLiberacoes } from '@/@types/Liberacoes';
 import { iDataResultTable } from '@/@types/Table';
+import { sanitizeODataValue } from '@/lib/queryFilter';
 import { toIntSafe } from '@/lib/utils';
 import { CustomFetch } from '@/services/api';
 import dayjs from 'dayjs';
@@ -36,20 +37,20 @@ function ReturnFilterQuery(typeSearch: iFilterQuery<iLiberacoes>): string {
   // Tratamento padrão
   switch (typeSearch.typeSearch) {
     case 'like':
-      return `contains(${typeSearch.key}, '${String(
-        typeSearch.value,
-      ).toUpperCase()}')`;
+      return `contains(${typeSearch.key}, '${sanitizeODataValue(
+        String(typeSearch.value).toUpperCase(),
+      )}')`;
 
     case 'eq':
-      return `${typeSearch.key} eq '${typeSearch.value}'`;
+      return `${typeSearch.key} eq '${sanitizeODataValue(typeSearch.value)}'`;
 
     case 'ne':
-      return `${typeSearch.key} ne '${typeSearch.value}'`;
+      return `${typeSearch.key} ne '${sanitizeODataValue(typeSearch.value)}'`;
 
     default:
-      return `contains(${typeSearch.key}, '${String(
-        typeSearch.value,
-      ).toUpperCase()}')`;
+      return `contains(${typeSearch.key}, '${sanitizeODataValue(
+        String(typeSearch.value).toUpperCase(),
+      )}')`;
   }
 }
 
@@ -244,7 +245,9 @@ export async function LoadLiberacaoCliente(
   if (auth.error) return { error: auth.error };
   const tokenCookie = auth.value!;
 
-  const URL = `?$filter=CHAVE eq ${cliente} and CODIGO eq '${codigo}'&$top=1&$orderby=DATA_HORA desc`;
+  const URL = `?$filter=CHAVE eq ${cliente} and CODIGO eq '${sanitizeODataValue(
+    codigo,
+  )}'&$top=1&$orderby=DATA_HORA desc`;
 
   const response = await CustomFetch<{
     value: iLiberacoes[];

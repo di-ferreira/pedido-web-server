@@ -4,7 +4,7 @@ import { ResponseType } from '@/@types';
 import { iFilter } from '@/@types/Filter';
 import { iMovimento } from '@/@types/PreVenda';
 import { iDataResultTable } from '@/@types/Table';
-import { ODataQueryBuilder } from '@/lib/queryFilter';
+import { ODataQueryBuilder, sanitizeODataValue } from '@/lib/queryFilter';
 import { CustomFetch } from '@/services/api';
 import { getCookie, requireAuth } from '.';
 import { VendasMetadata } from './const_metadatas';
@@ -25,13 +25,19 @@ const CreateFilter = async (filter: iFilter<iMovimento>): Promise<string> => {
         itemFilter.typeSearch === 'like'
           ? (ResultFilter = `${ResultFilter}${andStr}${
               itemFilter.key
-            } like '% ${String(itemFilter.value).toUpperCase()} %'${andStr}`)
+            } like '% ${sanitizeODataValue(
+              String(itemFilter.value).toUpperCase(),
+            )} %'${andStr}`)
           : itemFilter.typeSearch === 'eq' &&
-            (ResultFilter = `${ResultFilter}${andStr}${itemFilter.key} eq '${itemFilter.value}'${andStr}`);
+            (ResultFilter = `${ResultFilter}${andStr}${itemFilter.key} eq '${sanitizeODataValue(
+              itemFilter.value,
+            )}'${andStr}`);
       else
         ResultFilter = `${ResultFilter}${andStr}${
           itemFilter.key
-        } like '% ${String(itemFilter.value).toUpperCase()} %'${andStr}`;
+        } like '% ${sanitizeODataValue(
+          String(itemFilter.value).toUpperCase(),
+        )} %'${andStr}`;
 
       return ResultFilter;
     });
