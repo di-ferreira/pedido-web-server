@@ -1,34 +1,53 @@
-# TODO — Correção do limite de compra (CARTEIRA)
+# TODO — Melhoria do pedido-web-server
 
 ## Contexto
-Clientes **sem** limite de compra estavam sendo bloqueados por uma checagem de
-limite falsa. A flag decisória é `CARTEIRA`:
+Plano de melhoria abrangente do sistema (segurança, bugs, lógica, dados, design,
+frontend, qualidade e tooling), com estratégia de testes (Vitest unit/integração,
+Playwright E2E contra API de staging, SAST) para validar cada mudança.
 
-- `CARTEIRA='S'` = **COM** limite → checar saldo disponível; se `TOTAL > SaldoCompra`,
-  não avança e emite liberação `LIMITE`.
-- `CARTEIRA='N'` = **SEM** limite → sem checagem de limite; condições de pagamento
-  **somente à vista** (`PARCELAS=1`).
+## Decisões
+- **Escopo**: tudo, em ordem de prioridade (alta → baixa).
+- **Dados**: manter Server Actions + Zustand (extrair fetch + selectors).
+- **Identidade visual**: alinhar à oficial EMSoft (Poppins, `--em-*`, `#1552C4`, toggle).
+- **Testes**: Vitest (unit + integração) + Playwright (E2E, API de staging real).
+- **Segurança**: testes de integração + SAST (semgrep/eslint-security) + `yarn audit`.
+- **Git**: commits diretos em `master`, 1 commit Conventional por workstream (skill git-workflow).
 
-`INADIMPLENCIA` e `BLOQUEADO` continuam valendo para todos os clientes.
+## Regras por mudança
+1. Validar: `yarn check` (lint + test + build) + `yarn audit` + `yarn semgrep`; E2E via `yarn test:e2e`.
+2. Commit: 1 commit Conventional (`<type>(<scope>): <descrição pt-BR>`) direto em `master`.
 
 ## Tarefas
 
-### 1. Centralizar a flag `UsaLimite`
-- [x] Adicionar `UsaLimite: boolean` em `iFinanceiroCliente` (`src/@types/Cliente.d.ts`)
-- [x] Retornar `UsaLimite` (derivado de `CARTEIRA`) em `GetFinanceiroCliente` (`src/app/actions/cliente.ts`)
+### Fase 0 — Infra de testes + git workflow
+- [ ] Vitest + `@vitest/coverage-v8` + `vitest.config.ts` + scripts `test`/`test:coverage`
+- [ ] Playwright + `@axe-core/playwright` + `playwright.config.ts` + script `test:e2e`
+- [ ] SAST: `eslint-plugin-security` + script `semgrep` (npx) + script `audit`
+- [ ] Script `check` (lint + test + build)
+- [ ] Git workflow: `.gitmessage` (Conventional Commits) + pre-commit hook (lint + segredos)
+- [ ] `.gitignore`: `test-results/`, `playwright-report/`
+- [ ] Teste smoke (Vitest) + teste unit do `ODataQueryBuilder`
 
-### 2. Corrigir bloqueio por limite — orçamento e pré-venda
-- [x] `src/components/budgets/budgetItens/DataTable/index.tsx`: portar por `UsaLimite` + `TOTAL > SaldoCompra`
-- [x] `src/components/preSale/FormEditPreSale.tsx`: portar por `UsaLimite` + `TOTAL > SaldoCompra` e ajustar a mensagem `LIMITE`
+### Fase 1 — Alta (segurança + bugs + lógica)
+- [ ] **Segurança**: validar sessão nas Server Actions (fail-fast sem token) + teste integração (401)
+- [ ] **Segurança**: sanitizar filtros OData (`ODataQueryBuilder`) + testes unit (escaping/injeção)
+- [ ] **Segurança**: parametrizar/validar `SelectSQL` + teste integração (injeção SQL)
+- [ ] **Segurança**: mover hash de senha p/ servidor + teste (login; bcryptjs fora do bundle)
+- [ ] **Bug**: corrigir `ResponseType` (error objeto) + checar status antes do body + testes
+- [ ] **Lógica**: centralizar `SaldoCompra` + regra de bloqueio em 1 helper + testes unit
+- [ ] **Bug**: corrigir bugs pontuais (budgets/[id], ErrorMessage, Saldo NaN) + testes de regressão
 
-### 3. Corrigir bloqueio por limite — clientes
-- [x] `src/components/customers/DataTable/index.tsx`: portar por `UsaLimite` + `SaldoCompra <= 0`
-- [x] `src/app/app/customers/[id]/page.tsx`: portar por `CARTEIRA === 'S'` + `SaldoCompra <= 0`
+### Fase 2 — Média (dados + design + front + qualidade)
+- [ ] **Dados**: `CustomFetch` (Authorization + timeout + ResponseType) + testes unit
+- [ ] **Dados**: eliminar N+1 (`RemoverOrcamento`) + fetches redundantes + teste (contagem de calls)
+- [ ] **Dados**: extrair fetch das stores + selectors (manter Server Actions + Zustand) + testes
+- [ ] **Design**: alinhar identidade oficial EMSoft (Poppins, `--em-*`, `#1552C4`, toggle) + E2E (tema) + a11y
+- [ ] **Design**: acessibilidade (ARIA, modal dialog, botões, labels) + E2E (axe-core) + teste focus trap
+- [ ] **Design**: responsividade (w-screen, w-96, breakpoints, h-screen) + E2E (sweep de viewports)
+- [ ] **Front**: remover código morto (DataTable TanStack, fetchClient, modalStore, 6 deps) + build verde
+- [ ] **Front**: adicionar error boundaries (error.tsx/global-error.tsx) + E2E (estado de erro)
+- [ ] **Front**: decompor componentes >300 linhas + eliminar duplicação + E2E de regressão
+- [ ] **Qualidade**: tipagem (remover any, iVendedor duplicado, PreVenda.d.ts) + typecheck
 
-### 4. Restringir condição de pagamento "à vista" (cliente sem limite)
-- [x] `src/app/actions/preVenda.ts`: parâmetro `somenteAvista` em `SQL_CONDICAO_PGTO` + `GetCondicaoPGTO`
-- [x] `src/components/preSale/FormEditPreSale.tsx`: passar `somenteAvista` quando `CARTEIRA === 'N'`
-
-### 5. Verificação
-- [x] `yarn build` — ✓ compilou + type-check OK (12/12 páginas)
-- [ ] `yarn lint` — bloqueado: o projeto não tem config de ESLint (`next lint` abre prompt interativo). Validado via type-check do build.
+### Fase 3 — Baixa (tooling)
+- [ ] Config (exhaustive-deps, moduleResolution, deps) + CI (lint+test+build+audit+semgrep)
