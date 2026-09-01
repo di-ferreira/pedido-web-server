@@ -316,24 +316,62 @@ export async function UpdateOrcamento(
   };
 }
 
+async function removeItemOnly(
+  itemOrcamento: iItemRemove,
+  tokenCookie: string,
+): Promise<ResponseType<void>> {
+  const data = await CustomFetch<iApiResult<iOrcamento>>(
+    ROUTE_REMOVE_ITEM_ORCAMENTO,
+    {
+      body: JSON.stringify({
+        pIdOrcamento: itemOrcamento.pIdOrcamento,
+        pProduto: itemOrcamento.pProduto,
+      }),
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `bearer ${tokenCookie}`,
+      },
+    },
+  );
+
+  if (data.status !== 200) {
+    return {
+      value: undefined,
+      error: {
+        code: String(data.status),
+        message: String(data.statusText),
+      },
+    };
+  }
+  return { value: undefined, error: undefined };
+}
+
 export async function RemoverOrcamento(
   orcamento: iOrcamento,
 ): Promise<ResponseType<string>> {
   const auth = await requireAuth();
   if (auth.error) return { error: auth.error };
   const tokenCookie = auth.value!;
-  for (const item of orcamento.ItensOrcamento) {
-    const result = await removeItem({
-      pIdOrcamento: orcamento.ORCAMENTO,
-      pProduto: item.PRODUTO.PRODUTO,
-    });
 
-    if (result.error) {
-      return {
-        value: undefined,
-        error: result.error,
-      };
-    }
+  const results = await Promise.all(
+    orcamento.ItensOrcamento.map((item) =>
+      removeItemOnly(
+        {
+          pIdOrcamento: orcamento.ORCAMENTO,
+          pProduto: item.PRODUTO.PRODUTO,
+        },
+        tokenCookie,
+      ),
+    ),
+  );
+
+  const firstError = results.find((r) => r.error);
+  if (firstError) {
+    return {
+      value: undefined,
+      error: firstError.error,
+    };
   }
 
   const responseRemove = await CustomFetch<any>(
