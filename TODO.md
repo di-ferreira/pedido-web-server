@@ -18,8 +18,8 @@ limite falsa. A flag decisória é `CARTEIRA`:
 - [x] Retornar `UsaLimite` (derivado de `CARTEIRA`) em `GetFinanceiroCliente` (`src/app/actions/cliente.ts`)
 
 ### 2. Corrigir bloqueio por limite — orçamento e pré-venda
-- [ ] `src/components/budgets/budgetItens/DataTable/index.tsx`: portar por `UsaLimite` + `TOTAL > SaldoCompra`
-- [ ] `src/components/preSale/FormEditPreSale.tsx`: portar por `UsaLimite` + `TOTAL > SaldoCompra` e ajustar a mensagem `LIMITE`
+- [x] `src/components/budgets/budgetItens/DataTable/index.tsx`: portar por `UsaLimite` + `TOTAL > SaldoCompra`
+- [x] `src/components/preSale/FormEditPreSale.tsx`: portar por `UsaLimite` + `TOTAL > SaldoCompra` e ajustar a mensagem `LIMITE`
 
 ### 3. Corrigir bloqueio por limite — clientes
 - [ ] `src/components/customers/DataTable/index.tsx`: portar por `UsaLimite` + `SaldoCompra <= 0`

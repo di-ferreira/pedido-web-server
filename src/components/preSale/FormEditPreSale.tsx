@@ -206,7 +206,8 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
 
       if (financeiro.ContasAtrazadas > 0) bloqueios.push('INADIMPLENCIA');
 
-      if (financeiro.LimiteCredito <= 0) bloqueios.push('LIMITE');
+      if (financeiro.UsaLimite && orc.TOTAL > financeiro.SaldoCompra)
+        bloqueios.push('LIMITE');
 
       if ((orc.CLIENTE as iCliente).BLOQUEADO === 'S')
         bloqueios.push('BLOQUEADO');
@@ -216,7 +217,7 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
         let message = '';
 
         if (codigo === 'LIMITE') {
-          message = `Cliente ${(orc.CLIENTE as iCliente).NOME} possui limite de crédito de ${FormatToCurrency(financeiro.LimiteCredito.toString())}.`;
+          message = `Cliente ${(orc.CLIENTE as iCliente).NOME} possui saldo disponível de ${FormatToCurrency(financeiro.SaldoCompra.toString())} para um pedido de ${FormatToCurrency(orc.TOTAL.toString())}.`;
         }
         if (codigo === 'INADIMPLENCIA') {
           message = `Cliente ${(orc.CLIENTE as iCliente).NOME} possui inadimplência de ${FormatToCurrency(financeiro.ContasAtrazadas.toString())} não liberada.`;

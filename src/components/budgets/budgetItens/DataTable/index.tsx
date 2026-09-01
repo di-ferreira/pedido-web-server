@@ -72,9 +72,10 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
       }
 
       const CurrentLimit = resultFinanceiro.value!.SaldoCompra;
+      const UsaLimite = resultFinanceiro.value!.UsaLimite;
       const TotalOrcamento = current.TOTAL;
 
-      if (CurrentLimit < TotalOrcamento) {
+      if (UsaLimite && CurrentLimit < TotalOrcamento) {
         let message = `Cliente ${(orc.CLIENTE as iCliente).NOME} possui limite de crédito de ${FormatToCurrency(CurrentLimit.toString())}.`;
 
         const liberacao = await Liberacoes({
