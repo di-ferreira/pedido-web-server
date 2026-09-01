@@ -35,6 +35,7 @@ function PdfDocument({ orc }: PdfViewerProps) {
       <Page size='A4' style={[styles.page]} wrap={true}>
         <View style={[styles.header, styles.default]}>
           <View style={styles.logo}>
+            {/* eslint-disable-next-line jsx-a11y/alt-text */}
             <Image
               src={`${window.location.protocol}//${window.location.host}/logo_15_novembro.jpeg`}
             />

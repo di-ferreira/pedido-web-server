@@ -61,6 +61,44 @@ function Customers({ params }: iCustomerPage) {
     Customer?.LIMITE - ContasAbertas,
   );
 
+  // Carrega o item quando o componente monta ou o 'item' prop muda
+  const loadData = async () => {
+    try {
+      const resultFinanceiro = await GetFinanceiroCliente(params.id);
+
+      if (resultFinanceiro.error !== undefined) {
+        throw new Error(resultFinanceiro.error.message);
+      }
+
+      const financeiro: iFinanceiroCliente = resultFinanceiro.value!;
+
+      const customer = await GetCliente(params.id);
+
+      setcustomer((old) => customer.value!);
+      setLimiteCredito((old) => financeiro.LimiteCredito);
+
+      setContasAtrazadas((old) => financeiro.ContasAtrazadas);
+      setContasAVencer((old) => financeiro.ContasAVencer);
+      setContasAbertas((old) => financeiro.ContasAbertas);
+      setListaDebitosNaoVencidos((old) => financeiro.ListaDebitosNaoVencidos);
+      setListaDebitos((old) => financeiro.ListaDebitos);
+      setTotalCreditos((old) => financeiro.TotalCreditos);
+      setListaCreditos((old) => financeiro.ListaCreditos);
+      setSaldoCompra((old) => financeiro.SaldoCompra);
+    } catch (err: any) {
+      ToastNotify({ message: err.message, type: 'error' });
+    }
+  };
+
+  useEffect(() => {
+    setCurrent({} as unknown as iOrcamento);
+    loadData();
+    // Cleanup opcional se necessário
+    return () => {
+      // Código de limpeza aqui (se aplicável)
+    };
+  }, []);
+
   if (!Customer) return <p>Failed to load customer.</p>;
 
   const NewAddOrcamento: iOrcamento = {
@@ -229,44 +267,6 @@ function Customers({ params }: iCustomerPage) {
       });
     }
   }
-
-  // Carrega o item quando o componente monta ou o 'item' prop muda
-  const loadData = async () => {
-    try {
-      const resultFinanceiro = await GetFinanceiroCliente(params.id);
-
-      if (resultFinanceiro.error !== undefined) {
-        throw new Error(resultFinanceiro.error.message);
-      }
-
-      const financeiro: iFinanceiroCliente = resultFinanceiro.value!;
-
-      const customer = await GetCliente(params.id);
-
-      setcustomer((old) => customer.value!);
-      setLimiteCredito((old) => financeiro.LimiteCredito);
-
-      setContasAtrazadas((old) => financeiro.ContasAtrazadas);
-      setContasAVencer((old) => financeiro.ContasAVencer);
-      setContasAbertas((old) => financeiro.ContasAbertas);
-      setListaDebitosNaoVencidos((old) => financeiro.ListaDebitosNaoVencidos);
-      setListaDebitos((old) => financeiro.ListaDebitos);
-      setTotalCreditos((old) => financeiro.TotalCreditos);
-      setListaCreditos((old) => financeiro.ListaCreditos);
-      setSaldoCompra((old) => financeiro.SaldoCompra);
-    } catch (err: any) {
-      ToastNotify({ message: err.message, type: 'error' });
-    }
-  };
-
-  useEffect(() => {
-    setCurrent({} as unknown as iOrcamento);
-    loadData();
-    // Cleanup opcional se necessário
-    return () => {
-      // Código de limpeza aqui (se aplicável)
-    };
-  }, []);
 
   return (
     <section className='flex flex-col gap-4 w-full h-full'>
