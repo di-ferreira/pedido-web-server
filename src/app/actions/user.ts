@@ -3,7 +3,7 @@ import { iVendedorSenha, ResponseType, userLogin } from '@/@types';
 import { iVendedor } from '@/@types/Vendedor';
 import { compareHash } from '@/lib/utils';
 import { CustomFetch } from '@/services/api';
-import { getCookie, setCookie } from '.';
+import { getCookie, requireAuth, setCookie } from '.';
 
 export async function LoginUser(
   user: userLogin,
@@ -157,7 +157,9 @@ async function getVendedor(data: {
 }
 
 export async function getVendedorAction(): Promise<ResponseType<iVendedor>> {
-  const tokenCookie = await getCookie('token');
+  const auth = await requireAuth();
+  if (auth.error) return { error: auth.error };
+  const tokenCookie = auth.value!;
   const userCookie = await getCookie('user');
 
   const responseData = await CustomFetch(`/Colaboradores(${userCookie})`, {

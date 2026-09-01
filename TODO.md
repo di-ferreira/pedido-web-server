@@ -29,7 +29,7 @@ Playwright E2E contra API de staging, SAST) para validar cada mudança.
 - [x] Teste smoke (Vitest) + teste unit do `ODataQueryBuilder` (10 testes)
 
 ### Fase 1 — Alta (segurança + bugs + lógica)
-- [ ] **Segurança**: validar sessão nas Server Actions (fail-fast sem token) + teste integração (401)
+- [x] **Segurança**: validar sessão nas Server Actions (fail-fast sem token) + teste integração (401)
 - [ ] **Segurança**: sanitizar filtros OData (`ODataQueryBuilder`) + testes unit (escaping/injeção)
 - [ ] **Segurança**: parametrizar/validar `SelectSQL` + teste integração (injeção SQL)
 - [ ] **Segurança**: mover hash de senha p/ servidor + teste (login; bcryptjs fora do bundle)

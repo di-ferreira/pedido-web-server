@@ -7,7 +7,7 @@ import { iDataResultTable } from '@/@types/Table';
 import { iVendedor } from '@/@types/Vendedor';
 import { CustomFetch } from '@/services/api';
 import dayjs from 'dayjs';
-import { getCookie } from '.';
+import { getCookie, requireAuth } from '.';
 import { getVendedorAction } from './user';
 
 interface iCustomersDebit {
@@ -130,8 +130,10 @@ async function CreateFilter(filter: iFilter<iCliente>): Promise<string> {
 export async function GetClienteFromVendedor(
   filter: iFilter<iCliente> | null | undefined,
 ): Promise<ResponseType<iDataResultTable<iCliente>>> {
+  const auth = await requireAuth();
+  if (auth.error) return { error: auth.error };
   const VendedorLocal: string = await getCookie('user');
-  const tokenCookie = await getCookie('token');
+  const tokenCookie = auth.value!;
 
   const FILTER = filter
     ? await CreateFilter(filter)
@@ -171,7 +173,9 @@ export async function GetClienteFromVendedor(
 export async function GetCliente(
   customerCode: string | number,
 ): Promise<ResponseType<iCliente>> {
-  const tokenCookie = await getCookie('token');
+  const auth = await requireAuth();
+  if (auth.error) return { error: auth.error };
+  const tokenCookie = auth.value!;
 
   const response = await CustomFetch<iCliente>(
     `${ROUTE_CLIENTE}(${customerCode})?$expand=Telefones, AgendamentosList, PendenciasList`,
@@ -202,8 +206,12 @@ export async function GetCliente(
   };
 }
 
-export async function GetPGTOsAtrazados(cliente: number) {
-  const tokenCookie = await getCookie('token');
+export async function GetPGTOsAtrazados(
+  cliente: number,
+): Promise<ResponseType<any>> {
+  const auth = await requireAuth();
+  if (auth.error) return { error: auth.error };
+  const tokenCookie = auth.value!;
 
   const sql: string = `SELECT COUNT(R.REGISTRO) AS QTD, SUM(R.RESTA) AS VALOR FROM CTS R JOIN CAR C ON (C.CARTAO=R.TIPO) WHERE R.CONTA IN ('R','C') AND R.RESTA > 0 AND R.VENCIMENTO < '${dayjs().format('YYYY-MM-DD')}' AND R.CLIENTE=${cliente} AND COALESCE(C.financeiro_cliente,'N')='S' AND R.CANCELADO='N'`;
 
@@ -231,8 +239,12 @@ export async function GetPGTOsAtrazados(cliente: number) {
   };
 }
 
-export async function GetPGTOsNaoVencidos(cliente: number) {
-  const tokenCookie = await getCookie('token');
+export async function GetPGTOsNaoVencidos(
+  cliente: number,
+): Promise<ResponseType<any>> {
+  const auth = await requireAuth();
+  if (auth.error) return { error: auth.error };
+  const tokenCookie = auth.value!;
 
   const sql: string = `SELECT COUNT(R.REGISTRO) AS QTD, SUM(R.RESTA) AS VALOR FROM CTS R JOIN CAR C ON (C.CARTAO=R.TIPO) WHERE R.CONTA IN ('C','R') AND R.RESTA>0 AND R.VENCIMENTO>='${String(dayjs().format('YYYY-MM-DD'))}' AND R.CLIENTE='${cliente}' AND COALESCE(C.financeiro_cliente,'N')='S' AND R.CANCELADO='N'`;
 
@@ -260,8 +272,12 @@ export async function GetPGTOsNaoVencidos(cliente: number) {
   };
 }
 
-export async function GetPGTOsEmAberto(cliente: number) {
-  const tokenCookie = await getCookie('token');
+export async function GetPGTOsEmAberto(
+  cliente: number,
+): Promise<ResponseType<iPgtoEmAberto[]>> {
+  const auth = await requireAuth();
+  if (auth.error) return { error: auth.error };
+  const tokenCookie = auth.value!;
 
   const sql: string = `select R.VENCIMENTO, R.DATA, R.TIPO, R.HISTORICO, cast('TODAY' as date) - R.VENCIMENTO as ATRASO, R.RESTA, R.DOC, R.EMISSAO_BOLETO from CTS R LEFT OUTER JOIN CAR C ON (C.cartao=R.tipo) where R.CONTA in ('R', 'C') and R.CANCELADO = 'N' and COALESCE(C.financeiro_cliente,'N')='S' AND R.CLIENTE = ${cliente} and R.RESTA <> 0 order by 1`;
 
@@ -292,8 +308,12 @@ export async function GetPGTOsEmAberto(cliente: number) {
   };
 }
 
-export async function GetClientesPgtoEmAberto() {
-  const tokenCookie = await getCookie('token');
+export async function GetClientesPgtoEmAberto(): Promise<
+  ResponseType<iCustomersDebit[]>
+> {
+  const auth = await requireAuth();
+  if (auth.error) return { error: auth.error };
+  const tokenCookie = auth.value!;
   const VendedorLocal: string = await getCookie('user');
 
   const sql: string = `select CL.nome as NOME_CLIENTE, sum(R.RESTA) as VALOR from CTS R join CAR C on (C.CARTAO = R.TIPO) join CLI CL on (CL.cliente = R.cliente) where R.CONTA in ('R', 'C') and (R.id_vendedor1 = ${VendedorLocal} or R.id_vendedor2 = ${VendedorLocal}) and R.RESTA > 0 and R.VENCIMENTO < ${String(dayjs().format('YYYY-MM-DD'))} and coalesce(C.FINANCEIRO_CLIENTE, 'N') = 'S' and R.CANCELADO = 'N' group by NOME_CLIENTE order by 2 desc`;
@@ -328,6 +348,9 @@ export async function GetClientesPgtoEmAberto() {
 export async function GetFinanceiroCliente(
   idCliente: number,
 ): Promise<ResponseType<iFinanceiroCliente>> {
+  const auth = await requireAuth();
+  if (auth.error) return { error: auth.error };
+
   let debitosVencidoTotal: number;
   let debitosNaoVencidoTotal: number;
   let emAbertoTotal: number;

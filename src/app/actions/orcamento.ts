@@ -19,7 +19,7 @@ import { iVendedor } from '@/@types/Vendedor';
 import { ODataQueryBuilder } from '@/lib/queryFilter';
 import { CustomFetch } from '@/services/api';
 import dayjs from 'dayjs';
-import { getCookie } from '.';
+import { getCookie, requireAuth } from '.';
 import { getVendedorAction } from './user';
 const ROUTE_GET_ALL_ORCAMENTO = '/Orcamento';
 const ROUTE_SAVE_ORCAMENTO = '/ServiceVendas/NovoOrcamento';
@@ -29,9 +29,11 @@ const ROUTE_SAVE_ITEM_ORCAMENTO = '/ServiceVendas/NovoItemOrcamento';
 export async function GetOrcamentosFromVendedor(
   filter?: QueryOptions<iOrcamento>,
 ): Promise<ResponseType<iDataResultTable<iOrcamento>>> {
+  const auth = await requireAuth();
+  if (auth.error) return { error: auth.error };
   const VendedorLocal: string = await getCookie('user');
   const Vendedor: iVendedor = (await getVendedorAction()).value!;
-  const tokenCookie = await getCookie('token');
+  const tokenCookie = auth.value!;
   const OrcamentoMetadata = {
     ORCAMENTO: 'number' as const,
     VENDEDOR: 'number' as const,
@@ -155,7 +157,9 @@ export async function GetOrcamentosFromVendedor(
 export async function GetOrcamento(
   OrcamentoNumber: string | number,
 ): Promise<ResponseType<iOrcamento>> {
-  const tokenCookie = await getCookie('token');
+  const auth = await requireAuth();
+  if (auth.error) return { error: auth.error };
+  const tokenCookie = auth.value!;
 
   const response = await CustomFetch<iOrcamento>(
     `${ROUTE_GET_ALL_ORCAMENTO}(${OrcamentoNumber})?$expand=VENDEDOR,CLIENTE,
@@ -197,8 +201,12 @@ export async function GetOrcamento(
   };
 }
 
-export async function NewOrcamento(orcamento: iOrcamento) {
-  const tokenCookie = await getCookie('token');
+export async function NewOrcamento(
+  orcamento: iOrcamento,
+): Promise<ResponseType<iOrcamento>> {
+  const auth = await requireAuth();
+  if (auth.error) return { error: auth.error };
+  const tokenCookie = auth.value!;
   const VendedorLocal: string = await getCookie('user');
   const ItensOrcamento: iItemInserir[] = [];
 
@@ -270,8 +278,12 @@ export async function NewOrcamento(orcamento: iOrcamento) {
   };
 }
 
-export async function UpdateOrcamento(orcamento: iOrcamento) {
-  const tokenCookie = await getCookie('token');
+export async function UpdateOrcamento(
+  orcamento: iOrcamento,
+): Promise<ResponseType<iOrcamento>> {
+  const auth = await requireAuth();
+  if (auth.error) return { error: auth.error };
+  const tokenCookie = auth.value!;
 
   const responseInsert = await CustomFetch<iOrcamento>(
     `/Orcamento(${orcamento.ORCAMENTO})`,
@@ -316,8 +328,12 @@ export async function UpdateOrcamento(orcamento: iOrcamento) {
   };
 }
 
-export async function RemoverOrcamento(orcamento: iOrcamento) {
-  const tokenCookie = await getCookie('token');
+export async function RemoverOrcamento(
+  orcamento: iOrcamento,
+): Promise<ResponseType<string>> {
+  const auth = await requireAuth();
+  if (auth.error) return { error: auth.error };
+  const tokenCookie = auth.value!;
   for (const item of orcamento.ItensOrcamento) {
     const result = await removeItem({
       pIdOrcamento: orcamento.ORCAMENTO,
@@ -362,7 +378,9 @@ export async function RemoverOrcamento(orcamento: iOrcamento) {
 export async function removeItem(
   itemOrcamento: iItemRemove,
 ): Promise<ResponseType<iOrcamento>> {
-  const tokenCookie = await getCookie('token');
+  const auth = await requireAuth();
+  if (auth.error) return { error: auth.error };
+  const tokenCookie = auth.value!;
 
   const data = await CustomFetch<iApiResult<iOrcamento>>(
     ROUTE_REMOVE_ITEM_ORCAMENTO,
@@ -406,8 +424,12 @@ export async function removeItem(
   };
 }
 
-export async function addItem(itemOrcamento: iItemInserir) {
-  const tokenCookie = await getCookie('token');
+export async function addItem(
+  itemOrcamento: iItemInserir,
+): Promise<ResponseType<iOrcamento>> {
+  const auth = await requireAuth();
+  if (auth.error) return { error: auth.error };
+  const tokenCookie = auth.value!;
   const res = await CustomFetch<iApiResult<iOrcamento>>(
     ROUTE_SAVE_ITEM_ORCAMENTO,
     {
@@ -448,8 +470,12 @@ export async function addItem(itemOrcamento: iItemInserir) {
   };
 }
 
-export async function updateItem(itemOrcamento: iItemInserir) {
-  const tokenCookie = await getCookie('token');
+export async function updateItem(
+  itemOrcamento: iItemInserir,
+): Promise<ResponseType<iOrcamento>> {
+  const auth = await requireAuth();
+  if (auth.error) return { error: auth.error };
+  const tokenCookie = auth.value!;
 
   const removeResult = await CustomFetch<iApiResult<iOrcamento>>(
     ROUTE_REMOVE_ITEM_ORCAMENTO,

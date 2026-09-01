@@ -1,11 +1,12 @@
 'use server';
 
+import { ResponseType } from '@/@types';
 import { iFilter } from '@/@types/Filter';
 import { iMovimento } from '@/@types/PreVenda';
 import { iDataResultTable } from '@/@types/Table';
 import { ODataQueryBuilder } from '@/lib/queryFilter';
 import { CustomFetch } from '@/services/api';
-import { getCookie } from '.';
+import { getCookie, requireAuth } from '.';
 import { VendasMetadata } from './const_metadatas';
 
 const ROUTE_GET_ALL_PRE_VENDA = '/Movimento';
@@ -51,9 +52,13 @@ const CreateFilter = async (filter: iFilter<iMovimento>): Promise<string> => {
   return ResultRoute;
 };
 
-export async function GetVendas(filter: iFilter<iMovimento>) {
+export async function GetVendas(
+  filter: iFilter<iMovimento>,
+): Promise<ResponseType<iDataResultTable<iMovimento>>> {
+  const auth = await requireAuth();
+  if (auth.error) return { error: auth.error };
   const VendedorLocal: string = await getCookie('user');
-  const tokenCookie = await getCookie('token');
+  const tokenCookie = auth.value!;
 
   const FILTER = filter
     ? await CreateFilter(filter)
@@ -91,9 +96,11 @@ export async function GetVendas(filter: iFilter<iMovimento>) {
   };
 }
 
-export async function getVendasDashboard() {
+export async function getVendasDashboard(): Promise<ResponseType<any>> {
+  const auth = await requireAuth();
+  if (auth.error) return { error: auth.error };
   const VendedorLocal: string = await getCookie('user');
-  const tokenCookie = await getCookie('token');
+  const tokenCookie = auth.value!;
 
   const sql: string = `SELECT c.NOME AS CLIENTE, SUM(m.TOTAL) AS TOTAL_VENDAS FROM MVE m JOIN CLI c ON m.CLIENTE = c.CLIENTE WHERE m.TIPOMOV = 'VENDA' AND m.VENDEDOR = ${VendedorLocal} AND m.CANCELADO = 'N' AND m.DATA BETWEEN DATEADD(1 - EXTRACT(DAY FROM CURRENT_DATE) DAY TO CURRENT_DATE) AND DATEADD(-EXTRACT(DAY FROM DATEADD(1 MONTH TO CURRENT_DATE)) DAY TO DATEADD(1 MONTH TO CURRENT_DATE)) GROUP BY c.NOME order by TOTAL_VENDAS desc;`;
 
@@ -120,9 +127,11 @@ export async function getVendasDashboard() {
   };
 }
 
-export async function getDataTotalVenda() {
+export async function getDataTotalVenda(): Promise<ResponseType<any>> {
+  const auth = await requireAuth();
+  if (auth.error) return { error: auth.error };
   const VendedorLocal: string = await getCookie('user');
-  const tokenCookie = await getCookie('token');
+  const tokenCookie = auth.value!;
 
   const sql: string = `SELECT EXTRACT(YEAR FROM data) AS ano, EXTRACT(MONTH FROM data) AS mes, SUM(M.TOTAL) AS total_mensal FROM MVE M WHERE M.VENDEDOR = ${VendedorLocal} AND M.data >= dateadd(month, -1, current_date) AND M.CANCELADO = 'N' GROUP BY EXTRACT(YEAR FROM data), EXTRACT(MONTH FROM data) ORDER BY ano, mes;`;
 
@@ -148,9 +157,13 @@ export async function getDataTotalVenda() {
     error: undefined,
   };
 }
-export async function getLastVenda() {
+export async function getLastVenda(): Promise<
+  ResponseType<iDataResultTable<iMovimento>>
+> {
+  const auth = await requireAuth();
+  if (auth.error) return { error: auth.error };
   const VendedorLocal: string = await getCookie('user');
-  const tokenCookie = await getCookie('token');
+  const tokenCookie = auth.value!;
 
   //const FILTER = `?$filter=VENDEDOR eq ${VendedorLocal} and TIPOMOV eq 'VENDA' and CANCELADO eq 'N'&$top=1&$inlinecount=allpages&$orderby=DATA desc&$expand=CLIENTE,VENDEDOR,Itens_List,Itens_List/PRODUTO`;
 

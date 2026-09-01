@@ -1,6 +1,6 @@
 'use server';
 
-import { iApiResult } from '@/@types';
+import { iApiResult, ResponseType } from '@/@types';
 import { iFilter } from '@/@types/Filter';
 import {
   iCondicaoPgto,
@@ -11,7 +11,7 @@ import {
 } from '@/@types/PreVenda';
 import { iDataResultTable } from '@/@types/Table';
 import { CustomFetch } from '@/services/api';
-import { getCookie } from '.';
+import { getCookie, requireAuth } from '.';
 const ROUTE_GET_ALL_PRE_VENDA = '/Movimento';
 const ROUTE_SAVE_PRE_VENDA = '/ServiceVendas/NovaPreVenda';
 const ROUTE_SELECT_SQL = '/ServiceSistema/SelectSQL';
@@ -68,9 +68,13 @@ const CreateFilter = async (filter: iFilter<iMovimento>): Promise<string> => {
   return ResultRoute;
 };
 
-export async function GetPreVendas(filter: iFilter<iMovimento>) {
+export async function GetPreVendas(
+  filter: iFilter<iMovimento>,
+): Promise<ResponseType<iDataResultTable<iMovimento>>> {
+  const auth = await requireAuth();
+  if (auth.error) return { error: auth.error };
   const VendedorLocal: string = await getCookie('user');
-  const tokenCookie = await getCookie('token');
+  const tokenCookie = auth.value!;
 
   const FILTER = filter
     ? await CreateFilter(filter)
@@ -107,8 +111,10 @@ export async function GetPreVendas(filter: iFilter<iMovimento>) {
   };
 }
 
-export async function GetPreVenda(IdPV: number) {
-  const tokenCookie = await getCookie('token');
+export async function GetPreVenda(IdPV: number): Promise<ResponseType<iMovimento>> {
+  const auth = await requireAuth();
+  if (auth.error) return { error: auth.error };
+  const tokenCookie = auth.value!;
 
   const response = await CustomFetch<iMovimento>(
     `${ROUTE_GET_ALL_PRE_VENDA}(${IdPV})?$expand=CLIENTE,VENDEDOR,Itens_List,Itens_List/PRODUTO`,
@@ -137,8 +143,10 @@ export async function GetPreVenda(IdPV: number) {
   };
 }
 
-export async function GetFormasPGTO() {
-  const tokenCookie = await getCookie('token');
+export async function GetFormasPGTO(): Promise<ResponseType<iFormaPgto[]>> {
+  const auth = await requireAuth();
+  if (auth.error) return { error: auth.error };
+  const tokenCookie = auth.value!;
 
   const response = await CustomFetch<iApiResult<iFormaPgto[]>>(
     `${ROUTE_SELECT_SQL}?pSQL=${SQL_FORMA_PGTO}`,
@@ -171,8 +179,10 @@ export async function GetCondicaoPGTO(
   valor: number,
   tabela: string,
   somenteAvista = false,
-) {
-  const tokenCookie = await getCookie('token');
+): Promise<ResponseType<iCondicaoPgto[]>> {
+  const auth = await requireAuth();
+  if (auth.error) return { error: auth.error };
+  const tokenCookie = auth.value!;
   const sqlCondicao = SQL_CONDICAO_PGTO(valor, tabela, somenteAvista);
 
   const response = await CustomFetch<iApiResult<iCondicaoPgto[]>>(
@@ -202,8 +212,10 @@ export async function GetCondicaoPGTO(
   };
 }
 
-export async function GetTransport() {
-  const tokenCookie = await getCookie('token');
+export async function GetTransport(): Promise<ResponseType<iTransportadora[]>> {
+  const auth = await requireAuth();
+  if (auth.error) return { error: auth.error };
+  const tokenCookie = auth.value!;
 
   const response = await CustomFetch<iApiResult<iTransportadora[]>>(
     `${ROUTE_SELECT_SQL}?pSQL=${SQL_TRANSPORTADORA}`,
@@ -232,8 +244,12 @@ export async function GetTransport() {
   };
 }
 
-export async function SavePreVenda(PreVenda: iPreVenda) {
-  const tokenCookie = await getCookie('token');
+export async function SavePreVenda(
+  PreVenda: iPreVenda,
+): Promise<ResponseType<iMovimento>> {
+  const auth = await requireAuth();
+  if (auth.error) return { error: auth.error };
+  const tokenCookie = auth.value!;
 
   const responseInsert = await CustomFetch<iMovimento>(ROUTE_SAVE_PRE_VENDA, {
     body: JSON.stringify(PreVenda),
@@ -255,7 +271,7 @@ export async function SavePreVenda(PreVenda: iPreVenda) {
   }
 
   return {
-    value: responseInsert.body,
+    value: responseInsert.body!,
     error: undefined,
   };
 }

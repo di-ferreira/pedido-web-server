@@ -12,7 +12,7 @@ import {
 } from '@/@types/Produto';
 import { iDataResultTable } from '@/@types/Table';
 import { CustomFetch } from '@/services/api';
-import { getCookie } from '.';
+import { getCookie, requireAuth } from '.';
 
 interface iReqSuperBusca {
   Palavras: string;
@@ -172,7 +172,9 @@ async function CreateQueryParams(filter: iFilter<iProduto>): Promise<string> {
 export async function SuperFindProducts(
   filter: iFilter<iProduto>,
 ): Promise<ResponseType<iDataResultTable<iProduto>>> {
-  const tokenCookie = await getCookie('token');
+  const auth = await requireAuth();
+  if (auth.error) return { error: auth.error };
+  const tokenCookie = auth.value!;
   const bodyReq: iReqSuperBusca = {
     Palavras: filter?.filter ? String(filter.filter[0].value) : '',
     PularRegistros: filter?.skip ? filter.skip : 0,
@@ -209,7 +211,9 @@ export async function SuperFindProducts(
 export async function GetProducts(
   filter: iFilter<iProduto>,
 ): Promise<ResponseType<iDataResultTable<iProduto>>> {
-  const tokenCookie = await getCookie('token');
+  const auth = await requireAuth();
+  if (auth.error) return { error: auth.error };
+  const tokenCookie = auth.value!;
   const url: string = `${ROUTE_GET_ALL_PRODUTO}${await CreateQueryParams(
     filter,
   )}`;
@@ -244,8 +248,12 @@ export async function GetProducts(
   };
 }
 
-export async function GetProduct(productCode: string) {
-  const tokenCookie = await getCookie('token');
+export async function GetProduct(
+  productCode: string,
+): Promise<ResponseType<iProduto>> {
+  const auth = await requireAuth();
+  if (auth.error) return { error: auth.error };
+  const tokenCookie = auth.value!;
   const productScape = encodeURIComponent(productCode);
 
   const res = await CustomFetch<iProduto>(
@@ -270,7 +278,7 @@ export async function GetProduct(productCode: string) {
   }
 
   return {
-    value: res.body,
+    value: res.body!,
     error: undefined,
   };
 }
@@ -278,7 +286,9 @@ export async function GetProduct(productCode: string) {
 export async function TableFromProduct(
   product: iProduto,
 ): Promise<ResponseType<iTabelaVenda[]>> {
-  const tokenCookie = await getCookie('token');
+  const auth = await requireAuth();
+  if (auth.error) return { error: auth.error };
+  const tokenCookie = auth.value!;
   let tabelas: iTabelaVenda[] = [];
 
   let sql: string = SQL_NORMAL(product.PRODUTO);
@@ -332,7 +342,9 @@ export async function GetNewPriceFromTable(
   product: iProduto,
   table: string,
 ): Promise<ResponseType<number>> {
-  const tokenCookie = await getCookie('token');
+  const auth = await requireAuth();
+  if (auth.error) return { error: auth.error };
+  const tokenCookie = auth.value!;
 
   const sql: string = SQL_NEW_PRICE_FROM_TABLE(product.PRODUTO, table);
 
@@ -373,7 +385,9 @@ export async function GetNewPriceFromTable(
 export async function GetProductPromotion(
   product: iProduto,
 ): Promise<ResponseType<iProductPromotion>> {
-  const tokenCookie = await getCookie('token');
+  const auth = await requireAuth();
+  if (auth.error) return { error: auth.error };
+  const tokenCookie = auth.value!;
 
   const sql: string = SQL_PRODUCTS_PROMOTION(product.PRODUTO);
 
@@ -405,7 +419,9 @@ export async function GetSaleHistory(
   customer: iCliente,
   product: iProduto,
 ): Promise<ResponseType<iSaleHistory[]>> {
-  const tokenCookie = await getCookie('token');
+  const auth = await requireAuth();
+  if (auth.error) return { error: auth.error };
+  const tokenCookie = auth.value!;
 
   const res = await CustomFetch<any>(
     `${ROUTE_GET_SALE_HISTORY}?pCliente=${customer.CLIENTE}&pProduto=${product.PRODUTO}`,
@@ -434,8 +450,12 @@ export async function GetSaleHistory(
   };
 }
 
-export async function GetSimilares(productCode: string) {
-  const tokenCookie = await getCookie('token');
+export async function GetSimilares(
+  productCode: string,
+): Promise<ResponseType<iListaSimilare[]>> {
+  const auth = await requireAuth();
+  if (auth.error) return { error: auth.error };
+  const tokenCookie = auth.value!;
   const productScape = encodeURIComponent(productCode);
 
   const res = await CustomFetch<{ value: iListaSimilare[] }>(

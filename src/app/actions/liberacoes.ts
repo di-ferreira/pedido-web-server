@@ -6,7 +6,7 @@ import { iDataResultTable } from '@/@types/Table';
 import { toIntSafe } from '@/lib/utils';
 import { CustomFetch } from '@/services/api';
 import dayjs from 'dayjs';
-import { getCookie } from '.';
+import { getCookie, requireAuth } from '.';
 import { getVendedorAction } from './user';
 
 const ROUTE_GET_ALL_LIBERACOES = '/Liberacoes';
@@ -118,7 +118,9 @@ async function CreateQueryParams(
 export async function CreateLiberacao(
   liberacao: iLiberacoes,
 ): Promise<ResponseType<iLiberacoes>> {
-  const tokenCookie = await getCookie('token');
+  const auth = await requireAuth();
+  if (auth.error) return { error: auth.error };
+  const tokenCookie = auth.value!;
 
   const response = await CustomFetch<iApiResultBody<iLiberacoes>>(
     `${ROUTE_GET_ALL_LIBERACOES}`,
@@ -151,7 +153,9 @@ export async function CreateLiberacao(
 export async function UpdateLiberacao(
   liberacao: iLiberacoes,
 ): Promise<ResponseType<iLiberacoes>> {
-  const tokenCookie = await getCookie('token');
+  const auth = await requireAuth();
+  if (auth.error) return { error: auth.error };
+  const tokenCookie = auth.value!;
 
   const response = await CustomFetch<iApiResultBody<iLiberacoes>>(
     `${ROUTE_GET_ALL_LIBERACOES}(${liberacao.ID})`,
@@ -187,7 +191,9 @@ export async function UpdateLiberacao(
 export async function LoadLiberacao(
   filter?: iFilter<iLiberacoes> | null | undefined,
 ): Promise<ResponseType<iDataResultTable<iLiberacoes>>> {
-  const tokenCookie = await getCookie('token');
+  const auth = await requireAuth();
+  if (auth.error) return { error: auth.error };
+  const tokenCookie = auth.value!;
   const VendedorLocal: string = await getCookie('user');
 
   const FILTER = filter
@@ -234,7 +240,9 @@ export async function LoadLiberacaoCliente(
   cliente: number,
   codigo: string,
 ): Promise<ResponseType<iLiberacoes>> {
-  const tokenCookie = await getCookie('token');
+  const auth = await requireAuth();
+  if (auth.error) return { error: auth.error };
+  const tokenCookie = auth.value!;
 
   const URL = `?$filter=CHAVE eq ${cliente} and CODIGO eq '${codigo}'&$top=1&$orderby=DATA_HORA desc`;
 
@@ -267,6 +275,9 @@ export async function LoadLiberacaoCliente(
 export async function Liberacoes(
   param: iLiberacoes,
 ): Promise<ResponseType<iLiberacoes>> {
+  const auth = await requireAuth();
+  if (auth.error) return { error: auth.error };
+
   const agora = dayjs().format('YYYY-MM-DDTHH:mm:ss');
   const vendedor = await getVendedorAction();
   const nomeVendedor = ('Ven:' + (vendedor.value?.NOME || 'S/N')).substring(
@@ -336,6 +347,9 @@ export async function Liberacoes(
 export async function SolicitarLiberacao(
   param: iLiberacoes,
 ): Promise<ResponseType<iLiberacoes>> {
+  const auth = await requireAuth();
+  if (auth.error) return { error: auth.error };
+
   const agora = dayjs().format('YYYY-MM-DDTHH:mm:ss');
   const vendedor = await getVendedorAction();
   const nomeVendedor = ('Ven:' + (vendedor.value?.NOME || 'S/N')).substring(
@@ -379,12 +393,18 @@ export async function ValidarLiberacao(
   cliente: number,
   codigo: string,
 ): Promise<ResponseType<iLiberacoes>> {
+  const auth = await requireAuth();
+  if (auth.error) return { error: auth.error };
+
   return await LoadLiberacaoCliente(cliente, codigo);
 }
 
 export async function MarcarLiberacaoComoUsada(
   liberacao: iLiberacoes,
 ): Promise<ResponseType<iLiberacoes>> {
+  const auth = await requireAuth();
+  if (auth.error) return { error: auth.error };
+
   const agora = dayjs().format('YYYY-MM-DDTHH:mm:ss');
 
   return await UpdateLiberacao({
