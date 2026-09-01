@@ -12,6 +12,7 @@ import {
 } from '@/@types/Produto';
 import { iDataResultTable } from '@/@types/Table';
 import { sanitizeODataValue } from '@/lib/queryFilter';
+import { assertSafeSQLValue } from '@/lib/utils';
 import { CustomFetch } from '@/services/api';
 import { getCookie, requireAuth } from '.';
 
@@ -21,21 +22,21 @@ interface iReqSuperBusca {
   QuantidadeRegistros?: number;
 }
 const SQL_NEW_PRICE_FROM_TABLE = (produto: string, tabela: string) =>
-  `select E.PRODUTO, E.PRECO, cast(E.PRECO * ((T.PERCENTUAL / 100) + 1) as numeric(10,2)) as NOVO_PRECO from EST E join TAB T on (T.TABELA = '${tabela}') where E.PRODUTO = '${produto}' `;
+  `select E.PRODUTO, E.PRECO, cast(E.PRECO * ((T.PERCENTUAL / 100) + 1) as numeric(10,2)) as NOVO_PRECO from EST E join TAB T on (T.TABELA = '${assertSafeSQLValue(tabela, 'tabela')}') where E.PRODUTO = '${assertSafeSQLValue(produto, 'produto')}' `;
 
 const SQL_PRODUCTS_PROMOTION = (produto: string) =>
-  `select  E.PRODUTO, E.REFERENCIA, e.nome, e.preco, e.qtdatual, P.valor as OFERTA, p.validade from EST E join promocao p on (p.produto = e.produto) where p.validade >= 'TODAY' and e.produto = '${produto}' order by 6`;
+  `select  E.PRODUTO, E.REFERENCIA, e.nome, e.preco, e.qtdatual, P.valor as OFERTA, p.validade from EST E join promocao p on (p.produto = e.produto) where p.validade >= 'TODAY' and e.produto = '${assertSafeSQLValue(produto, 'produto')}' order by 6`;
 
 const SQL_MWM = (produto: string) => {
-  return `select TRIM(T.TABELA) AS TABELA, CAST((E.fab_bruto - ((E.fab_bruto*T.PERCENTUAL)/100)) AS NUMERIC(10,2)) AS NOVO_PRECO, T.bloqueada AS BLOQUEADO from tabela_mwm T, EST E WHERE E.PRODUTO='${produto}' AND TRIM(T.TABELA) <> '%%'`;
+  return `select TRIM(T.TABELA) AS TABELA, CAST((E.fab_bruto - ((E.fab_bruto*T.PERCENTUAL)/100)) AS NUMERIC(10,2)) AS NOVO_PRECO, T.bloqueada AS BLOQUEADO from tabela_mwm T, EST E WHERE E.PRODUTO='${assertSafeSQLValue(produto, 'produto')}' AND TRIM(T.TABELA) <> '%%'`;
 };
 
 const SQL_NORMAL = (produto: string) => {
-  return `select T.TABELA, CAST((E.PRECO + ((E.PRECO*T.PERCENTUAL)/100)) AS NUMERIC(10,2)) AS PRECO, T.BLOQUEADO from TAB T, EST E  WHERE E.PRODUTO = '${produto}' AND (((SELECT COUNT(*) FROM fab_tab F WHERE F.fabricante = E.fabricante)=0) OR ( T.TABELA IN (SELECT F.TABELA FROM FAB_TAB F WHERE E.fabricante = F.fabricante AND F.tabela = T.tabela)))`;
+  return `select T.TABELA, CAST((E.PRECO + ((E.PRECO*T.PERCENTUAL)/100)) AS NUMERIC(10,2)) AS PRECO, T.BLOQUEADO from TAB T, EST E  WHERE E.PRODUTO = '${assertSafeSQLValue(produto, 'produto')}' AND (((SELECT COUNT(*) FROM fab_tab F WHERE F.fabricante = E.fabricante)=0) OR ( T.TABELA IN (SELECT F.TABELA FROM FAB_TAB F WHERE E.fabricante = F.fabricante AND F.tabela = T.tabela)))`;
 };
 
 const SQL_2D = (produto: string) => {
-  return `SELECT 'TAB01' AS TABELA, fab_liquido1 AS NOVO_PRECO  FROM EST E  WHERE E.PRODUTO =   '${produto}' AND E.fab_liquido1 > 0 UNION  SELECT 'TAB02' AS TABELA, fab_liquido2 AS NOVO_PRECO FROM EST E  WHERE E.PRODUTO = '${produto}' AND E.fab_st > 0`;
+  return `SELECT 'TAB01' AS TABELA, fab_liquido1 AS NOVO_PRECO  FROM EST E  WHERE E.PRODUTO =   '${assertSafeSQLValue(produto, 'produto')}' AND E.fab_liquido1 > 0 UNION  SELECT 'TAB02' AS TABELA, fab_liquido2 AS NOVO_PRECO FROM EST E  WHERE E.PRODUTO = '${assertSafeSQLValue(produto, 'produto')}' AND E.fab_st > 0`;
 };
 
 const ROUTE_SUPER_BUSCA = '/ServiceProdutos/SuperBusca';

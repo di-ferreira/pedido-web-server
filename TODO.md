@@ -31,7 +31,7 @@ Playwright E2E contra API de staging, SAST) para validar cada mudança.
 ### Fase 1 — Alta (segurança + bugs + lógica)
 - [x] **Segurança**: validar sessão nas Server Actions (fail-fast sem token) + teste integração (401)
 - [x] **Segurança**: sanitizar filtros OData (`ODataQueryBuilder`) + testes unit (escaping/injeção)
-- [ ] **Segurança**: parametrizar/validar `SelectSQL` + teste integração (injeção SQL)
+- [x] **Segurança**: parametrizar/validar `SelectSQL` + teste integração (injeção SQL)
 - [ ] **Segurança**: mover hash de senha p/ servidor + teste (login; bcryptjs fora do bundle)
 - [ ] **Bug**: corrigir `ResponseType` (error objeto) + checar status antes do body + testes
 - [ ] **Lógica**: centralizar `SaldoCompra` + regra de bloqueio em 1 helper + testes unit

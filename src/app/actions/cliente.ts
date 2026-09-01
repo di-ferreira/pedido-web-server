@@ -6,6 +6,7 @@ import { iFilter } from '@/@types/Filter';
 import { iDataResultTable } from '@/@types/Table';
 import { iVendedor } from '@/@types/Vendedor';
 import { sanitizeODataValue } from '@/lib/queryFilter';
+import { assertSafeSQLValue } from '@/lib/utils';
 import { CustomFetch } from '@/services/api';
 import dayjs from 'dayjs';
 import { getCookie, requireAuth } from '.';
@@ -220,7 +221,7 @@ export async function GetPGTOsAtrazados(
   if (auth.error) return { error: auth.error };
   const tokenCookie = auth.value!;
 
-  const sql: string = `SELECT COUNT(R.REGISTRO) AS QTD, SUM(R.RESTA) AS VALOR FROM CTS R JOIN CAR C ON (C.CARTAO=R.TIPO) WHERE R.CONTA IN ('R','C') AND R.RESTA > 0 AND R.VENCIMENTO < '${dayjs().format('YYYY-MM-DD')}' AND R.CLIENTE=${cliente} AND COALESCE(C.financeiro_cliente,'N')='S' AND R.CANCELADO='N'`;
+  const sql: string = `SELECT COUNT(R.REGISTRO) AS QTD, SUM(R.RESTA) AS VALOR FROM CTS R JOIN CAR C ON (C.CARTAO=R.TIPO) WHERE R.CONTA IN ('R','C') AND R.RESTA > 0 AND R.VENCIMENTO < '${dayjs().format('YYYY-MM-DD')}' AND R.CLIENTE=${assertSafeSQLValue(cliente, 'cliente')} AND COALESCE(C.financeiro_cliente,'N')='S' AND R.CANCELADO='N'`;
 
   const response = await CustomFetch<any>(`${ROUTE_SELECT_SQL}?pSQL=${sql}`, {
     method: 'GET',
@@ -253,7 +254,7 @@ export async function GetPGTOsNaoVencidos(
   if (auth.error) return { error: auth.error };
   const tokenCookie = auth.value!;
 
-  const sql: string = `SELECT COUNT(R.REGISTRO) AS QTD, SUM(R.RESTA) AS VALOR FROM CTS R JOIN CAR C ON (C.CARTAO=R.TIPO) WHERE R.CONTA IN ('C','R') AND R.RESTA>0 AND R.VENCIMENTO>='${String(dayjs().format('YYYY-MM-DD'))}' AND R.CLIENTE='${cliente}' AND COALESCE(C.financeiro_cliente,'N')='S' AND R.CANCELADO='N'`;
+  const sql: string = `SELECT COUNT(R.REGISTRO) AS QTD, SUM(R.RESTA) AS VALOR FROM CTS R JOIN CAR C ON (C.CARTAO=R.TIPO) WHERE R.CONTA IN ('C','R') AND R.RESTA>0 AND R.VENCIMENTO>='${String(dayjs().format('YYYY-MM-DD'))}' AND R.CLIENTE='${assertSafeSQLValue(cliente, 'cliente')}' AND COALESCE(C.financeiro_cliente,'N')='S' AND R.CANCELADO='N'`;
 
   const response = await CustomFetch<any>(`${ROUTE_SELECT_SQL}?pSQL=${sql}`, {
     method: 'GET',
@@ -286,7 +287,7 @@ export async function GetPGTOsEmAberto(
   if (auth.error) return { error: auth.error };
   const tokenCookie = auth.value!;
 
-  const sql: string = `select R.VENCIMENTO, R.DATA, R.TIPO, R.HISTORICO, cast('TODAY' as date) - R.VENCIMENTO as ATRASO, R.RESTA, R.DOC, R.EMISSAO_BOLETO from CTS R LEFT OUTER JOIN CAR C ON (C.cartao=R.tipo) where R.CONTA in ('R', 'C') and R.CANCELADO = 'N' and COALESCE(C.financeiro_cliente,'N')='S' AND R.CLIENTE = ${cliente} and R.RESTA <> 0 order by 1`;
+  const sql: string = `select R.VENCIMENTO, R.DATA, R.TIPO, R.HISTORICO, cast('TODAY' as date) - R.VENCIMENTO as ATRASO, R.RESTA, R.DOC, R.EMISSAO_BOLETO from CTS R LEFT OUTER JOIN CAR C ON (C.cartao=R.tipo) where R.CONTA in ('R', 'C') and R.CANCELADO = 'N' and COALESCE(C.financeiro_cliente,'N')='S' AND R.CLIENTE = ${assertSafeSQLValue(cliente, 'cliente')} and R.RESTA <> 0 order by 1`;
 
   const response = await CustomFetch<ResponseSQL<iPgtoEmAberto[]>>(
     `${ROUTE_SELECT_SQL}?pSQL=${sql}`,
