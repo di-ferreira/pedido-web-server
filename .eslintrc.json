@@ -3,7 +3,7 @@
   "plugins": ["@typescript-eslint", "security"],
   "rules": {
     "react/display-name": "off",
-    "react-hooks/exhaustive-deps": "off",
+    "react-hooks/exhaustive-deps": "warn",
     "security/detect-eval-with-expression": "warn",
     "security/detect-non-literal-regexp": "warn",
     "security/detect-non-literal-fs-filename": "warn",
