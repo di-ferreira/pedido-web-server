@@ -42,7 +42,7 @@ Playwright E2E contra API de staging, SAST) para validar cada mudança.
 - [x] **Dados**: eliminar N+1 (`RemoverOrcamento`) + fetches redundantes + teste (contagem de calls)
 - [x] **Dados**: extrair fetch das stores + selectors (manter Server Actions + Zustand) + testes
 - [x] **Design**: alinhar identidade oficial EMSoft (Poppins, `--em-*`, `#1552C4`, toggle) + E2E (tema) + a11y
-- [ ] **Design**: acessibilidade (ARIA, modal dialog, botões, labels) + E2E (axe-core) + teste focus trap
+- [x] **Design**: acessibilidade (ARIA, modal dialog, botões, labels) + E2E (axe-core) + teste focus trap
 - [ ] **Design**: responsividade (w-screen, w-96, breakpoints, h-screen) + E2E (sweep de viewports)
 - [x] **Front**: remover código morto (DataTable TanStack, fetchClient, modalStore, 6 deps) + build verde
 - [x] **Front**: adicionar error boundaries (error.tsx/global-error.tsx) + E2E (estado de erro)
