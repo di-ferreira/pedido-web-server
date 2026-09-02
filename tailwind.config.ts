@@ -42,8 +42,7 @@ const config = {
     },
     extend: {
       fontFamily: {
-        sans: ['var(--font-sans)', ...fontFamily.sans],
-        montserrat: ['Montserrat', ...fontFamily.sans],
+        sans: ['var(--font-sans)', 'Poppins', ...fontFamily.sans],
       },
       colors: {
         border: 'hsl(var(--border))',
@@ -79,7 +78,7 @@ const config = {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
-        emsoft_blue: { main: '#063778', light: '#0c6ff1', dark: '#031b3b' },
+        emsoft_blue: { main: '#1552C4', light: '#3b7ddd', dark: '#0d3a8f' },
         emsoft_orange: { main: '#F27318', light: '#f59854', dark: '#bf560b' },
         emsoft_success: { main: '#22BB33', light: '#76e683', dark: '#0e4f16' },
         emsoft_danger: { main: '#BB2124', light: '#dd3f42', dark: '#85171a' },

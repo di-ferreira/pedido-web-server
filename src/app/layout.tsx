@@ -1,9 +1,13 @@
 import { cn } from '@/lib/utils';
 import type { Metadata } from 'next';
-import { Open_Sans } from 'next/font/google';
+import { Poppins } from 'next/font/google';
 import { ToastContainer } from 'react-toastify';
 import './globals.css';
-const openSans = Open_Sans({ subsets: ['latin'], variable: '--font-sans' });
+const poppins = Poppins({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-sans',
+});
 
 export const metadata: Metadata = {
   title: 'EMSoft Pedido Web',
@@ -22,7 +26,7 @@ export default function RootLayout({
       <body
         className={cn(
           'w-screen  min-h-screen overflow-x-hidden bg-background font-sans antialiased',
-          openSans.variable
+          poppins.variable
         )}
       >
         {children}
