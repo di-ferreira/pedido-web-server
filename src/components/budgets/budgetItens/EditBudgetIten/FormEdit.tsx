@@ -1,8 +1,7 @@
 'use client';
 import { iCliente } from '@/@types/Cliente';
 import { iItemInserir, iItensOrcamento, iOrcamento } from '@/@types/Orcamento';
-import { iListaSimilare, iProduto } from '@/@types/Produto';
-import { iColumnType } from '@/@types/Table';
+import { iProduto } from '@/@types/Produto';
 import { addItem, updateItem } from '@/app/actions/orcamento';
 import { DataTable } from '@/components/CustomDataTable';
 import { Loading } from '@/components/Loading';
@@ -10,16 +9,15 @@ import ToastNotify from '@/components/ToastNotify';
 import { SearchProductsModal } from '@/components/products/SearchProductsModal';
 import SuperSearchProducts from '@/components/products/SuperSearchProduct';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { FormatToCurrency } from '@/lib/utils';
+import { faSave, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import React, { useEffect, useRef, useState } from 'react';
 import { useBudget } from '@/store';
 import useProductStore from '@/store/useProductStore';
-import { faPlus, faSave, faTimes } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import dayjs from 'dayjs';
-import React, { useEffect, useRef, useState } from 'react';
 import { tableSalesHistoryHeaders } from './columns';
+import ProductInfoSection from './ProductInfoSection';
+import QuantityPriceSection from './QuantityPriceSection';
+import { getSimilaresHeaders } from './similaresColumns';
 
 interface iFormEditItem {
   item?: iItensOrcamento;
@@ -123,13 +121,8 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
     if (item !== undefined) {
       if (onCloseModal) onCloseModal();
     } else {
-      // 1. Limpa a busca textual
       setWordProducts('');
-
-      // 2. Limpa a Store (essencial se você usa selectProduct)
       clearDetails();
-
-      // 3. Reset TOTAL do objeto do item sem manter o estado anterior (...old)
       setBudgetItem({
         QTD: 1,
         VALOR: 0,
@@ -146,12 +139,9 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
         P_DESC: 0,
         ID_VALE_CASCO: 0,
         ORCAMENTO: current.ORCAMENTO,
-        PRODUTO: {} as iProduto, // Isso vai zerar as referências nos inputs disabled
+        PRODUTO: {} as iProduto,
       });
-
       setQtdItem('1');
-
-      // 4. Devolve o foco para o campo de busca
       setTimeout(() => inputProductRef.current?.focus(), 100);
     }
   }
@@ -246,7 +236,7 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
     return newQtd;
   };
 
-  async function onChangeQTD(e: React.ChangeEvent<HTMLInputElement>) {
+  async function onChangeQTD(e: React.FocusEvent<HTMLInputElement>) {
     let newQtd = Number(e.target.value);
 
     if (Number.isNaN(newQtd) || newQtd < 1) {
@@ -263,6 +253,22 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
       QTD: finalQtd,
       SUBTOTAL: total,
       TOTAL: total,
+    }));
+  }
+
+  async function onQtdChange(e: React.ChangeEvent<HTMLInputElement>) {
+    let newQtdText = e.target.value;
+    let newQtd = Number(newQtdText);
+
+    if (Number.isNaN(newQtd) || newQtd < 1) {
+      newQtd = 1;
+    }
+
+    setQtdItem(newQtdText);
+
+    setBudgetItem((prevBudgetItem) => ({
+      ...prevBudgetItem,
+      QTD: newQtd,
     }));
   }
 
@@ -291,10 +297,8 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
   }
 
   useEffect(() => {
-    // Foco no input ao abrir o modal
     inputProductRef.current?.focus();
 
-    // Carrega o item quando o componente monta ou o 'item' prop muda
     const loadData = async () => {
       try {
         LoadItem();
@@ -306,59 +310,9 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
     loadData();
   }, [current.ORCAMENTO, item?.PRODUTO.PRODUTO]);
 
-  const tableSimilaresHeaders: iColumnType<iListaSimilare>[] = [
-    {
-      key: 'acoes',
-      title: 'AÇÕES',
-      width: '10%',
-      render: (_, item) => (
-        <span className='flex w-full items-center justify-center gap-x-5'>
-          <FontAwesomeIcon
-            icon={faPlus}
-            className='cursor-pointer text-emsoft_orange-main hover:text-emsoft_orange-light'
-            size='xl'
-            title='Adicionar'
-            onClick={() => {
-              loadingProduct(item.EXTERNO);
-            }}
-          />
-        </span>
-      ),
-    },
-    {
-      key: 'EXTERNO.PRODUTO',
-      title: 'PRODUTO',
-      width: '10%',
-    },
-    {
-      key: 'EXTERNO.NOME',
-      title: 'NOME',
-      width: '15%',
-    },
-    {
-      key: 'EXTERNO.REFERENCIA',
-      title: 'REFERÊNCIA',
-      width: '15%',
-    },
-    {
-      key: 'EXTERNO.EQUIVALENTE',
-      title: 'EQUIVALENTE',
-      width: '15%',
-    },
-    {
-      key: 'EXTERNO.DATA_ATUALIZACAO',
-      title: 'DATA ATUALIZAÇÃO',
-      width: '15%',
-      render: (_, item) => {
-        return dayjs(item.EXTERNO.DATA_ATUALIZACAO).format('DD/MM/YYYY');
-      },
-    },
-    {
-      key: 'EXTERNO.QTDATUAL',
-      title: 'QTD ATUAL',
-      width: '15%',
-    },
-  ];
+  const tableSimilaresHeaders = getSimilaresHeaders({
+    onAddSimilar: (similar) => loadingProduct(similar.EXTERNO),
+  });
 
   return (
     <div className='relative w-full h-full'>
@@ -372,105 +326,14 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
         <div
           className={`flex w-full h-[60vh] gap-3 overflow-x-hidden overflow-y-auto`}
         >
-          <div className={`flex w-[70%] flex-col gap-y-3 tablet:w-[60%]`}>
-            <div className={`flex gap-x-3 px-3  tablet:flex-wrap`}>
-              <div
-                className={`flex w-[30%] gap-x-1 items-end tablet:w-[50%] tablet-portrait:w-[100%]`}
-              >
-                <div className={`flex w-[100%]`}>
-                  <Input
-                    onChange={(e) =>
-                      setWordProducts(e.target.value.toUpperCase())
-                    }
-                    value={WordProducts}
-                    ref={inputProductRef}
-                    name='ProdutoPalavras'
-                    labelText='PRODUTO'
-                    labelPosition='top'
-                    enterKeyHint='enter'
-                    onKeyDown={OnSearchProduto}
-                    disabled={item !== undefined}
-                  />
-                </div>
-              </div>
-              <div
-                className={`flex w-[25%] tablet:w-[47%] tablet-portrait:w-[100%]`}
-              >
-                <Input
-                  disabled
-                  value={productSelected ? productSelected.REFERENCIA : ''}
-                  name='REFERÊNCIA'
-                  labelText='REFERÊNCIA'
-                  labelPosition='top'
-                />
-              </div>
-              <div
-                className={`flex w-[30%] tablet:w-[70%] tablet-portrait:w-[100%]`}
-              >
-                <Input
-                  disabled
-                  value={
-                    productSelected ? productSelected.FABRICANTE?.NOME : ''
-                  }
-                  name='FABRICANTE'
-                  labelText='FABRICANTE'
-                  labelPosition='top'
-                />
-              </div>
-              <div
-                className={`flex w-[15%] tablet:w-[27%] tablet-portrait:w-[100%]`}
-              >
-                <Input
-                  disabled
-                  value={
-                    productSelected
-                      ? productSelected.LOCAL?.toLocaleUpperCase()
-                      : ''
-                  }
-                  name='LOCALIZAÇÃO'
-                  labelText='LOCALIZAÇÃO'
-                  labelPosition='top'
-                />
-              </div>
-            </div>
-            <div className={`flex flex-col gap-y-3 px-3`}>
-              <div className={`flex grow`}>
-                <Input
-                  disabled
-                  value={productSelected ? productSelected.NOME : ''}
-                  name='NOME DO PRODUTO'
-                  labelText='NOME DO PRODUTO'
-                  labelPosition='top'
-                />
-              </div>
-              <div>
-                <Textarea
-                  rows={6}
-                  labelText='APLICAÇÃO PRODUTO'
-                  labelPosition='top'
-                  disabled
-                  name='APLICACAO'
-                  className='resize-none'
-                  value={productSelected ? productSelected.APLICACOES : ''}
-                />
-              </div>
-              <div>
-                <Textarea
-                  rows={6}
-                  labelPosition='top'
-                  labelText='INFORMACOES'
-                  disabled
-                  name='INFORMACOES.PRODUTO'
-                  className='resize-none'
-                  value={
-                    productSelected
-                      ? productSelected.INSTRUCOES?.toString()
-                      : ''
-                  }
-                />
-              </div>
-            </div>
-          </div>
+          <ProductInfoSection
+            productSelected={productSelected}
+            WordProducts={WordProducts}
+            inputProductRef={inputProductRef}
+            isEditing={item !== undefined}
+            onWordChange={setWordProducts}
+            onSearchKeyDown={OnSearchProduto}
+          />
           <div className={`flex flex-col w-[30%] tablet:w-[40%]`}>
             <DataTable
               columns={tableSalesHistoryHeaders}
@@ -480,78 +343,17 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
             />
           </div>
         </div>
-        <div className={`flex items-end pt-4 gap-x-4`}>
-          <div className={`flex w-[10%]`}>
-            <Input
-              disabled
-              value={productSelected ? productSelected.QTDATUAL : 0}
-              name='ESTOQUE'
-              type='number'
-              labelText='ESTOQUE'
-              labelPosition='top'
-            />
-          </div>
-          <div className={`flex w-[10%]`}>
-            <Input
-              onChange={(e) => {
-                let newQtdText = e.target.value;
-                let newQtd = Number(newQtdText);
-
-                if (Number.isNaN(newQtd) || newQtd < 1) {
-                  newQtd = 1;
-                }
-
-                setQtdItem(newQtdText);
-
-                setBudgetItem((prevBudgetItem) => ({
-                  ...prevBudgetItem,
-                  QTD: newQtd,
-                }));
-              }}
-              onBlur={onChangeQTD}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  inputBtnSalvarRef.current?.focus();
-                }
-              }}
-              value={QtdItem}
-              ref={inputQTDRef}
-              name='QTD'
-              labelText='QTD'
-              labelPosition='top'
-              className='text-right'
-            />
-          </div>
-
-          <div className={`flex w-[20%] relative`}>
-            {isOferta && (
-              <span
-                className={`absolute text-[12px] font-bold text-red-700 top-2 left-12`}
-              >
-                *Produto em oferta
-              </span>
-            )}
-            <Input
-              value={FormatToCurrency(currentPrice.toString())}
-              name='VALOR (R$)'
-              labelText='VALOR'
-              labelPosition='top'
-              className='text-right'
-              disabled
-            />
-          </div>
-          <div className={`flex w-[20%]`}>
-            <Input
-              value={FormatToCurrency(budgetItem.TOTAL.toString())}
-              name='TOTAL'
-              labelText='TOTAL'
-              labelPosition='top'
-              className='text-right'
-              disabled
-            />
-          </div>
-        </div>
+        <QuantityPriceSection
+          productSelected={productSelected}
+          QtdItem={QtdItem}
+          currentPrice={currentPrice}
+          budgetTotal={budgetItem.TOTAL}
+          isOferta={isOferta}
+          inputQTDRef={inputQTDRef}
+          inputBtnSalvarRef={inputBtnSalvarRef}
+          onQtdChange={onQtdChange}
+          onQtdBlur={onChangeQTD}
+        />
         <div
           className={`flex flex-col w-full h-[150px] overflow-x-hidden overflow-y-auto`}
         >
@@ -621,4 +423,3 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
 };
 
 export default FormEdit;
-

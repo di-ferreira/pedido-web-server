@@ -33,15 +33,9 @@ import { Suspense, useEffect, useState } from 'react';
 import { DataTable } from '../CustomDataTable';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-} from '../ui/select';
 import { tableHeaders } from './columnsParcelas';
+import FreteSection from './FreteSection';
+import PaymentConditionsSection from './PaymentConditionsSection';
 
 interface iFormEditPreSale {
   orc: iOrcamento;
@@ -141,7 +135,6 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
         if (condicao.value) {
           setCondicaoPgto(condicao.value);
           setCondicaoPgtoSelected(condicao.value[0]);
-
           parcelasList(condicao.value[0]);
         }
       });
@@ -182,7 +175,6 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
   }
 
   function hasProdutoZerado(orc: iOrcamento): boolean {
-    // Verifica se há pelo menos um produto com estoque insuficiente
     return orc.ItensOrcamento.some((item) => {
       const estoqueDisponivel =
         item.PRODUTO.QTDATUAL - item.PRODUTO.QTD_GARANTIA;
@@ -203,7 +195,6 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
 
       let nomeVendedor: string = (await getVendedorAction()).value!.NOME;
 
-      // 🔎 Detecta TODOS os bloqueios
       const bloqueios = getBloqueios({
         contasAtrazadas: financeiro.ContasAtrazadas,
         usaLimite: financeiro.UsaLimite,
@@ -212,7 +203,6 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
         bloqueado: (orc.CLIENTE as iCliente).BLOQUEADO,
       });
 
-      // 🔥 Valida cada bloqueio separadamente
       for (const codigo of bloqueios) {
         let message = '';
 
@@ -248,7 +238,6 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
             message: `Cliente ${(orc.CLIENTE as iCliente).NOME} possui bloqueio de ${codigo} não liberado.`,
             type: 'error',
           });
-
           return true;
         }
       }
@@ -265,7 +254,6 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
 
   const GerarPV = async () => {
     try {
-      // Primeiro verifica o estoque (síncrono)
       if (hasProdutoZerado(orc)) {
         ToastNotify({
           message: `Existe produto com estoque zerado na lista!`,
@@ -283,7 +271,6 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
         return;
       }
 
-      // Se passou nas verificações, prossegue com a geração
       const ItensPV: iItemPreVenda[] = [];
       for (const item of orc.ItensOrcamento) {
         if (item.QTD <= 0)
@@ -343,7 +330,7 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
       <h1
         className={`text-4xl font-bold mt-5 py-1 px-3 
           border-b-2 text-emsoft_dark-text
-       border-emsoft_orange-main`}
+        border-emsoft_orange-main`}
       >
         Nova Pré-Venda
       </h1>
@@ -351,162 +338,39 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
         <div className='w-[85%] flex gap-x-3 tablet:w-full tablet:px-3'>
           <div className='flex flex-col w-[70%] px-4 tablet:w-[50%]'>
             <h4>CONDIÇÃO DE PAGAMENTO</h4>
-            <div className='flex w-full mt-5 flex-wrap gap-x-3'>
-              <div className='flex w-full gap-x-3 items-end tablet:flex-wrap'>
-                <div className='w-[17.5%] tablet:w-[20%]'>
-                  <Input
-                    name='ID_CONDICAO'
-                    value={CondicaoPgtoSelected!.ID}
-                    labelPosition='top'
-                    className='w-full'
-                    disabled
-                  />
-                </div>
-                <div className='w-[40%] tablet:w-[76%]'>
-                  <Select
-                    defaultValue={CondicaoPgtoSelected.NOME}
-                    value={String(CondicaoPgtoSelected.ID)}
-                    onValueChange={(e: any) => {
-                      const selectedCondicao = CondicaoPgto.find(
-                        (cp) => cp.NOME === e,
-                      );
-                      if (selectedCondicao) {
-                        parcelasList(selectedCondicao);
-                        setCondicaoPgtoSelected(
-                          (old) => (old = selectedCondicao),
-                        );
-                      }
-                    }}
-                  >
-                    <SelectTrigger className='w-full mb-2 text-emsoft_dark-text'>
-                      {CondicaoPgtoSelected.NOME}
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        {CondicaoPgto.map((tb) => (
-                          <SelectItem
-                            key={tb.ID}
-                            value={String(tb.NOME)}
-                            className='text-emsoft_dark-text'
-                          >
-                            {tb.NOME}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className='w-[40%] tablet:w-[100%]'>
-                  <Label>Forma de pagamento:</Label>
-                  <Select
-                    defaultValue={FormaPgtoSelected?.CARTAO}
-                    value={String(FormaPgtoSelected?.CARTAO)}
-                    onValueChange={(e: any) => {
-                      const selectedForma = FormaPgto.find(
-                        (cp) => cp.CARTAO === e,
-                      );
-                      if (selectedForma) {
-                        setFormaPgtoSelected((old) => (old = selectedForma));
-                      }
-                    }}
-                  >
-                    <SelectTrigger className='w-full mb-2 text-emsoft_dark-text'>
-                      {FormaPgtoSelected?.CARTAO}
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        {FormaPgto.map((frmPgto) => (
-                          <SelectItem
-                            key={frmPgto.CARTAO}
-                            value={String(frmPgto.CARTAO)}
-                            className='text-emsoft_dark-text'
-                          >
-                            {frmPgto.CARTAO}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className='w-full pr-3 tablet:pr-0'>
-                <Input
-                  onChange={(e) =>
-                    setPreSale(
-                      (old) =>
-                        (old = { ...preSale, ObsPedido1: e.target.value }),
-                    )
-                  }
-                  labelText='OBS PEDIDO'
-                  labelPosition='top'
-                  name='OBS_PEDIDO'
-                  value={preSale.ObsPedido1}
-                  height='3.5rem'
-                />
-              </div>
-            </div>
-            <div className={cn('flex ', 'w-full mt-5 flex-wrap')}>
-              <div className='w-full'>
-                <h4>FRETE</h4>
-              </div>
-              <div className='w-full flex flex-col items-start gap-x-3'>
-                <div className='w-[40%] tablet:w-full'>
-                  <Select
-                    defaultValue={TipoEntregaSelected.value}
-                    value={String(TipoEntregaSelected.value)}
-                    onValueChange={(e: any) => {
-                      const entrega = TipoEntrega.find((cp) => cp.value === e);
-                      if (entrega) {
-                        setTipoEntregaSelected(entrega);
-
-                        // Determina se é entrega de forma direta
-                        const isEntrega = entrega.value === 'ENTREGA';
-                        setIsDelivery(isEntrega);
-
-                        // Atualiza o estado do preSale de forma consistente
-                        setPreSale((prev) => ({
-                          ...prev,
-                          Entrega: isEntrega ? 'S' : 'N',
-                          TipoEntrega: IsDelivery ? 'CARRO' : 'VEM BUSCAR',
-                        }));
-                      }
-                    }}
-                  >
-                    <SelectTrigger className='w-full mb-2 text-emsoft_dark-text'>
-                      {TipoEntregaSelected.value}
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        {TipoEntrega.map((tranp, idx) => (
-                          <SelectItem
-                            key={idx}
-                            value={String(tranp.value)}
-                            className='text-emsoft_dark-text'
-                          >
-                            {tranp.value}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </div>
-            <div className='flex w-full mt-5 my-4'>
-              <Input
-                onChange={(e) =>
-                  setPreSale(
-                    (old) =>
-                      (old = { ...preSale, ObsNotaFiscal: e.target.value }),
-                  )
-                }
-                labelText='OBS NOTA FISCAL'
-                labelPosition='top'
-                name='OBS_NF'
-                value={preSale.ObsNotaFiscal}
-                height='3.5rem'
-              />
-            </div>
+            <PaymentConditionsSection
+              CondicaoPgto={CondicaoPgto}
+              CondicaoPgtoSelected={CondicaoPgtoSelected}
+              FormaPgto={FormaPgto}
+              FormaPgtoSelected={FormaPgtoSelected}
+              ObsPedido={preSale.ObsPedido1}
+              onCondicaoChange={(condicao) => {
+                parcelasList(condicao);
+                setCondicaoPgtoSelected(condicao);
+              }}
+              onFormaChange={(forma) => setFormaPgtoSelected(forma)}
+              onObsPedidoChange={(value) =>
+                setPreSale((old) => ({ ...preSale, ObsPedido1: value }))
+              }
+            />
+            <FreteSection
+              TipoEntrega={TipoEntrega}
+              TipoEntregaSelected={TipoEntregaSelected}
+              ObsNotaFiscal={preSale.ObsNotaFiscal}
+              onTipoEntregaChange={(entrega) => {
+                setTipoEntregaSelected(entrega);
+                const isEntrega = entrega.value === 'ENTREGA';
+                setIsDelivery(isEntrega);
+                setPreSale((prev) => ({
+                  ...prev,
+                  Entrega: isEntrega ? 'S' : 'N',
+                  TipoEntrega: isEntrega ? 'CARRO' : 'VEM BUSCAR',
+                }));
+              }}
+              onObsNotaFiscalChange={(value) =>
+                setPreSale((old) => ({ ...preSale, ObsNotaFiscal: value }))
+              }
+            />
           </div>
           <div className='flex flex-col w-[30%] tablet:w-[45%]'>
             <Suspense fallback={<span>Carregando parcelas...</span>}>
@@ -572,4 +436,3 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
 };
 
 export default FormEditPreSale;
-
