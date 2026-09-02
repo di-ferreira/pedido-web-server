@@ -50,4 +50,4 @@ Playwright E2E contra API de staging, SAST) para validar cada mudança.
 - [x] **Qualidade**: tipagem (remover any, iVendedor duplicado, PreVenda.d.ts) + typecheck
 
 ### Fase 3 — Baixa (tooling)
-- [ ] Config (exhaustive-deps, moduleResolution, deps) + CI (lint+test+build+audit+semgrep)
+- [x] Config (exhaustive-deps, moduleResolution, deps) + CI (lint+test+build+audit+semgrep)
