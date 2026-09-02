@@ -25,7 +25,7 @@ export default function RootLayout({
     <html lang='pt-br'>
       <body
         className={cn(
-          'w-screen  min-h-screen overflow-x-hidden bg-background font-sans antialiased',
+          'w-full min-h-dvh overflow-x-hidden bg-background font-sans antialiased',
           poppins.variable
         )}
       >

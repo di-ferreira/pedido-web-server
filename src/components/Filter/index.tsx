@@ -77,7 +77,7 @@ function Filter<T, K>({
         </Select>
       )}
       {input && (
-        <div className='w-96 mr-0 ml-2'>
+        <div className='w-full sm:w-96 mr-0 ml-2'>
           <Input
             onChange={(e) => setSearchInput((old) => (old = e.target.value))}
             onKeyDown={OnSearchKeyDown}

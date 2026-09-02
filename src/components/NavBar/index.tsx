@@ -27,7 +27,7 @@ const NavBar = () => {
       aria-label='Navegação principal'
       className={`flex transition-all overflow-hidden 
                   ${open ? ' w-52 ' : ' w-14  '} 
-                  h-screen  
+                  h-dvh  
                   bg-emsoft_blue-main
                   border-t-0 border-r-2 border-emsoft_orange-main
                   md:w-14 md:hover:w-52`}

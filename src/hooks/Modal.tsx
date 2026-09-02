@@ -58,7 +58,7 @@ export default function Modal({
       role='dialog'
       aria-modal='true'
       aria-labelledby={titleId}
-      className='flex items-center justify-center fixed top-0 left-0 z-[500] w-screen h-screen bg-emsoft_dark-text bg-opacity-70'
+      className='flex items-center justify-center fixed top-0 left-0 z-[500] w-full h-dvh bg-emsoft_dark-text bg-opacity-70'
     >
       <div
         className={cn(
