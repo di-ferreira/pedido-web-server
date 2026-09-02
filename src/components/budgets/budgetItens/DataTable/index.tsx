@@ -63,6 +63,14 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
 
   async function VerifyCustomerLimit() {
     try {
+      if (!current.ItensOrcamento || current.ItensOrcamento.length === 0) {
+        ToastNotify({
+          message: 'Não há itens no orçamento!',
+          type: 'warning',
+        });
+        return;
+      }
+
       const resultFinanceiro = await GetFinanceiroCliente(
         (current.CLIENTE as iCliente).CLIENTE,
       );

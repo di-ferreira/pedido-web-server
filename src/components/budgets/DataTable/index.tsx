@@ -1,16 +1,22 @@
 'use client';
 import { iSearch, ResponseType } from '@/@types';
+import { iCliente } from '@/@types/Cliente';
 import { iFilter } from '@/@types/Filter';
 import { iOrcamento } from '@/@types/Orcamento';
 import { SearchOperator } from '@/@types/QueryFilter';
 import { iColumnType, iDataResultTable } from '@/@types/Table';
+import { iVendedor } from '@/@types/Vendedor';
+import { GetFinanceiroCliente } from '@/app/actions/cliente';
+import { Liberacoes } from '@/app/actions/liberacoes';
 import { GetOrcamentosFromVendedor } from '@/app/actions/orcamento';
 import { DataTable } from '@/components/CustomDataTable';
 import ErrorMessage from '@/components/ErrorMessage';
 import Filter from '@/components/Filter';
 import { Loading } from '@/components/Loading';
+import ToastNotify from '@/components/ToastNotify';
+import { Button } from '@/components/ui/button';
 import { KEY_NAME_TABLE_PAGINATION } from '@/constants';
-import { removeStorage } from '@/lib/utils';
+import { FormatToCurrency, removeStorage } from '@/lib/utils';
 import { useBudget } from '@/store';
 import {
   faEdit,
@@ -20,7 +26,6 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import dayjs from 'dayjs';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useState } from 'react';
 import { ModalEditBudgetItem } from '../budgetItens/EditBudgetIten/ModalEditBudgetItem';
@@ -124,6 +129,70 @@ function DataTableBudget() {
     router.push(`/app/budgets/${item.ORCAMENTO}`);
   };
 
+  async function generatePreSale(item: iOrcamento) {
+    try {
+      if (!item.ItensOrcamento || item.ItensOrcamento.length === 0) {
+        ToastNotify({
+          message: 'Não há itens no orçamento!',
+          type: 'warning',
+        });
+        return;
+      }
+
+      const resultFinanceiro = await GetFinanceiroCliente(
+        (item.CLIENTE as iCliente).CLIENTE,
+      );
+
+      if (resultFinanceiro.error !== undefined) {
+        ToastNotify({
+          message: 'Erro ao consultar Saldo de Compras do cliente!',
+          type: 'error',
+        });
+        return;
+      }
+
+      const CurrentLimit = resultFinanceiro.value!.SaldoCompra;
+      const UsaLimite = resultFinanceiro.value!.UsaLimite;
+
+      if (UsaLimite && CurrentLimit < item.TOTAL) {
+        const message = `Cliente ${(item.CLIENTE as iCliente).NOME} possui limite de crédito de ${FormatToCurrency(CurrentLimit.toString())}.`;
+
+        const liberacao = await Liberacoes({
+          ID: 0,
+          NOME: 'CLIENTE',
+          CODIGO: 'LIMITE',
+          CHAVE: (item.CLIENTE as iCliente).CLIENTE,
+          DATA_HORA: '',
+          QUEM: `Ven:${(item.VENDEDOR as iVendedor).NOME}`,
+          USADO: 'N',
+          ONDE: 'PRÉ-VENDA',
+          ID_ONDE: 9999,
+          OBS: message,
+          MOVIMENTO: 0,
+        });
+
+        if (
+          !liberacao.value ||
+          liberacao.value.USADO !== 'S' ||
+          liberacao.value.ID_ONDE === 9999
+        ) {
+          ToastNotify({
+            message: 'Cliente não possui limite para compra!',
+            type: 'error',
+          });
+          return;
+        }
+      }
+
+      budget.setCurrent(item);
+      router.push(`/app/pre-sales/${item.ORCAMENTO}`);
+    } catch (err: unknown) {
+      const msg =
+        err instanceof Error ? err.message : 'Erro ao gerar pré-venda';
+      ToastNotify({ message: `Erro: ${msg}`, type: 'error' });
+    }
+  }
+
   const headers: iColumnType<iOrcamento>[] = [
     {
       key: 'ORCAMENTO',
@@ -166,14 +235,18 @@ function DataTableBudget() {
       render: (_, item) => {
         return (
           <span className='flex w-full items-center justify-center gap-x-5'>
-            <Link href={`/app/pre-sales/${item.ORCAMENTO}`}>
+            <Button
+              variant='ghost'
+              size='icon'
+              onClick={() => generatePreSale(item)}
+            >
               <FontAwesomeIcon
                 icon={faFileLines}
                 className='text-emsoft_success-main hover:text-emsoft_success-light'
                 size='xl'
                 title='Gerar Pré-venda'
               />
-            </Link>
+            </Button>
 
             <FontAwesomeIcon
               icon={faEdit}
