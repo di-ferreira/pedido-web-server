@@ -40,6 +40,10 @@ export async function GetOrcamentosFromVendedor(
     VENDEDOR: 'number' as const,
     CLIENTE: 'number' as const,
     TOTAL: 'number' as const,
+    DATA: 'date' as const,
+    PV: 'string' as const,
+    TIPO: 'string' as const,
+    BLOQUEADO: 'string' as const,
     ItensOrcamento: 'string' as const,
   } satisfies ModelMetadata<iOrcamento>;
 
