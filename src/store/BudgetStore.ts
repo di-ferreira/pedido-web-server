@@ -47,32 +47,44 @@ const useBudget = create<BudgetStore>((set) => ({
     }
   },
   addItem: (item: iItensOrcamento) => {
-    set((state) => ({
-      current: {
-        ...state.current,
-        ItensOrcamento: [...state.current.ItensOrcamento, item],
-      },
-    }));
+    set((state) => {
+      const itens = [...state.current.ItensOrcamento, item];
+      return {
+        current: {
+          ...state.current,
+          ItensOrcamento: itens,
+          TOTAL: itens.reduce((sum, i) => sum + i.TOTAL, 0),
+        },
+      };
+    });
   },
   removeItem: (item: iItensOrcamento) => {
-    set((state) => ({
-      current: {
-        ...state.current,
-        ItensOrcamento: state.current.ItensOrcamento.filter(
-          (i) => i.PRODUTO.PRODUTO !== item.PRODUTO.PRODUTO,
-        ),
-      },
-    }));
+    set((state) => {
+      const itens = state.current.ItensOrcamento.filter(
+        (i) => i.PRODUTO.PRODUTO !== item.PRODUTO.PRODUTO,
+      );
+      return {
+        current: {
+          ...state.current,
+          ItensOrcamento: itens,
+          TOTAL: itens.reduce((sum, i) => sum + i.TOTAL, 0),
+        },
+      };
+    });
   },
   updateItem: (item: iItensOrcamento) => {
-    set((state) => ({
-      current: {
-        ...state.current,
-        ItensOrcamento: state.current.ItensOrcamento.map((i) =>
-          i.PRODUTO.PRODUTO === item.PRODUTO.PRODUTO ? item : i,
-        ),
-      },
-    }));
+    set((state) => {
+      const itens = state.current.ItensOrcamento.map((i) =>
+        i.PRODUTO.PRODUTO === item.PRODUTO.PRODUTO ? item : i,
+      );
+      return {
+        current: {
+          ...state.current,
+          ItensOrcamento: itens,
+          TOTAL: itens.reduce((sum, i) => sum + i.TOTAL, 0),
+        },
+      };
+    });
   },
 }));
 
