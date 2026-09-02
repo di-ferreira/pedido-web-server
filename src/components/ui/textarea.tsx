@@ -17,7 +17,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
     {
       className,
       icon,
-      id,
+      id: idProp,
       disabled,
       required,
       labelText = '',
@@ -26,6 +26,9 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
     },
     ref
   ) => {
+    const generatedId = React.useId();
+    const id = idProp || generatedId;
+
     return (
       <div
         className={cn(
@@ -56,6 +59,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
           {icon && <FontAwesomeIcon icon={icon} className='text-slate-400' />}
         </span>
         <textarea
+          id={id}
           disabled={disabled}
           className={cn(
             `flex min-h-[60px] w-full rounded-md border border-input bg-white px-3 

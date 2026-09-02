@@ -17,7 +17,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       className,
       type,
       icon,
-      id,
+      id: idProp,
       disabled,
       required,
       labelText = '',
@@ -26,6 +26,9 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     },
     ref
   ) => {
+    const generatedId = React.useId();
+    const id = idProp || generatedId;
+
     return (
       <div
         className={cn(
@@ -57,6 +60,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             <FontAwesomeIcon
               icon={icon}
               className='text-slate-400 tablet-portrait:text-2xl'
+              aria-hidden='true'
             />
           )}
         </span>

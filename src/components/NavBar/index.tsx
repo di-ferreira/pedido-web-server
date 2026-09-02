@@ -23,7 +23,8 @@ const NavBar = () => {
   ];
 
   return (
-    <aside
+    <nav
+      aria-label='Navegação principal'
       className={`flex transition-all overflow-hidden 
                   ${open ? ' w-52 ' : ' w-14  '} 
                   h-screen  
@@ -43,7 +44,7 @@ const NavBar = () => {
           />
         ))}
       </ul>
-    </aside>
+    </nav>
   );
 };
 

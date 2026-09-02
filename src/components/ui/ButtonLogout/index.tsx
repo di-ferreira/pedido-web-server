@@ -13,8 +13,8 @@ const ButtonSingOut = () => {
   }
 
   return (
-    <Button variant={'ghostSecondary'} title='Sair' onClick={logOut}>
-      <FontAwesomeIcon icon={faPowerOff} className='h-full' />
+    <Button variant={'ghostSecondary'} aria-label='Sair' onClick={logOut}>
+      <FontAwesomeIcon icon={faPowerOff} className='h-full' aria-hidden='true' />
     </Button>
   );
 };
