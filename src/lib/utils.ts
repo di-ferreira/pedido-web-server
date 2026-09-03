@@ -27,6 +27,12 @@ export function checkStatus<T>(
   };
 }
 
+export function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  if (typeof error === 'string') return error;
+  return String(error);
+}
+
 export const MaskCnpjCpf = (value: string | undefined) => {
   if (!value) return '';
   if (value.length <= 12)

@@ -47,7 +47,7 @@ const PaymentConditionsSection = ({
           <Select
             defaultValue={CondicaoPgtoSelected.NOME}
             value={String(CondicaoPgtoSelected.ID)}
-            onValueChange={(e: any) => {
+            onValueChange={(e: string) => {
               const selectedCondicao = CondicaoPgto.find(
                 (cp) => cp.NOME === e,
               );
@@ -79,7 +79,7 @@ const PaymentConditionsSection = ({
           <Select
             defaultValue={FormaPgtoSelected?.CARTAO}
             value={String(FormaPgtoSelected?.CARTAO)}
-            onValueChange={(e: any) => {
+            onValueChange={(e: string) => {
               const selectedForma = FormaPgto.find((cp) => cp.CARTAO === e);
               if (selectedForma) {
                 onFormaChange(selectedForma);

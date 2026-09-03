@@ -51,7 +51,7 @@ function Filter<T, K>({
         <Select
           defaultValue={String(options[0].value)}
           value={String(FilterOptions.value)}
-          onValueChange={(e: any) => {
+          onValueChange={(e: string) => {
             const selected = options.find((opt) => opt.value === e);
             setFilterOptions((old) => {
               return selected ? (old = selected) : old;

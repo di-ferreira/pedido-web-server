@@ -40,11 +40,12 @@ export async function GetOrcamentosFromVendedor(
 
   const formattedFilter =
     filter &&
-    filter.filter!.conditions.map((f: any) => {
-      const operator: SearchOperator = f.operator;
+    filter.filter!.conditions.map((f) => {
+      const condition = f as FilterCondition<iOrcamento>;
+      const operator: SearchOperator = condition.operator;
       return {
-        key: f.key,
-        value: f.value,
+        key: condition.key,
+        value: condition.value,
         operator: operator || 'eq',
       };
     });

@@ -3,6 +3,7 @@ import { iCliente } from '@/@types/Cliente';
 import { iItemInserir, iItensOrcamento, iOrcamento } from '@/@types/Orcamento';
 import { iProduto } from '@/@types/Produto';
 import { addItem, updateItem } from '@/app/actions/orcamento';
+import { getErrorMessage } from '@/lib/utils';
 import { DataTable } from '@/components/CustomDataTable';
 import { Loading } from '@/components/Loading';
 import ToastNotify from '@/components/ToastNotify';
@@ -183,9 +184,9 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
 
     try {
       await UpdateProduct(product);
-    } catch (e: any) {
+    } catch (e) {
       ToastNotify({
-        message: `Erro inesperado ao carregar produto: ${e.message}`,
+        message: `Erro inesperado ao carregar produto: ${getErrorMessage(e)}`,
         type: 'error',
       });
     }
@@ -302,8 +303,8 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
     const loadData = async () => {
       try {
         LoadItem();
-      } catch (err: any) {
-        ToastNotify({ message: err.message, type: 'error' });
+      } catch (err) {
+        ToastNotify({ message: getErrorMessage(err), type: 'error' });
       }
     };
 

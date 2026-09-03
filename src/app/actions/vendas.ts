@@ -1,6 +1,6 @@
 'use server';
 
-import { ResponseType } from '@/@types';
+import { ResponseSQL, ResponseType } from '@/@types';
 import { iFilter } from '@/@types/Filter';
 import { iMovimento } from '@/@types/PreVenda';
 import { iDataResultTable } from '@/@types/Table';
@@ -96,7 +96,9 @@ export async function GetVendas(
   };
 }
 
-export async function getVendasDashboard(): Promise<ResponseType<any>> {
+export async function getVendasDashboard(): Promise<
+  ResponseType<Array<{ CLIENTE: string; TOTAL_VENDAS: number }>>
+> {
   const auth = await requireAuth();
   if (auth.error) return { error: auth.error };
   const VendedorLocal: string = await getCookie('user');
@@ -104,13 +106,16 @@ export async function getVendasDashboard(): Promise<ResponseType<any>> {
 
   const sql: string = `SELECT c.NOME AS CLIENTE, SUM(m.TOTAL) AS TOTAL_VENDAS FROM MVE m JOIN CLI c ON m.CLIENTE = c.CLIENTE WHERE m.TIPOMOV = 'VENDA' AND m.VENDEDOR = ${VendedorLocal} AND m.CANCELADO = 'N' AND m.DATA BETWEEN DATEADD(1 - EXTRACT(DAY FROM CURRENT_DATE) DAY TO CURRENT_DATE) AND DATEADD(-EXTRACT(DAY FROM DATEADD(1 MONTH TO CURRENT_DATE)) DAY TO DATEADD(1 MONTH TO CURRENT_DATE)) GROUP BY c.NOME order by TOTAL_VENDAS desc;`;
 
-  const res = await CustomFetch<any>(`${ROUTE_SELECT_SQL}?pSQL=${sql}`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `bearer ${tokenCookie}`,
+  const res = await CustomFetch<ResponseSQL<Array<{ CLIENTE: string; TOTAL_VENDAS: number }>>>(
+    `${ROUTE_SELECT_SQL}?pSQL=${sql}`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `bearer ${tokenCookie}`,
+      },
     },
-  });
+  );
 
   if (res.status !== 200) {
     return {
@@ -122,12 +127,14 @@ export async function getVendasDashboard(): Promise<ResponseType<any>> {
     };
   }
   return {
-    value: res.body.Data,
+    value: res.body!.Data,
     error: undefined,
   };
 }
 
-export async function getDataTotalVenda(): Promise<ResponseType<any>> {
+export async function getDataTotalVenda(): Promise<
+  ResponseType<Array<{ TOTAL_MENSAL: number; MES: string; ANO: string }>>
+> {
   const auth = await requireAuth();
   if (auth.error) return { error: auth.error };
   const VendedorLocal: string = await getCookie('user');
@@ -135,13 +142,16 @@ export async function getDataTotalVenda(): Promise<ResponseType<any>> {
 
   const sql: string = `SELECT EXTRACT(YEAR FROM data) AS ano, EXTRACT(MONTH FROM data) AS mes, SUM(M.TOTAL) AS total_mensal FROM MVE M WHERE M.VENDEDOR = ${VendedorLocal} AND M.data >= dateadd(month, -1, current_date) AND M.CANCELADO = 'N' GROUP BY EXTRACT(YEAR FROM data), EXTRACT(MONTH FROM data) ORDER BY ano, mes;`;
 
-  const res = await CustomFetch<any>(`${ROUTE_SELECT_SQL}?pSQL=${sql}`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `bearer ${tokenCookie}`,
+  const res = await CustomFetch<ResponseSQL<Array<{ TOTAL_MENSAL: number; MES: string; ANO: string }>>>(
+    `${ROUTE_SELECT_SQL}?pSQL=${sql}`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `bearer ${tokenCookie}`,
+      },
     },
-  });
+  );
 
   if (res.status !== 200) {
     return {
@@ -153,7 +163,7 @@ export async function getDataTotalVenda(): Promise<ResponseType<any>> {
     };
   }
   return {
-    value: res.body.Data,
+    value: res.body!.Data,
     error: undefined,
   };
 }

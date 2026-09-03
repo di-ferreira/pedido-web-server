@@ -22,7 +22,7 @@ import { Loading } from '@/components/Loading';
 import ToastNotify from '@/components/ToastNotify';
 import { KEY_NAME_TABLE_PAGINATION } from '@/constants';
 import { getBloqueios } from '@/lib/bloqueios';
-import { removeStorage } from '@/lib/utils';
+import { removeStorage, getErrorMessage } from '@/lib/utils';
 import { useBudget } from '@/store';
 import {
   faFileLines,
@@ -136,8 +136,8 @@ function DataTableCustomer() {
       }
 
       return resultFinanceiro.value!;
-    } catch (err: any) {
-      ToastNotify({ message: err.message, type: 'error' });
+    } catch (err) {
+      ToastNotify({ message: getErrorMessage(err), type: 'error' });
     }
   }
 
@@ -206,9 +206,9 @@ function DataTableCustomer() {
         setCurrent(result.value!);
         router.push(`/app/budgets/${result.value!.ORCAMENTO}`);
       }
-    } catch (err: any) {
+    } catch (err) {
       ToastNotify({
-        message: err.message,
+        message: getErrorMessage(err),
         type: 'error',
       });
     }

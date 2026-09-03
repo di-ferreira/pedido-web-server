@@ -9,7 +9,7 @@ import { sanitizeODataValue } from '@/lib/queryFilter';
 import { assertSafeSQLValue } from '@/lib/utils';
 import { CustomFetch } from '@/services/api';
 import dayjs from 'dayjs';
-import { checkStatus } from '@/lib/utils';
+import { checkStatus, getErrorMessage } from '@/lib/utils';
 import { getCookie, requireAuth } from '.';
 import { getVendedorAction } from './user';
 
@@ -204,20 +204,23 @@ export async function GetCliente(
 
 export async function GetPGTOsAtrazados(
   cliente: number,
-): Promise<ResponseType<any>> {
+): Promise<ResponseType<Array<{ QTD: number; VALOR: number }>>> {
   const auth = await requireAuth();
   if (auth.error) return { error: auth.error };
   const tokenCookie = auth.value!;
 
   const sql: string = `SELECT COUNT(R.REGISTRO) AS QTD, SUM(R.RESTA) AS VALOR FROM CTS R JOIN CAR C ON (C.CARTAO=R.TIPO) WHERE R.CONTA IN ('R','C') AND R.RESTA > 0 AND R.VENCIMENTO < '${dayjs().format('YYYY-MM-DD')}' AND R.CLIENTE=${assertSafeSQLValue(cliente, 'cliente')} AND COALESCE(C.financeiro_cliente,'N')='S' AND R.CANCELADO='N'`;
 
-  const response = await CustomFetch<any>(`${ROUTE_SELECT_SQL}?pSQL=${sql}`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `bearer ${tokenCookie}`,
+  const response = await CustomFetch<ResponseSQL<Array<{ QTD: number; VALOR: number }>>>(
+    `${ROUTE_SELECT_SQL}?pSQL=${sql}`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `bearer ${tokenCookie}`,
+      },
     },
-  });
+  );
 
   if (response.body!.StatusCode !== 200) {
     return {
@@ -237,20 +240,25 @@ export async function GetPGTOsAtrazados(
 
 export async function GetPGTOsNaoVencidos(
   cliente: number,
-): Promise<ResponseType<any>> {
+): Promise<
+  ResponseType<ResponseSQL<Array<{ QTD: number; VALOR: number }>>>
+> {
   const auth = await requireAuth();
   if (auth.error) return { error: auth.error };
   const tokenCookie = auth.value!;
 
   const sql: string = `SELECT COUNT(R.REGISTRO) AS QTD, SUM(R.RESTA) AS VALOR FROM CTS R JOIN CAR C ON (C.CARTAO=R.TIPO) WHERE R.CONTA IN ('C','R') AND R.RESTA>0 AND R.VENCIMENTO>='${String(dayjs().format('YYYY-MM-DD'))}' AND R.CLIENTE='${assertSafeSQLValue(cliente, 'cliente')}' AND COALESCE(C.financeiro_cliente,'N')='S' AND R.CANCELADO='N'`;
 
-  const response = await CustomFetch<any>(`${ROUTE_SELECT_SQL}?pSQL=${sql}`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `bearer ${tokenCookie}`,
+  const response = await CustomFetch<ResponseSQL<Array<{ QTD: number; VALOR: number }>>>(
+    `${ROUTE_SELECT_SQL}?pSQL=${sql}`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `bearer ${tokenCookie}`,
+      },
     },
-  });
+  );
 
   if (response.status !== 200) {
     return {
@@ -368,9 +376,9 @@ export async function GetFinanceiroCliente(
     const now = dayjs();
 
     emAbertoTotal =
-      pgtoEmAberto.reduce((total: any, conta) => total + conta.RESTA, 0) ?? 0;
+      pgtoEmAberto.reduce((total: number, conta) => total + conta.RESTA, 0) ?? 0;
     debitosNaoVencidoTotal = naoVencidas.value?.Data[0]?.VALOR ?? 0;
-    debitosVencidoTotal = emAtrazo.value[0]?.VALOR ?? 0;
+    debitosVencidoTotal = emAtrazo.value?.[0]?.VALOR ?? 0;
 
     debitosNaoVencidos =
       emAberto.value?.filter((aberto: iCredito) =>
@@ -388,7 +396,7 @@ export async function GetFinanceiroCliente(
       emAberto.value?.filter((aberto: iCredito) => aberto.RESTA < 0) ?? [];
 
     creditosTotal =
-      creditos.reduce((total: any, conta) => total + conta.RESTA, 0) ?? 0;
+      creditos.reduce((total: number, conta) => total + conta.RESTA, 0) ?? 0;
 
     creditosTotal = creditosTotal < 0 ? creditosTotal * -1 : creditosTotal;
 
@@ -411,10 +419,13 @@ export async function GetFinanceiroCliente(
       },
       error: undefined,
     };
-  } catch (err: any) {
+  } catch (err) {
     return {
       value: undefined,
-      error: err.message,
+      error: {
+        code: '500',
+        message: getErrorMessage(err),
+      },
     };
   }
 }

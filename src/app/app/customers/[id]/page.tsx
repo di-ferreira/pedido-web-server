@@ -4,6 +4,7 @@ import { iCliente } from '@/@types/Cliente';
 import { iOrcamento } from '@/@types/Orcamento';
 import { iVendedor } from '@/@types/Vendedor';
 import { getBloqueios } from '@/lib/bloqueios';
+import { getErrorMessage } from '@/lib/utils';
 import { GetCliente, GetFinanceiroCliente } from '@/app/actions/cliente';
 import {
   MarcarLiberacaoComoUsada,
@@ -67,8 +68,8 @@ function Customers({ params }: iCustomerPage) {
       setTotalCreditos((old) => financeiro.TotalCreditos);
       setListaCreditos((old) => financeiro.ListaCreditos);
       setSaldoCompra((old) => financeiro.SaldoCompra);
-    } catch (err: any) {
-      ToastNotify({ message: err.message, type: 'error' });
+    } catch (err) {
+      ToastNotify({ message: getErrorMessage(err), type: 'error' });
     }
   };
 
@@ -171,9 +172,9 @@ function Customers({ params }: iCustomerPage) {
           message: error,
           type: 'error',
         });
-    } catch (err: any) {
+    } catch (err) {
       ToastNotify({
-        message: err.message,
+        message: getErrorMessage(err),
         type: 'error',
       });
     }

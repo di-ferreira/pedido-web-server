@@ -40,7 +40,7 @@ const FreteSection = ({
             <Select
               defaultValue={TipoEntregaSelected.value}
               value={String(TipoEntregaSelected.value)}
-              onValueChange={(e: any) => {
+              onValueChange={(e: string) => {
                 const entrega = TipoEntrega.find((cp) => cp.value === e);
                 if (entrega) {
                   onTipoEntregaChange(entrega);

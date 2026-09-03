@@ -155,7 +155,7 @@ export function TablePagination<T>({
               <Select
                 defaultValue={String(PaginationOptions.RowsPerPage)}
                 value={String(PaginationOptions.RowsPerPage)}
-                onValueChange={(e: any) => {
+                onValueChange={(e: string) => {
                   const selected = Number(e);
                   setPaginationOptions({
                     ...PaginationOptions,

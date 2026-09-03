@@ -147,7 +147,9 @@ function PdfDocument({ orc }: PdfViewerProps) {
 }
 
 export function PdfViewer({ orc }: PdfViewerProps) {
-  const [PDFRenderer, setPDFRenderer] = useState<any>(null);
+  const [PDFRenderer, setPDFRenderer] = useState<
+    typeof import('@react-pdf/renderer') | null
+  >(null);
 
   useEffect(() => {
     const loadPDFRenderer = async () => {

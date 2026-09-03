@@ -1,6 +1,7 @@
 'use client';
 import { iOrcamento } from '@/@types/Orcamento';
 import { RemoverOrcamento } from '@/app/actions/orcamento';
+import { getErrorMessage } from '@/lib/utils';
 import { Loading } from '@/components/Loading';
 import ToastNotify from '@/components/ToastNotify';
 import { Button } from '@/components/ui/button';
@@ -24,10 +25,10 @@ const RemoveBudget = ({ params, onCloseModal, onSuccess }: iRemoveBudget) => {
 
       onSuccess?.();
       ToastNotify({ message: `Sucesso: Orçamento removido!`, type: 'success' });
-    } catch (e: any) {
+    } catch (e) {
       // 👇 Reverte a remoção se der erro
       //   refreshTable?.();
-      ToastNotify({ message: `Erro: ${e.message}`, type: 'error' });
+      ToastNotify({ message: `Erro: ${getErrorMessage(e)}`, type: 'error' });
     } finally {
       onCloseModal?.();
       setLoading(false);

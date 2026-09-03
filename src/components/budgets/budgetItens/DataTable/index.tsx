@@ -11,7 +11,7 @@ import { Loading } from '@/components/Loading';
 import ToastNotify from '@/components/ToastNotify';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { FormatToCurrency } from '@/lib/utils';
+import { FormatToCurrency, getErrorMessage } from '@/lib/utils';
 import { useBudget } from '@/store';
 import {
   faEdit,
@@ -53,9 +53,9 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
         message: `Sucesso: Orçamento salvo!`,
         type: 'success',
       });
-    } catch (err: any) {
+    } catch (err) {
       ToastNotify({
-        message: `Erro: ${err.message}`,
+        message: `Erro: ${getErrorMessage(err)}`,
         type: 'error',
       });
     }
@@ -110,9 +110,9 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
       }
 
       router.push(`/app/pre-sales/${current.ORCAMENTO}`);
-    } catch (err: any) {
+    } catch (err) {
       ToastNotify({
-        message: `Erro: ${err.message}`,
+        message: `Erro: ${getErrorMessage(err)}`,
         type: 'error',
       });
     }

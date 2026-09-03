@@ -1,6 +1,6 @@
 'use server';
 
-import { iApiResult, ResponseType } from '@/@types';
+import { iApiResult, ResponseSQL, ResponseType } from '@/@types';
 import { iCliente } from '@/@types/Cliente';
 import { iFilter, iFilterQuery } from '@/@types/Filter';
 import {
@@ -304,13 +304,16 @@ export async function TableFromProduct(
   if (product.FAB_BRUTO > 0 && product.FABRICANTE?.NOME !== 'MWM')
     sql = SQL_2D(product.PRODUTO);
 
-  const res = await CustomFetch<any>(`${ROUTE_SELECT_SQL}?pSQL=${sql}`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `bearer ${tokenCookie}`,
+  const res = await CustomFetch<ResponseSQL<Array<iTabelaVenda & { NOVO_PRECO?: number }>>>(
+    `${ROUTE_SELECT_SQL}?pSQL=${sql}`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `bearer ${tokenCookie}`,
+      },
     },
-  });
+  );
 
   if (res.status !== 200) {
     return {
@@ -324,7 +327,7 @@ export async function TableFromProduct(
 
   const newTables: iTabelaVenda[] = [];
 
-  res.body.Data.map((tb: iTabelaVenda) => {
+  res.body!.Data.map((tb: iTabelaVenda) => {
     if ('NOVO_PRECO' in tb) {
       newTables.push({
         BLOQUEADO: tb.BLOQUEADO,
@@ -354,13 +357,16 @@ export async function GetNewPriceFromTable(
 
   const sql: string = SQL_NEW_PRICE_FROM_TABLE(product.PRODUTO, table);
 
-  const res = await CustomFetch<any>(`${ROUTE_SELECT_SQL}?pSQL=${sql}`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `bearer ${tokenCookie}`,
+  const res = await CustomFetch<ResponseSQL<Array<{ NOVO_PRECO: number }>>>(
+    `${ROUTE_SELECT_SQL}?pSQL=${sql}`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `bearer ${tokenCookie}`,
+      },
     },
-  });
+  );
 
   if (res.status !== 200) {
     return {
@@ -397,13 +403,16 @@ export async function GetProductPromotion(
 
   const sql: string = SQL_PRODUCTS_PROMOTION(product.PRODUTO);
 
-  const res = await CustomFetch<any>(`${ROUTE_SELECT_SQL}?pSQL=${sql}`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `bearer ${tokenCookie}`,
+  const res = await CustomFetch<ResponseSQL<iProductPromotion[]>>(
+    `${ROUTE_SELECT_SQL}?pSQL=${sql}`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `bearer ${tokenCookie}`,
+      },
     },
-  });
+  );
 
   if (res.status !== 200) {
     return {
@@ -439,7 +448,7 @@ export async function GetSaleHistory(
   if (auth.error) return { error: auth.error };
   const tokenCookie = auth.value!;
 
-  const res = await CustomFetch<any>(
+  const res = await CustomFetch<ResponseSQL<iSaleHistory[]>>(
     `${ROUTE_GET_SALE_HISTORY}?pCliente=${customer.CLIENTE}&pProduto=${product.PRODUTO}`,
     {
       method: 'GET',

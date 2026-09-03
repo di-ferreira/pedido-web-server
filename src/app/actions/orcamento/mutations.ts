@@ -199,7 +199,7 @@ export async function RemoverOrcamento(
     };
   }
 
-  const responseRemove = await CustomFetch<any>(
+  const responseRemove = await CustomFetch<unknown>(
     `/Orcamento(${orcamento.ORCAMENTO})`,
     {
       method: 'DELETE',

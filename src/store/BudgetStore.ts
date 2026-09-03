@@ -1,5 +1,6 @@
 import { iItensOrcamento, iOrcamento } from '@/@types/Orcamento';
 import { NewOrcamento, UpdateOrcamento } from '@/app/actions/orcamento';
+import { getErrorMessage } from '@/lib/utils';
 import { create } from 'zustand';
 
 type BudgetStore = {
@@ -28,8 +29,8 @@ const useBudget = create<BudgetStore>((set) => ({
         throw new Error(result.error.message);
       }
       set({ current: result.value, isLoading: false });
-    } catch (err: any) {
-      set({ error: err.message, isLoading: false });
+    } catch (err) {
+      set({ error: getErrorMessage(err), isLoading: false });
       throw err;
     }
   },
@@ -41,8 +42,8 @@ const useBudget = create<BudgetStore>((set) => ({
         throw new Error(result.error.message);
       }
       set({ current: result.value, isLoading: false });
-    } catch (err: any) {
-      set({ error: err.message, isLoading: false });
+    } catch (err) {
+      set({ error: getErrorMessage(err), isLoading: false });
       throw err;
     }
   },

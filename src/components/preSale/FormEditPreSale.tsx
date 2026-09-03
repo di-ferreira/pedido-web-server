@@ -20,7 +20,7 @@ import {
 import { getVendedorAction } from '@/app/actions/user';
 import ToastNotify from '@/components/ToastNotify';
 import { getBloqueios } from '@/lib/bloqueios';
-import { FormatToCurrency, cn } from '@/lib/utils';
+import { FormatToCurrency, cn, getErrorMessage } from '@/lib/utils';
 import {
   faFileInvoiceDollar,
   faTimes,
@@ -243,9 +243,9 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
       }
 
       return false;
-    } catch (e: any) {
+    } catch (e) {
       ToastNotify({
-        message: `Erro ao verificar bloqueios do cliente: ${e.message}`,
+        message: `Erro ao verificar bloqueios do cliente: ${getErrorMessage(e)}`,
         type: 'error',
       });
       return true;
@@ -312,9 +312,9 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
         });
         router.push('/app/pre-sales');
       }
-    } catch (e: any) {
+    } catch (e) {
       ToastNotify({
-        message: `Erro ao gerar pré-venda: ${e.message}`,
+        message: `Erro ao gerar pré-venda: ${getErrorMessage(e)}`,
         type: 'error',
       });
     }
