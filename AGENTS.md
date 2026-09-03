@@ -30,6 +30,7 @@ pré-vendas, vendas e liberações, integrando-se a uma API externa (OData).
 | Senhas           | bcryptjs                                              |
 | Formatação       | dprint (`yarn format`)                                |
 | Lint             | `next lint`                                           |
+| Testes           | Vitest (`yarn test`)                                  |
 
 ## 3. Comandos
 
@@ -38,12 +39,14 @@ yarn dev       # desenvolvimento (porta 3000)
 yarn build     # build de produção
 yarn start     # produção (porta 10016)
 yarn lint      # next lint
+yarn test      # vitest run (suíte de testes)
 yarn format    # dprint fmt (formata o código)
 yarn analyze   # build com bundle analyzer (ANALYZE=true)
+docker build -t pedido-web .   # imagem de produção (Dockerfile multi-stage)
 ```
 
-> Não há suíte de testes (sem Jest/Vitest no `package.json`).
-> Valide com `yarn lint` + `yarn build` + teste manual.
+> Há suíte de testes com **Vitest** (`yarn test`).
+> Valide com `yarn lint` + `yarn test` + `yarn build`.
 
 ## 4. Estrutura de Pastas
 
@@ -51,7 +54,7 @@ yarn analyze   # build com bundle analyzer (ANALYZE=true)
 src/
 ├── app/                    # App Router (rotas, layouts, páginas)
 │   ├── actions/            # ⭐ Server Actions ('use server') — camada de dados
-│   │   ├── orcamento.ts    # orçamentos
+│   │   ├── orcamento/      # orçamentos (query/mutations/items/constants)
 │   │   ├── produto.ts      # produtos
 │   │   ├── cliente.ts      # clientes
 │   │   ├── preVenda.ts     # pré-vendas
@@ -68,8 +71,7 @@ src/
 ├── services/api.ts         # ⭐ CustomFetch (wrapper de fetch p/ API externa)
 ├── lib/
 │   ├── queryFilter/        # ⭐ ODataQueryBuilder (monta queries OData)
-│   ├── fetchClient/        # (legado — ver seção 8)
-│   └── utils.ts            # cn(), hashing, máscaras, moeda, storage
+│   └── utils.ts            # cn(), hashing, máscaras, moeda, storage, getErrorMessage
 ├── @types/                 # tipos de domínio (iOrcamento, iProduto, ...)
 ├── constants/              # constantes (KEY_NAME_TOKEN, etc.)
 └── middleware/             # ParseRoute (https→http)
@@ -103,6 +105,8 @@ Componente ('use client')
   `{ status, statusText, body }` e já prefixa `EMSOFT_API`.
 - **Auth nas requisições**: header `Authorization: bearer ${tokenCookie}`
   (token via `getCookie('token')`).
+- **Auth nas ações**: toda Server Action autenticada chama `requireAuth()`
+  (de `@/app/actions`) no início; se `auth.error`, retorna `{ error: auth.error }`.
 - **Queries OData**: montar com `ODataQueryBuilder` + `ModelMetadata`
   (`string|number|date|boolean`), não concatenar strings.
 - **Tipos de domínio**: prefixo `i` (`iOrcamento`, `iProduto`, `iCliente`) em `src/@types/`.
@@ -114,8 +118,7 @@ Componente ('use client')
 - Cookies httpOnly com prefixo `pedidoweb_` (`KEY_NAME_TOKEN`), expiração 120 min.
 - Proteção de rotas: `SessionWrapper` lê `pedidoweb_token` e faz
   `redirect('/auth')` se ausente.
-- ⚠️ `NEXTAUTH_URL`/`NEXTAUTH_SECRET` existem no `.env` mas **não são usados**
-  (auth é própria por cookie).
+- Auth é própria por cookie (sem NextAuth).
 
 ### 5.5 Backend (API externa)
 
@@ -149,20 +152,9 @@ Componente ('use client')
 
 ## 8. Achados do Review (dívida técnica / atenção)
 
-1. **Dois wrappers de fetch**: `lib/fetchClient` (lê `cookies().get('token')`
-   sem o prefixo `pedidoweb_` → quebraria) é **legado/não usado**. O padrão real
-   é `CustomFetch` (`services/api.ts`). Não usar `fetchClient`.
-2. **Server Actions sem revalidação de auth**: as ações confiam no cookie, mas
-   não validam a sessão internamente (Server Actions são endpoints públicos).
-   Ao adicionar mutações, validar token/usuário dentro da ação.
-3. **Sem testes**: nenhum framework de teste; risco em refactors.
-4. **Arquivos grandes** (candidatos a decomposição): `EditBudgetIten/FormEdit.tsx`
-   (624), `customers/[id]/page.tsx` (599), `FormEditPreSale.tsx` (574),
-   `actions/orcamento.ts` (518).
-5. **`NEXTAUTH_*` órfãos**: variáveis de ambiente sem uso real.
-6. **Tipagem frouxa pontual**: `any` em mapeamentos de filtro
-   (ex.: `actions/orcamento.ts` → `filter.conditions.map((f: any) => ...)`).
-7. **Identidade visual divergente**: o projeto usa fonte `Open_Sans` + paleta
+1. **Arquivos grandes** (candidatos a decomposição): `EditBudgetIten/FormEdit.tsx`
+   (624), `customers/[id]/page.tsx` (599), `FormEditPreSale.tsx` (574).
+2. **Identidade visual divergente**: o projeto usa fonte `Open_Sans` + paleta
    `emsoft_*` (`tailwind.config.ts`, ex.: azul `#063778`), que difere da skill
    `emsoft-identidade-visual` (fonte `Poppins`, tokens `--em-*`, azul `#1552C4`,
    botão de tema claro/escuro obrigatório). Alinhar se a identidade oficial for
