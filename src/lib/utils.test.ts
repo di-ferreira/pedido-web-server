@@ -14,6 +14,11 @@ describe('assertSafeSQLValue', () => {
     expect(assertSafeSQLValue('TAB-01.x', 'campo')).toBe('TAB-01.x');
   });
 
+  it('aceita barras (códigos de produto)', () => {
+    expect(assertSafeSQLValue('YN12/1034', 'campo')).toBe('YN12/1034');
+    expect(assertSafeSQLValue('UF1115/4', 'campo')).toBe('UF1115/4');
+  });
+
   it('rejeita aspas simples (injeção SQL)', () => {
     expect(() => assertSafeSQLValue("O'Brien", 'campo')).toThrow(
       'Valor inválido para campo',

@@ -100,14 +100,15 @@ export function toIntSafe(value: unknown): number {
 
 /**
  * Valida que um valor é seguro para interpolação em uma query SQL
- * (identificador/valor simples: alfanumérico, `_`, `-`, `.`).
+ * (identificador/valor simples: alfanumérico, `_`, `-`, `.`, `/`).
+ * O `/` é aceito porque códigos de produto o utilizam (ex.: YN12/1034).
  * Lança erro se o valor contiver caracteres suspeitos (aspas, espaços,
  * operadores), prevenindo injeção SQL em builders que montam a query
  * por concatenação.
  */
 export function assertSafeSQLValue(value: unknown, field: string): string {
   const str = String(value);
-  if (!/^[\w.-]+$/.test(str)) {
+  if (!/^[\w./-]+$/.test(str)) {
     throw new Error(`Valor inválido para ${field}: ${str}`);
   }
   return str;

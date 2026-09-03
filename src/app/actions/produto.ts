@@ -372,7 +372,7 @@ export async function GetNewPriceFromTable(
     };
   }
 
-  if (res.body.Data === null && res.body.RecordCount <= 0) {
+  if (!res.body?.Data || res.body.Data.length === 0) {
     return {
       value: undefined,
       error: {
@@ -405,7 +405,17 @@ export async function GetProductPromotion(
     },
   });
 
-  if (res.body.Data === null) {
+  if (res.status !== 200) {
+    return {
+      value: undefined,
+      error: {
+        code: String(res.status),
+        message: res.statusText,
+      },
+    };
+  }
+
+  if (!res.body?.Data || res.body.Data.length === 0) {
     return {
       value: undefined,
       error: {
@@ -447,6 +457,13 @@ export async function GetSaleHistory(
         code: res.status.toString(),
         message: res.statusText,
       },
+    };
+  }
+
+  if (!res.body?.Data) {
+    return {
+      value: [],
+      error: undefined,
     };
   }
 
