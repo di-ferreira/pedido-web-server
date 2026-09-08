@@ -7,6 +7,14 @@ import {
   iOrcamentoInserir,
 } from '@/@types/Orcamento';
 import { CustomFetch } from '@/services/api';
+import { getBloqueios } from '@/lib/bloqueios';
+import { decidirLiberacao } from '@/lib/liberacao';
+import { GetCliente, GetFinanceiroCliente } from '@/app/actions/cliente';
+import {
+  MarcarLiberacaoComoUsada,
+  SolicitarLiberacao,
+  ValidarLiberacao,
+} from '@/app/actions/liberacoes';
 import { getCookie, requireAuth } from '..';
 import {
   ROUTE_REMOVE_ITEM_ORCAMENTO,
@@ -21,6 +29,76 @@ export async function NewOrcamento(
   if (auth.error) return { error: auth.error };
   const tokenCookie = auth.value!;
   const VendedorLocal: string = await getCookie('user');
+
+  const clienteId: number =
+    typeof orcamento.CLIENTE === 'number'
+      ? orcamento.CLIENTE
+      : orcamento.CLIENTE.CLIENTE;
+
+  let bloqueado: string;
+  if (typeof orcamento.CLIENTE === 'object') {
+    bloqueado = orcamento.CLIENTE.BLOQUEADO;
+  } else {
+    const clienteResult = await GetCliente(clienteId);
+    if (clienteResult.error) return { error: clienteResult.error };
+    bloqueado = clienteResult.value?.BLOQUEADO ?? 'N';
+  }
+
+  const financeiroResult = await GetFinanceiroCliente(clienteId);
+  if (financeiroResult.error) return { error: financeiroResult.error };
+  const financeiro = financeiroResult.value!;
+
+  const bloqueios = getBloqueios({
+    contasAtrazadas: financeiro.ContasAtrazadas,
+    usaLimite: financeiro.UsaLimite,
+    saldoCompra: financeiro.SaldoCompra,
+    bloqueado,
+  });
+
+  for (const codigo of bloqueios) {
+    const liberacaoResult = await ValidarLiberacao(clienteId, codigo);
+    if (liberacaoResult.error) return { error: liberacaoResult.error };
+
+    const decisao = decidirLiberacao(liberacaoResult.value);
+
+    if (decisao.action === 'solicitar') {
+      await SolicitarLiberacao({
+        ID: 0,
+        NOME: 'CLIENTE',
+        CODIGO: codigo,
+        CHAVE: clienteId,
+        DATA_HORA: '',
+        QUEM: '',
+        USADO: 'N',
+        ONDE: 'PRÉ-VENDA',
+        ID_ONDE: 9999,
+        OBS: '',
+        MOVIMENTO: 0,
+      });
+      return {
+        value: undefined,
+        error: {
+          code: 'SOLICITADO',
+          message: `Solicitação enviada para ${codigo}.`,
+        },
+      };
+    }
+
+    if (decisao.action === 'aguardar') {
+      return {
+        value: undefined,
+        error: {
+          code: 'AGUARDANDO_ERP',
+          message: `Aguardando liberação do ERP (${codigo}).`,
+        },
+      };
+    }
+
+    if (decisao.action === 'consumir') {
+      await MarcarLiberacaoComoUsada(liberacaoResult.value!);
+    }
+  }
+
   const ItensOrcamento: iItemInserir[] = [];
 
   orcamento.ItensOrcamento?.map((item) => {

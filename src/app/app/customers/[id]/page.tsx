@@ -3,14 +3,8 @@ import { iCredito } from '@/@types';
 import { iCliente } from '@/@types/Cliente';
 import { iOrcamento } from '@/@types/Orcamento';
 import { iVendedor } from '@/@types/Vendedor';
-import { getBloqueios } from '@/lib/bloqueios';
 import { getErrorMessage } from '@/lib/utils';
 import { GetCliente, GetFinanceiroCliente } from '@/app/actions/cliente';
-import {
-  MarcarLiberacaoComoUsada,
-  SolicitarLiberacao,
-  ValidarLiberacao,
-} from '@/app/actions/liberacoes';
 import { NewOrcamento } from '@/app/actions/orcamento';
 import ToastNotify from '@/components/ToastNotify';
 import { Button } from '@/components/ui/button';
@@ -34,7 +28,7 @@ interface iCustomerPage {
 
 function Customers({ params }: iCustomerPage) {
   const router = useRouter();
-  const { error, isLoading, setCurrent } = useBudget();
+  const { isLoading, setCurrent } = useBudget();
   const [Customer, setcustomer] = useState<iCliente>({} as iCliente);
   const [ContasAtrazadas, setContasAtrazadas] = useState(0);
   const [ContasAVencer, setContasAVencer] = useState(0);
@@ -89,89 +83,29 @@ function Customers({ params }: iCustomerPage) {
     ItensOrcamento: [],
   };
 
-  async function SolicitacaoDeLiberacao(codigo: string) {
-    await SolicitarLiberacao({
-      ID: 0,
-      NOME: 'CLIENTE',
-      CODIGO: codigo,
-      CHAVE: Customer.CLIENTE,
-      DATA_HORA: '',
-      QUEM: '',
-      USADO: 'N',
-      ONDE: 'PRÉ-VENDA',
-      ID_ONDE: 9999,
-      OBS: '',
-      MOVIMENTO: 0,
-    });
-
-    ToastNotify({
-      message: `Solicitação enviada para ${codigo}.`,
-      type: 'warning',
-    });
-  }
-
   async function GerarOrcamento() {
     try {
-      const bloqueios = getBloqueios({
-        contasAtrazadas: ContasAtrazadas,
-        usaLimite: Customer.CARTEIRA === 'S',
-        saldoCompra: SaldoCompra,
-        bloqueado: Customer.BLOQUEADO,
-      });
-
-      for (const codigo of bloqueios) {
-        const result = await ValidarLiberacao(Customer.CLIENTE, codigo);
-
-        const liberacao = result.value;
-
-        if (!liberacao) {
-          await SolicitacaoDeLiberacao(codigo);
-          return;
-        }
-
-        if (liberacao.ID_ONDE === 0 && liberacao.USADO === 'S') {
-          await SolicitacaoDeLiberacao(codigo);
-          return;
-        }
-
-        if (liberacao.ID_ONDE === 9999) {
-          ToastNotify({
-            message: `Aguardando liberação do ERP (${codigo}).`,
-            type: 'warning',
-          });
-          return;
-        }
-
-        if (liberacao.USADO === 'N') {
-          await MarcarLiberacaoComoUsada(liberacao);
-        }
-      }
-
       const result = await NewOrcamento({
         ...NewAddOrcamento,
         CLIENTE: Customer!,
         TABELA: Customer!.Tabela,
       });
 
-      result.error &&
+      if (result.error) {
+        const isWarning =
+          result.error.code === 'SOLICITADO' ||
+          result.error.code === 'AGUARDANDO_ERP';
         ToastNotify({
           message: result.error.message,
-          type: 'error',
+          type: isWarning ? 'warning' : 'error',
         });
-
-      if (
-        result.value!.ORCAMENTO > 0 ||
-        result.value!.ORCAMENTO !== undefined
-      ) {
-        setCurrent(result.value!);
-        router.push(`/app/budgets/${result.value!.ORCAMENTO}`);
+        return;
       }
 
-      error &&
-        ToastNotify({
-          message: error,
-          type: 'error',
-        });
+      if (result.value) {
+        setCurrent(result.value);
+        router.push(`/app/budgets/${result.value.ORCAMENTO}`);
+      }
     } catch (err) {
       ToastNotify({
         message: getErrorMessage(err),

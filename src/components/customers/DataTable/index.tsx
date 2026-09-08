@@ -5,15 +5,7 @@ import { iFilter, iFilterQuery } from '@/@types/Filter';
 import { iOrcamento } from '@/@types/Orcamento';
 import { iColumnType, iDataResultTable } from '@/@types/Table';
 import { iVendedor } from '@/@types/Vendedor';
-import {
-  GetClienteFromVendedor,
-  GetFinanceiroCliente,
-} from '@/app/actions/cliente';
-import {
-  MarcarLiberacaoComoUsada,
-  SolicitarLiberacao,
-  ValidarLiberacao,
-} from '@/app/actions/liberacoes';
+import { GetClienteFromVendedor } from '@/app/actions/cliente';
 import { NewOrcamento } from '@/app/actions/orcamento';
 import { DataTable } from '@/components/CustomDataTable';
 import ErrorMessage from '@/components/ErrorMessage';
@@ -21,7 +13,6 @@ import Filter from '@/components/Filter';
 import { Loading } from '@/components/Loading';
 import ToastNotify from '@/components/ToastNotify';
 import { KEY_NAME_TABLE_PAGINATION } from '@/constants';
-import { getBloqueios } from '@/lib/bloqueios';
 import { removeStorage, getErrorMessage } from '@/lib/utils';
 import { useBudget } from '@/store';
 import {
@@ -37,7 +28,7 @@ import { headers } from './columns';
 
 function DataTableCustomer() {
   const router = useRouter();
-  const { error, isLoading, newBudget, current, setCurrent } = useBudget();
+  const { isLoading, setCurrent } = useBudget();
   const [data, setData] = useState<ResponseType<iDataResultTable<iCliente>>>(
     {},
   );
@@ -107,104 +98,28 @@ function DataTableCustomer() {
       });
   }, []);
 
-  async function SolicitacaoDeLiberacao(codigo: string, cliente: iCliente) {
-    const liberacaoSolicitada = await SolicitarLiberacao({
-      ID: 0,
-      NOME: 'CLIENTE',
-      CODIGO: codigo,
-      CHAVE: cliente.CLIENTE,
-      DATA_HORA: '',
-      QUEM: '',
-      USADO: 'N',
-      ONDE: 'PRÉ-VENDA',
-      ID_ONDE: 9999,
-      OBS: '',
-      MOVIMENTO: 0,
-    });
-
-    ToastNotify({
-      message: `Solicitação enviada para ${codigo}.`,
-      type: 'warning',
-    });
-  }
-  async function financeiroCliente(cliente: iCliente) {
-    try {
-      const resultFinanceiro = await GetFinanceiroCliente(cliente.CLIENTE);
-
-      if (resultFinanceiro.error !== undefined) {
-        throw new Error(resultFinanceiro.error.message);
-      }
-
-      return resultFinanceiro.value!;
-    } catch (err) {
-      ToastNotify({ message: getErrorMessage(err), type: 'error' });
-    }
-  }
-
   async function GerarOrcamento(cliente: iCliente) {
     try {
-      const financeiro = await financeiroCliente(cliente);
-
-      const bloqueios = getBloqueios({
-        contasAtrazadas: financeiro?.ContasAtrazadas ?? 0,
-        usaLimite: financeiro?.UsaLimite ?? false,
-        saldoCompra: financeiro?.SaldoCompra ?? 0,
-        bloqueado: cliente.BLOQUEADO,
-      });
-
-      for (const codigo of bloqueios) {
-        const result = await ValidarLiberacao(cliente.CLIENTE, codigo);
-
-        const liberacao = result.value;
-
-        // ❌ Não existe → solicitar e parar
-        if (!liberacao) {
-          await SolicitacaoDeLiberacao(codigo, cliente);
-          return;
-        }
-
-        if (liberacao.ID_ONDE === 0 && liberacao.USADO === 'S') {
-          await SolicitacaoDeLiberacao(codigo, cliente);
-          return;
-        }
-
-        // ⏳ Aguardando ERP
-        if (liberacao.ID_ONDE === 9999) {
-          ToastNotify({
-            message: `Aguardando liberação do ERP (${codigo}).`,
-            type: 'warning',
-          });
-
-          return;
-        }
-
-        if (liberacao.USADO === 'N') {
-          await MarcarLiberacaoComoUsada(liberacao);
-        }
-      }
       const result = await NewOrcamento({
         ...NewAddOrcamento,
         CLIENTE: cliente,
         TABELA: cliente.Tabela,
       });
-      // await newBudget({
-      //   ...NewAddOrcamento,
-      //   CLIENTE: cliente,
-      //   TABELA: cliente.Tabela,
-      // });
 
-      result.error &&
+      if (result.error) {
+        const isWarning =
+          result.error.code === 'SOLICITADO' ||
+          result.error.code === 'AGUARDANDO_ERP';
         ToastNotify({
           message: result.error.message,
-          type: 'error',
+          type: isWarning ? 'warning' : 'error',
         });
+        return;
+      }
 
-      if (
-        result.value!.ORCAMENTO > 0 ||
-        result.value!.ORCAMENTO !== undefined
-      ) {
-        setCurrent(result.value!);
-        router.push(`/app/budgets/${result.value!.ORCAMENTO}`);
+      if (result.value) {
+        setCurrent(result.value);
+        router.push(`/app/budgets/${result.value.ORCAMENTO}`);
       }
     } catch (err) {
       ToastNotify({
