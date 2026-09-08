@@ -68,4 +68,23 @@ describe('useProductStore.selectProduct', () => {
     expect(useProductStore.getState().currentPrice).toBe(12);
     expect(mockedToast).not.toHaveBeenCalled();
   });
+
+  it('não quebra quando um similar tem EXTERNO null (defesa no filter)', async () => {
+    mockedPromotion.mockResolvedValue({ value: undefined });
+    mockedPrice.mockResolvedValue({ value: 12 });
+    mockedHistory.mockResolvedValue({ value: [] });
+    mockedSimilares.mockResolvedValue({
+      value: [
+        { EXTERNO: null },
+        { EXTERNO: { ATIVO: 'S', VENDA: 'S', TRANCAR: 'N', PRODUTO: 'X' } },
+      ],
+    });
+
+    await useProductStore.getState().selectProduct(prod, cliente);
+
+    expect(useProductStore.getState().isLoading).toBe(false);
+    expect(useProductStore.getState().currentPrice).toBe(12);
+    expect(useProductStore.getState().similares).toHaveLength(1);
+    expect(mockedToast).not.toHaveBeenCalled();
+  });
 });

@@ -491,7 +491,7 @@ export async function GetSimilares(
   const productScape = encodeURIComponent(productCode);
 
   const res = await CustomFetch<{ value: iListaSimilare[] }>(
-    `${ROUTE_GET_ALL_SIMILARES}?$filter=PRODUTO eq '${productScape}'`,
+    `${ROUTE_GET_ALL_SIMILARES}?$filter=PRODUTO eq '${productScape}'&$expand=EXTERNO,EXTERNO/FABRICANTE&$select=EXTERNO,EXTERNO/PRODUTO,EXTERNO/NOME,EXTERNO/REFERENCIA,EXTERNO/DATA_ATUALIZACAO,EXTERNO/QTDATUAL,EXTERNO/ATIVO,EXTERNO/VENDA,EXTERNO/TRANCAR,EXTERNO/PRECO,EXTERNO/LOCAL,EXTERNO/APLICACOES,EXTERNO/INSTRUCOES,EXTERNO/FABRICANTE,EXTERNO/FABRICANTE/NOME`,
     {
       method: 'GET',
       headers: {

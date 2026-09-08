@@ -14,6 +14,7 @@ import {
   GetNewPriceFromTable,
   GetProductPromotion,
   GetSaleHistory,
+  GetSimilares,
 } from '@/app/actions/produto';
 
 const mockedCookies = cookies as unknown as ReturnType<typeof vi.fn>;
@@ -111,5 +112,42 @@ describe('GetSaleHistory', () => {
 
     expect(result.error).toBeUndefined();
     expect(result.value).toEqual([]);
+  });
+});
+
+describe('GetSimilares', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockToken();
+  });
+
+  it('monta a query com $expand=EXTERNO e $select restritivo', async () => {
+    mockedCustomFetch.mockResolvedValue({
+      status: 200,
+      statusText: 'OK',
+      body: { value: [] },
+    });
+
+    await GetSimilares('DT20173');
+
+    const url = mockedCustomFetch.mock.calls[0][0] as string;
+    expect(url).toContain('$expand=EXTERNO,EXTERNO/FABRICANTE');
+    expect(url).toContain('$select=');
+    expect(url).toContain('EXTERNO/PRODUTO');
+    expect(url).toContain('EXTERNO/PRECO');
+    expect(url).toContain('EXTERNO/FABRICANTE/NOME');
+  });
+
+  it('retorna a lista de similares quando há valor', async () => {
+    mockedCustomFetch.mockResolvedValue({
+      status: 200,
+      statusText: 'OK',
+      body: { value: [{ EXTERNO: { PRODUTO: 'X' } }] },
+    });
+
+    const result = await GetSimilares('DT20173');
+
+    expect(result.error).toBeUndefined();
+    expect(result.value).toHaveLength(1);
   });
 });

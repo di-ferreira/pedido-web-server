@@ -150,6 +150,7 @@ const useProductStore = create<ProductStore>((set, get) => ({
       if (simsRes.value !== undefined && simsRes.value !== null) {
         similaresFiltrados = simsRes.value.filter((similar) => {
           return (
+            similar.EXTERNO &&
             similar.EXTERNO.ATIVO !== 'N' &&
             similar.EXTERNO.VENDA !== 'N' &&
             similar.EXTERNO.TRANCAR !== 'S'
