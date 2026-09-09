@@ -22,7 +22,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useRouter } from 'next/navigation';
-import { Suspense } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import GeneratePDF from '../../PdfViewer/PdfButton';
 import FormEdit from '../EditBudgetIten/FormEdit';
 import { ModalEditBudgetItem } from '../EditBudgetIten/ModalEditBudgetItem';
@@ -34,6 +34,21 @@ interface iItemBudgetTable {
 const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
   const { error, isLoading, updateBudget, current, setCurrent } = useBudget();
   const router = useRouter();
+  const [saldoCompra, setSaldoCompra] = useState<number | null>(null);
+  const [usaLimite, setUsaLimite] = useState(false);
+
+  useEffect(() => {
+    if (current?.CLIENTE) {
+      GetFinanceiroCliente((current.CLIENTE as iCliente).CLIENTE).then(
+        (res) => {
+          if (res.value) {
+            setSaldoCompra(res.value.SaldoCompra);
+            setUsaLimite(res.value.UsaLimite);
+          }
+        },
+      );
+    }
+  }, [current?.ORCAMENTO]);
 
   async function UpdateBudget() {
     try {
@@ -285,7 +300,7 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
           onChange={(e) => {
             setCurrent({ ...current, OBS1: e.target.value });
           }}
-          className='w-[40.5%] h-7'
+          className='w-[30%] h-7'
         />
 
         <Input
@@ -296,8 +311,29 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
           onChange={(e) => {
             setCurrent({ ...current, OBS2: e.target.value });
           }}
-          className='w-[41%] h-7'
+          className='w-[30%] h-7'
         />
+
+        {usaLimite && (
+          <Input
+            labelText='SALDO COMPRA'
+            labelPosition='top'
+            name='SALDO_COMPRA'
+            value={
+              saldoCompra !== null
+                ? FormatToCurrency(String(saldoCompra))
+                : '...'
+            }
+            disabled
+            style={{
+              color:
+                saldoCompra !== null && saldoCompra < 0
+                  ? '#b91c1c'
+                  : undefined,
+            }}
+            className='w-[20%] h-7'
+          />
+        )}
       </div>
       <div className='flex w-full items-center px-5 mt-8 gap-x-4 tablet-portrait:h-auto tablet-portrait:gap-y-6'>
         <ModalEditBudgetItem
