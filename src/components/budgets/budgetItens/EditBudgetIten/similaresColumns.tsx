@@ -43,7 +43,7 @@ export const getSimilaresHeaders = ({
     width: '15%',
   },
   {
-    key: 'EXTERNO.EQUIVALENTE',
+    key: 'EQUIVALENTE',
     title: 'EQUIVALENTE',
     width: '15%',
   },

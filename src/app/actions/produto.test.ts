@@ -121,7 +121,7 @@ describe('GetSimilares', () => {
     mockToken();
   });
 
-  it('monta a query com $expand=EXTERNO e $select restritivo', async () => {
+  it('monta a query com $expand=EXTERNO,EXTERNO/FABRICANTE', async () => {
     mockedCustomFetch.mockResolvedValue({
       status: 200,
       statusText: 'OK',
@@ -132,10 +132,7 @@ describe('GetSimilares', () => {
 
     const url = mockedCustomFetch.mock.calls[0][0] as string;
     expect(url).toContain('$expand=EXTERNO,EXTERNO/FABRICANTE');
-    expect(url).toContain('$select=');
-    expect(url).toContain('EXTERNO/PRODUTO');
-    expect(url).toContain('EXTERNO/PRECO');
-    expect(url).toContain('EXTERNO/FABRICANTE/NOME');
+    expect(url).not.toContain('$select');
   });
 
   it('retorna a lista de similares quando há valor', async () => {
