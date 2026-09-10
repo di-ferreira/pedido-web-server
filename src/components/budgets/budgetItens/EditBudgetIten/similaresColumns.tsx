@@ -49,7 +49,7 @@ export const getSimilaresHeaders = ({
     title: 'PREÇO',
     width: '20%',
     render: (_, item) =>
-      FormatToCurrency((item.EXTERNO.PRECO * priceRatio).toString()),
+      FormatToCurrency((item.EXTERNO.PRECO * priceRatio).toFixed(2)),
   },
   {
     key: 'EXTERNO.QTDATUAL',
