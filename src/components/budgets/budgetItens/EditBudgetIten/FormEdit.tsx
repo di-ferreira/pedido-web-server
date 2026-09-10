@@ -311,8 +311,13 @@ const FormEdit = ({ item, budget, CallBack, onCloseModal }: iFormEditItem) => {
     loadData();
   }, [current.ORCAMENTO, item?.PRODUTO.PRODUTO]);
 
+  const priceRatio = productSelected?.PRECO
+    ? currentPrice / productSelected.PRECO
+    : 1;
+
   const tableSimilaresHeaders = getSimilaresHeaders({
     onAddSimilar: (similar) => loadingProduct(similar.EXTERNO),
+    priceRatio,
   });
 
   return (

@@ -1,15 +1,17 @@
 import { iListaSimilare } from '@/@types/Produto';
 import { iColumnType } from '@/@types/Table';
+import { FormatToCurrency } from '@/lib/utils';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import dayjs from 'dayjs';
 
 interface iSimilaresColumnsProps {
   onAddSimilar: (product: iListaSimilare) => void;
+  priceRatio: number;
 }
 
 export const getSimilaresHeaders = ({
   onAddSimilar,
+  priceRatio,
 }: iSimilaresColumnsProps): iColumnType<iListaSimilare>[] => [
   {
     key: 'acoes',
@@ -35,29 +37,23 @@ export const getSimilaresHeaders = ({
   {
     key: 'EXTERNO.NOME',
     title: 'NOME',
-    width: '15%',
+    width: '20%',
   },
   {
     key: 'EXTERNO.REFERENCIA',
     title: 'REFERÊNCIA',
-    width: '15%',
+    width: '20%',
   },
   {
-    key: 'EQUIVALENTE',
-    title: 'EQUIVALENTE',
-    width: '15%',
-  },
-  {
-    key: 'EXTERNO.DATA_ATUALIZACAO',
-    title: 'DATA ATUALIZAÇÃO',
-    width: '15%',
-    render: (_, item) => {
-      return dayjs(item.EXTERNO.DATA_ATUALIZACAO).format('DD/MM/YYYY');
-    },
+    key: 'preco',
+    title: 'PREÇO',
+    width: '20%',
+    render: (_, item) =>
+      FormatToCurrency((item.EXTERNO.PRECO * priceRatio).toString()),
   },
   {
     key: 'EXTERNO.QTDATUAL',
     title: 'QTD ATUAL',
-    width: '15%',
+    width: '20%',
   },
 ];
