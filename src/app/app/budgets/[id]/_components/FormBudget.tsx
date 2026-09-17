@@ -101,7 +101,7 @@ function FormBudget({ orc }: iFormBudget) {
           </div>
         )}
 
-        <div className='flex gap-4 w-full mt-2'>
+        <div className='flex gap-4 w-full mt-6'>
           <DataTableItensBudget orc={orc} />
         </div>
       </div>

@@ -335,12 +335,13 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
           />
         )}
       </div>
-      <div className='flex flex-wrap w-full items-center px-5 mt-4 gap-x-4 gap-y-3'>
+      <div className='flex flex-col w-full px-5 mt-4 gap-y-3'>
         <ModalEditBudgetItem
           modalTitle={'Novo Item'}
           buttonText={'Novo Item'}
           buttonIcon={faPlusCircle}
           containerStyle='w-[85vw] h-[85vh]'
+          buttonStyle='w-full'
         >
           <FormEdit budget={current} />
         </ModalEditBudgetItem>
@@ -348,12 +349,13 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
           modalTitle={`Orçamento ${current.ORCAMENTO}`}
           buttonText={'Gerar PDF'}
           buttonIcon={faFilePdf}
+          buttonStyle='w-full'
         >
           <div className='w-full h-full'>
             <GeneratePDF orc={current} />
           </div>
         </ModalEditBudgetItem>
-        <Button onClick={VerifyCustomerLimit}>
+        <Button className='w-full' onClick={VerifyCustomerLimit}>
           <FontAwesomeIcon
             icon={faFileInvoiceDollar}
             className={'text-emsoft_light-main mr-2'}
@@ -363,7 +365,7 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
           Gerar Pré-venda
         </Button>
         <Button
-          className='bg-emsoft_success-main text-emsoft_dark-text'
+          className='w-full bg-emsoft_success-main text-emsoft_dark-text'
           onClick={UpdateBudget}
         >
           <FontAwesomeIcon
