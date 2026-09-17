@@ -55,12 +55,11 @@ const Dashboard = async () => {
   return (
     <SessionWrapper classname={`p-4 gap-y-4`}>
       <section
-        className={`flex flex-row w-full gap-x-4 tablet:flex-col tablet:gap-y-4`}
+        className={`flex flex-col md:flex-row w-full gap-4`}
       >
         <Card
-          className={`w-[33%] max-h-[80%] p-3 
-                      tablet-landscape:w-full tablet-landscape:flex tablet-landscape:items-center tablet-landscape:justify-evenly
-                      tablet-portrait:w-full tablet-portrait:flex tablet-portrait:items-center tablet-portrait:justify-evenly`}
+          className={`w-full md:w-[33%] max-h-[80%] p-3 
+                      md:flex md:items-center md:justify-evenly`}
         >
           <div>
             <CardHeader className='text-lg text-gray-600 p-0 flex-row items-center gap-x-3'>
@@ -77,9 +76,8 @@ const Dashboard = async () => {
           </CardContent>
         </Card>
         <Card
-          className={`w-[33%] max-h-[80%] p-3 
-                      tablet-landscape:w-full tablet-landscape:flex tablet-landscape:items-center tablet-landscape:justify-evenly
-                      tablet-portrait:w-full tablet-portrait:flex tablet-portrait:items-center tablet-portrait:justify-evenly`}
+          className={`w-full md:w-[33%] max-h-[80%] p-3 
+                      md:flex md:items-center md:justify-evenly`}
         >
           <div>
             <CardHeader className='text-lg text-gray-600 p-0 flex-row items-center gap-x-3'>
@@ -90,7 +88,7 @@ const Dashboard = async () => {
             </CardDescription>
           </div>
           <CardContent
-            className={`font-bold mt-2 tablet-landscape:text-2xl tablet-landscape:mt-5`}
+            className={`font-bold mt-2 md:text-2xl md:mt-5`}
           >
             {FormatToCurrency(
               String(
@@ -105,9 +103,8 @@ const Dashboard = async () => {
           </CardContent>
         </Card>
         <Card
-          className={`w-[31%] max-h-[80%] p-3 
-                      tablet-landscape:w-full tablet-landscape:flex tablet-landscape:items-center tablet-landscape:justify-evenly
-                      tablet-portrait:w-full tablet-portrait:flex tablet-portrait:items-center tablet-portrait:justify-evenly`}
+          className={`w-full md:w-[31%] max-h-[80%] p-3 
+                      md:flex md:items-center md:justify-evenly`}
         >
           <div className=''>
             <CardHeader className='text-lg text-gray-600 p-0 flex-row items-center gap-x-3'>
@@ -118,17 +115,17 @@ const Dashboard = async () => {
             </CardDescription>
           </div>
           <CardContent
-            className={`font-bold mt-2 tablet-landscape:text-2xl tablet-landscape:mt-5`}
+            className={`font-bold mt-2 md:text-2xl md:mt-5`}
           >
             {FormatToCurrency(String(lastSell.value.value[0].TOTAL))}
           </CardContent>
         </Card>
       </section>
       <section
-        className={`flex flex-row w-full gap-x-4 tablet:flex-col tablet:gap-y-4 mt-[-1.5rem]`}
+        className={`flex flex-col md:flex-row w-full gap-4 mt-[-1.5rem]`}
       >
         <Card
-          className={`w-[59%] h-min p-3 tablet:w-full tablet:flex tablet:flex-col tablet:items-center`}
+          className={`w-full md:w-[59%] h-min p-3`}
         >
           <CardHeader className='text-lg text-gray-600 p-0 flex-row items-center gap-x-3'>
             Gráfico de venda Mensal <FontAwesomeIcon icon={faDollarSign} />
@@ -143,7 +140,7 @@ const Dashboard = async () => {
           <CardFooter></CardFooter>
         </Card>
         <Card
-          className={`w-[39%]  p-3  h-min tablet:w-full tablet:flex tablet:flex-col tablet:items-center`}
+          className={`w-full md:w-[39%] p-3 h-min`}
         >
           <CardHeader className='text-lg text-gray-600 p-0 flex-row items-center gap-x-3'>
             Venda Mensal por Cliente
@@ -173,10 +170,10 @@ const Dashboard = async () => {
         </Card>
       </section>
       <section
-        className={`flex flex-row w-full gap-x-4 tablet:flex-col tablet:gap-y-4`}
+        className={`flex flex-col md:flex-row w-full gap-4`}
       >
         <Card
-          className={`w-[99%] p-3 h-min tablet:flex tablet:flex-col tablet:items-center`}
+          className={`w-full p-3 h-min`}
         >
           <CardHeader className='text-lg text-gray-600 p-0 flex-row items-center gap-x-3'>
             Clientes com boletos em aberto
