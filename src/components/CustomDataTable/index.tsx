@@ -24,41 +24,46 @@ export function DataTable<T>({
   IsLoading,
 }: iTableDataProps<T>) {
   return (
-    <div className='w-full overflow-x-auto'>
-      <table className='border-collapse relative border-none w-full min-w-[600px] table-fixed'>
-        <thead className='w-full table-fixed'>
-          <TableHeader columns={columns} />
-        </thead>
-        <tbody className='w-full table-fixed'>
-          {IsLoading && (
-            <div className='w-full relative'>
-              <Loading />
-            </div>
-          )}
+    <div className='w-full overflow-x-auto relative'>
+      {IsLoading && (
+        <div className='w-full flex items-center justify-center py-10'>
+          <Loading />
+        </div>
+      )}
 
-          {ErrorMessage !== '' && !TableData && (
-            <div className='flex absolute w-[300px] top-[100%] left-[50%] translate-x-[-50%] items-center justify-center pl-14 pr-6'>
-              <p className='mt-5'>{ErrorMessage}</p>
-            </div>
-          )}
-          {TableData && TableData.length === 0 && (
-            <div className='flex absolute w-[300px] top-[100%] left-[50%] translate-x-[-50%] items-center justify-center pl-14 pr-6'>
-              <p className='mt-5'>Não há registros</p>
-            </div>
-          )}
-
-          {!IsLoading && <TableRow data={TableData} columns={columns} />}
-        </tbody>
-        {onFetchPagination &&
-          QuantityRegiters !== undefined &&
-          QuantityRegiters > 0 && (
-            <TablePagination
-              OnFetchData={onFetchPagination}
-              QuantityRegiters={QuantityRegiters}
-              rowsQtd={columns.length}
-            />
-          )}
-      </table>
+      {!IsLoading && (
+        <table className='border-collapse relative border-none w-full min-w-[600px] table-fixed'>
+          <thead className='w-full table-fixed'>
+            <TableHeader columns={columns} />
+          </thead>
+          <tbody className='w-full table-fixed'>
+            {ErrorMessage !== '' && !TableData && (
+              <tr>
+                <td colSpan={columns.length} className='text-center py-5'>
+                  {ErrorMessage}
+                </td>
+              </tr>
+            )}
+            {TableData && TableData.length === 0 && (
+              <tr>
+                <td colSpan={columns.length} className='text-center py-5'>
+                  Não há registros
+                </td>
+              </tr>
+            )}
+            {!IsLoading && <TableRow data={TableData} columns={columns} />}
+          </tbody>
+          {onFetchPagination &&
+            QuantityRegiters !== undefined &&
+            QuantityRegiters > 0 && (
+              <TablePagination
+                OnFetchData={onFetchPagination}
+                QuantityRegiters={QuantityRegiters}
+                rowsQtd={columns.length}
+              />
+            )}
+        </table>
+      )}
     </div>
   );
 }
