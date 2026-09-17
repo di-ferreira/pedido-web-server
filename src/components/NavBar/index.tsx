@@ -10,7 +10,7 @@ import { useState } from 'react';
 import NavBarItem, { iNavItem } from './NavBarItem';
 
 const NavBar = () => {
-  const [open, setOpen] = useState<boolean>(true);
+  const [open, setOpen] = useState<boolean>(false);
 
   const linkList: iNavItem[] = [
     { icon: faHomeAlt, link: '/app/dashboard', text: 'Dashboard' },
@@ -26,13 +26,12 @@ const NavBar = () => {
     <nav
       aria-label='Navegação principal'
       className={`flex transition-all overflow-hidden 
-                  ${open ? ' w-52 ' : ' w-14  '} 
+                  ${open ? 'w-52' : 'w-14'} 
                   h-dvh  
                   bg-emsoft_blue-main
                   border-t-0 border-r-2 border-emsoft_orange-main
                   md:w-14 md:hover:w-52`}
-      onMouseOver={() => setOpen((curr) => true)}
-      onMouseOut={() => setOpen((curr) => false)}
+      onClick={() => setOpen((curr) => !curr)}
     >
       <ul className='flex flex-col w-full h-full'>
         {linkList.map((link, idx) => (

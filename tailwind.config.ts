@@ -12,14 +12,18 @@ const config = {
   prefix: '',
   theme: {
     screens: {
-      // Breakpoints existentes
+      sm: '640px',
+      md: '768px',
+      lg: '1024px',
+      xl: '1280px',
+      '2xl': '1536px',
+
       tablet: {
         raw: '((max-width: 800px) and (orientation: portrait)) or ((max-width: 1340px) and (orientation: landscape))',
-      }, // Modo genérico para tablet
+      },
       laptop: '1024px',
       desktop: '1280px',
 
-      // Novos breakpoints para tablet em modos específicos
       'tablet-portrait': {
         raw: '(max-width: 800px) and (orientation: portrait)',
       },
