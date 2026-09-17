@@ -161,7 +161,7 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
             buttonIcon={faEdit}
             iconStyle='cursor-pointer text-emsoft_orange-main hover:text-emsoft_orange-light'
             buttonStyle='bg-tranparent hover:bg-tranparent'
-            containerStyle='laptop:w-[85vw] laptop:h-[85vh] tablet-a8-portrait:w-[85vw] tablet-a8-portrait:h-[85vh] w-[85vw] h-[85vh]'
+            containerStyle='w-[85vw] h-[85vh]'
           >
             <FormEdit budget={current} item={item} />
           </ModalEditBudgetItem>
@@ -282,15 +282,15 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
   ];
 
   return (
-    <section className='flex flex-col gap-x-5 w-full mt-7 tablet-portrait:gap-y-6'>
-      <div className='flex gap-4 w-full h-[20%] px-5 py-0 flex-wrap tablet-portrait:h-auto tablet-portrait:gap-y-6 tablet:h-[30%]'>
+    <section className='flex flex-col gap-x-5 w-full mt-7 md:gap-y-6'>
+      <div className='flex flex-col md:flex-row gap-4 w-full px-5 py-2 flex-wrap md:flex-nowrap'>
         <Input
           labelText='TABELA'
           labelPosition='top'
           name='TABELA'
           value={(current.CLIENTE as iCliente)?.Tabela || ''}
           disabled={true}
-          className='w-[10%] h-7'
+          className='w-full md:w-[10%] h-7'
         />
         <Input
           labelText='OBSERVAÇÃO 1'
@@ -300,7 +300,7 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
           onChange={(e) => {
             setCurrent({ ...current, OBS1: e.target.value });
           }}
-          className='w-[30%] h-7'
+          className='w-full md:w-[30%] h-7'
         />
 
         <Input
@@ -311,7 +311,7 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
           onChange={(e) => {
             setCurrent({ ...current, OBS2: e.target.value });
           }}
-          className='w-[30%] h-7'
+          className='w-full md:w-[30%] h-7'
         />
 
         {usaLimite && (
@@ -331,16 +331,16 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
                   ? '#b91c1c'
                   : undefined,
             }}
-            className='w-[20%] h-7'
+            className='w-full md:w-[20%] h-7'
           />
         )}
       </div>
-      <div className='flex w-full items-center px-5 mt-8 gap-x-4 tablet-portrait:h-auto tablet-portrait:gap-y-6'>
+      <div className='flex flex-wrap w-full items-center px-5 mt-4 gap-x-4 gap-y-3'>
         <ModalEditBudgetItem
           modalTitle={'Novo Item'}
           buttonText={'Novo Item'}
           buttonIcon={faPlusCircle}
-          containerStyle='laptop:w-[85vw] laptop:h-[85vh] tablet-a8-portrait:w-[85vw] tablet-a8-portrait:h-[85vh] w-[85vw] h-[85vh]'
+          containerStyle='w-[85vw] h-[85vh]'
         >
           <FormEdit budget={current} />
         </ModalEditBudgetItem>
@@ -376,7 +376,7 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
         </Button>
       </div>
 
-      <div className='flex flex-col gap-4 w-full h-[70%] px-5 py-2 mt-5 border-t-2 border-emsoft_orange-main overflow-x-hidden overflow-y-scroll'>
+      <div className='flex flex-col gap-4 w-full px-5 py-2 mt-5 border-t-2 border-emsoft_orange-main overflow-y-auto'>
         {isLoading ? (
           <Loading />
         ) : (
