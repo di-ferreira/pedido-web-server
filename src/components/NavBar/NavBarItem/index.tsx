@@ -30,7 +30,7 @@ const NavBarItem = ({ icon, link, text, active, onNavigate }: iNavBarItemProps) 
         )}
       >
         <span className='flex items-center justify-center w-6 shrink-0'>
-          <FontAwesomeIcon icon={icon} size='lg' />
+          <FontAwesomeIcon icon={icon} className='text-[1.333em] md:text-[1.65em]' />
         </span>
         <span className='ml-3 text-sm font-medium whitespace-nowrap'>
           {text}
