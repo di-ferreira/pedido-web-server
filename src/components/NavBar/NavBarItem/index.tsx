@@ -23,7 +23,7 @@ const NavBarItem = ({ icon, link, text, active, onNavigate }: iNavBarItemProps) 
         onClick={onNavigate}
         title={text}
         className={cn(
-          'flex items-center min-h-[44px] px-3 py-2 rounded-md transition-colors overflow-hidden',
+          'flex items-center gap-2 min-h-[44px] px-3 py-2 rounded-md transition-colors overflow-hidden',
           active
             ? 'bg-emsoft_blue-light text-emsoft_light-main'
             : 'text-emsoft_light-main hover:bg-emsoft_blue-light'
@@ -32,7 +32,7 @@ const NavBarItem = ({ icon, link, text, active, onNavigate }: iNavBarItemProps) 
         <span className='flex items-center justify-center w-6 shrink-0'>
           <FontAwesomeIcon icon={icon} className='text-[1.333em] md:text-[1.65em]' />
         </span>
-        <span className='ml-3 text-sm font-medium whitespace-nowrap'>
+        <span className='text-sm font-medium whitespace-nowrap'>
           {text}
         </span>
       </Link>
