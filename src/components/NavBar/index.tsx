@@ -10,8 +10,6 @@ import { usePathname } from 'next/navigation';
 import { useNavStore } from '@/store/useNavStore';
 import NavBarItem, { iNavItem } from './NavBarItem';
 
-export const NAV_MODE: 'drawer' | 'icon-bar' = 'drawer';
-
 const linkList: iNavItem[] = [
   { icon: faHomeAlt, link: '/app/dashboard', text: 'Dashboard' },
   { icon: faUsers, link: '/app/customers', text: 'Clientes' },
@@ -26,30 +24,8 @@ const NavBar = () => {
   const pathname = usePathname();
 
   const handleLinkClick = () => {
-    if (NAV_MODE === 'drawer') close();
+    close();
   };
-
-  if (NAV_MODE === 'icon-bar') {
-    return (
-      <nav
-        aria-label='Navegação principal'
-        className='flex w-14 h-dvh bg-emsoft_blue-main border-r-2 border-emsoft_orange-main shrink-0'
-      >
-        <ul className='flex flex-col w-full h-full items-center py-2 gap-1'>
-          {linkList.map((link, idx) => (
-            <NavBarItem
-              key={idx}
-              icon={link.icon}
-              link={link.link}
-              text={link.text}
-              active={pathname === link.link}
-              onNavigate={handleLinkClick}
-            />
-          ))}
-        </ul>
-      </nav>
-    );
-  }
 
   return (
     <>
