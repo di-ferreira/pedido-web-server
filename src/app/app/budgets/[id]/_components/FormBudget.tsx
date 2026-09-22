@@ -25,7 +25,7 @@ function FormBudget({ orc }: iFormBudget) {
 
       <div className='flex w-full flex-col overflow-x-hidden overflow-y-auto'>
         {cliente && (
-          <div className='flex flex-col md:flex-row gap-3 w-full px-5 py-2 flex-wrap md:flex-nowrap'>
+          <div className='flex flex-col md:flex-row gap-[30px] w-full px-5 py-2 flex-wrap md:flex-nowrap'>
             <Input
               labelText='CÓDIGO'
               labelPosition='top'
