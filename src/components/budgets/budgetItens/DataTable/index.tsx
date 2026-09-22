@@ -283,7 +283,7 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
 
   return (
     <section className='flex flex-col gap-x-5 w-full mt-7 md:gap-y-6'>
-      <div className='flex flex-col md:flex-row gap-4 w-full px-5 py-2 flex-wrap md:flex-nowrap'>
+      <div className='flex flex-col md:flex-row gap-[30px] w-full px-5 py-2 flex-wrap md:flex-nowrap'>
         <Input
           labelText='TABELA'
           labelPosition='top'
@@ -327,21 +327,19 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
             disabled
             style={{
               color:
-                saldoCompra !== null && saldoCompra < 0
-                  ? '#b91c1c'
-                  : undefined,
+                saldoCompra !== null && saldoCompra < 0 ? '#b91c1c' : undefined,
             }}
             className='w-full md:w-[20%] h-7'
           />
         )}
       </div>
-      <div className='flex flex-col w-full px-5 mt-4 gap-y-3'>
+      <div className='flex flex-col md:flex-row w-full px-5 mt-[30px] gap-y-3 md:gap-y-0 md:gap-x-4 md:items-center'>
         <ModalEditBudgetItem
           modalTitle={'Novo Item'}
           buttonText={'Novo Item'}
           buttonIcon={faPlusCircle}
           containerStyle='w-[85vw] h-[85vh]'
-          buttonStyle='w-full'
+          buttonStyle='w-full md:w-auto'
         >
           <FormEdit budget={current} />
         </ModalEditBudgetItem>
@@ -349,13 +347,13 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
           modalTitle={`Orçamento ${current.ORCAMENTO}`}
           buttonText={'Gerar PDF'}
           buttonIcon={faFilePdf}
-          buttonStyle='w-full'
+          buttonStyle='w-full md:w-auto'
         >
           <div className='w-full h-full'>
             <GeneratePDF orc={current} />
           </div>
         </ModalEditBudgetItem>
-        <Button className='w-full' onClick={VerifyCustomerLimit}>
+        <Button className='w-full md:w-auto' onClick={VerifyCustomerLimit}>
           <FontAwesomeIcon
             icon={faFileInvoiceDollar}
             className={'text-emsoft_light-main mr-2'}
@@ -365,7 +363,7 @@ const DataTableItensBudget = ({ orc }: iItemBudgetTable) => {
           Gerar Pré-venda
         </Button>
         <Button
-          className='w-full bg-emsoft_success-main text-emsoft_dark-text'
+          className='w-full md:w-auto bg-emsoft_success-main text-emsoft_dark-text'
           onClick={UpdateBudget}
         >
           <FontAwesomeIcon
