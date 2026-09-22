@@ -23,7 +23,7 @@ const Header = () => {
           <FontAwesomeIcon icon={faBars} className='text-emsoft_light-main' size='lg' />
         </button>
         <div className='flex-1 md:flex-none flex justify-center md:justify-start'>
-          <Image src={LogoBranca} alt='Logo da Emsoft' />
+          <Image src={LogoBranca} alt='Logo da Emsoft' className='-ml-[45px] md:ml-0' />
         </div>
       </div>
       <section className='hidden md:flex px-1 items-center gap-2'>
