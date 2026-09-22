@@ -14,7 +14,7 @@ const Header = () => {
 
   return (
     <header className='flex w-full px-4 md:px-6 py-3 items-center justify-between shadow-lg bg-emsoft_blue-main relative z-50'>
-      <div className='flex items-center gap-3'>
+      <div className='flex items-center gap-3 flex-1 md:flex-none'>
         <button
           onClick={toggle}
           className='md:hidden flex items-center justify-center w-10 h-10 rounded-md hover:bg-emsoft_blue-light transition-colors'
@@ -22,9 +22,11 @@ const Header = () => {
         >
           <FontAwesomeIcon icon={faBars} className='text-emsoft_light-main' size='lg' />
         </button>
-        <Image src={LogoBranca} alt='Logo da Emsoft' />
+        <div className='flex-1 md:flex-none flex justify-center md:justify-start'>
+          <Image src={LogoBranca} alt='Logo da Emsoft' />
+        </div>
       </div>
-      <section className='flex px-1 items-center gap-2'>
+      <section className='hidden md:flex px-1 items-center gap-2'>
         <Suspense fallback={<span>Carregando nome do vendedor...</span>}>
           <UserNameText />
         </Suspense>

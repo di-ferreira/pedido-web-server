@@ -6,9 +6,13 @@ import {
   faHomeAlt,
   faUsers,
 } from '@fortawesome/free-solid-svg-icons';
+import { Suspense } from 'react';
 import { usePathname } from 'next/navigation';
 import { useNavStore } from '@/store/useNavStore';
 import NavBarItem, { iNavItem } from './NavBarItem';
+import UserNameText from '@/components/Header/UserNameText';
+import { ThemeToggle } from '@/components/Header/ThemeToggle';
+import ButtonSingOut from '@/components/ui/ButtonLogout';
 
 const linkList: iNavItem[] = [
   { icon: faHomeAlt, link: '/app/dashboard', text: 'Dashboard' },
@@ -38,11 +42,16 @@ const NavBar = () => {
       )}
       <nav
         aria-label='Navegação principal'
-        className={`fixed md:sticky top-0 left-0 z-50 h-dvh bg-emsoft_blue-main border-r-2 border-emsoft_orange-main transition-transform duration-200 ease-in-out md:transition-all md:duration-150
+        className={`fixed md:sticky top-0 left-0 z-50 h-dvh flex flex-col bg-emsoft_blue-main border-r-2 border-emsoft_orange-main transition-transform duration-200 ease-in-out md:transition-all md:duration-150
           ${isOpen ? 'translate-x-0 w-52' : '-translate-x-full md:translate-x-0 md:w-14'}
           md:hover:w-52`}
       >
-        <ul className='flex flex-col w-full h-full py-2 gap-1'>
+        <div className='md:hidden px-4 py-3 border-b border-emsoft_blue-light'>
+          <Suspense fallback={<span>Carregando...</span>}>
+            <UserNameText />
+          </Suspense>
+        </div>
+        <ul className='flex flex-col flex-1 w-full py-2 gap-1 overflow-y-auto'>
           {linkList.map((link, idx) => (
             <NavBarItem
               key={idx}
@@ -54,6 +63,10 @@ const NavBar = () => {
             />
           ))}
         </ul>
+        <div className='md:hidden flex items-center justify-between px-4 py-3 border-t border-emsoft_blue-light'>
+          <ThemeToggle />
+          <ButtonSingOut />
+        </div>
       </nav>
     </>
   );
