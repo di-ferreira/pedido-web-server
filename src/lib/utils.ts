@@ -113,9 +113,14 @@ export function toIntSafe(value: unknown): number {
  * por concatenação.
  */
 export function assertSafeSQLValue(value: unknown, field: string): string {
-  const str = String(value);
-  if (!/^[\w./-]+$/.test(str)) {
-    throw new Error(`Valor inválido para ${field}: ${str}`);
+  let str = String(value);
+
+  if (field === 'tabela') {
+    str = str.replace(/[^a-zA-Z0-9]/g, '');
+  }
+
+  if (!str || !/^[\w./-]+$/.test(str)) {
+    throw new Error(`Valor inválido para ${field}: ${String(value)}`);
   }
   return str;
 }
