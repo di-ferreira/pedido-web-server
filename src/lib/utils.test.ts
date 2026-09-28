@@ -38,6 +38,28 @@ describe('assertSafeSQLValue', () => {
   });
 });
 
+describe('assertSafeSQLValue - campo tabela', () => {
+  it('aceita tabela numérica com desconto (ex.: -12,70)', () => {
+    expect(assertSafeSQLValue('-12,70', 'tabela')).toBe('-12,70');
+  });
+
+  it('aceita nome de tabela real (ex.: TAB01)', () => {
+    expect(assertSafeSQLValue('TAB01', 'tabela')).toBe('TAB01');
+  });
+
+  it('rejeita aspas no campo tabela (injeção SQL)', () => {
+    expect(() => assertSafeSQLValue("O'Brien", 'tabela')).toThrow(
+      'Valor inválido para tabela',
+    );
+  });
+
+  it('rejeita espaços no campo tabela', () => {
+    expect(() => assertSafeSQLValue('a b', 'tabela')).toThrow(
+      'Valor inválido para tabela',
+    );
+  });
+});
+
 describe('checkStatus', () => {
   it('retorna null para status 200', () => {
     const response = { status: 200, statusText: 'OK', body: { data: 1 } };

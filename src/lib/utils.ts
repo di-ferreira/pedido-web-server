@@ -116,7 +116,10 @@ export function assertSafeSQLValue(value: unknown, field: string): string {
   let str = String(value);
 
   if (field === 'tabela') {
-    str = str.replace(/[^a-zA-Z0-9]/g, '');
+    if (!str || !/^[a-zA-Z0-9,.-]*$/.test(str)) {
+      throw new Error(`Valor inválido para ${field}: ${String(value)}`);
+    }
+    return str;
   }
 
   if (!str || !/^[\w./-]+$/.test(str)) {
