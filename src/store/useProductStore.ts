@@ -33,6 +33,15 @@ type ProductStore = {
   clearDetails: () => void;
 };
 
+function parseDiscountTabela(tabela: string): number | null {
+  if (!tabela) return null;
+  const cleaned = tabela.trim();
+  if (!cleaned || cleaned === '-') return null;
+  const num = Number(cleaned.replace(',', '.'));
+  if (!isNaN(num)) return num;
+  return null;
+}
+
 const useProductStore = create<ProductStore>((set, get) => ({
   productSelected: null,
   searchResult: [],
@@ -125,9 +134,12 @@ const useProductStore = create<ProductStore>((set, get) => ({
         GetNewPriceFromTable(prod, cliente.Tabela),
       ]);
 
+      const discount = parseDiscountTabela(cliente.Tabela);
       let price = promo.value
         ? promo.value.OFERTA
-        : tablePriceResult.value || prod.PRECO;
+        : discount !== null
+          ? Math.round(prod.PRECO * ((discount / 100) + 1) * 100) / 100
+          : tablePriceResult.value || prod.PRECO;
       let isOferta = !!promo.value;
 
       if (cache) {
