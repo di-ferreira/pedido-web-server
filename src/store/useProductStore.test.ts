@@ -88,3 +88,93 @@ describe('useProductStore.selectProduct', () => {
     expect(mockedToast).not.toHaveBeenCalled();
   });
 });
+
+describe('useProductStore.selectProduct — lógica de preço', () => {
+  const prodTabela = { PRODUTO: 'EU50012K', PRECO: 400 } as any;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    useProductStore.setState({
+      isLoading: false,
+      productSelected: null,
+      currentPrice: null,
+      cacheDetails: {},
+    });
+    mockedHistory.mockResolvedValue({ value: [] });
+    mockedSimilares.mockResolvedValue({ value: [] });
+  });
+
+  it('usa o preço da tabela quando ela existe (nome "10" é só comparação)', async () => {
+    mockedPromotion.mockResolvedValue({ value: undefined });
+    mockedPrice.mockResolvedValue({ value: 372.6 });
+
+    await useProductStore.getState().selectProduct(
+      prodTabela,
+      { ...cliente, Tabela: '10' },
+    );
+
+    expect(mockedPrice).toHaveBeenCalledWith(prodTabela, '10');
+    expect(useProductStore.getState().currentPrice).toBe(372.6);
+  });
+
+  it('usa o preço da tabela mesmo se o nome dela for numérico com sinal', async () => {
+    mockedPromotion.mockResolvedValue({ value: undefined });
+    mockedPrice.mockResolvedValue({ value: 349.2 });
+
+    await useProductStore.getState().selectProduct(
+      prodTabela,
+      { ...cliente, Tabela: '-12,70' },
+    );
+
+    expect(useProductStore.getState().currentPrice).toBe(349.2);
+  });
+
+  it('retorna a promoção quando ela é menor que o preço da tabela', async () => {
+    mockedPromotion.mockResolvedValue({ value: { OFERTA: 300 } });
+    mockedPrice.mockResolvedValue({ value: 400 });
+
+    await useProductStore.getState().selectProduct(
+      prodTabela,
+      { ...cliente, Tabela: 'VAREJO' },
+    );
+
+    expect(useProductStore.getState().currentPrice).toBe(300);
+    expect(useProductStore.getState().isOferta).toBe(true);
+  });
+
+  it('retorna o preço da tabela quando ela é menor que a promoção', async () => {
+    mockedPromotion.mockResolvedValue({ value: { OFERTA: 500 } });
+    mockedPrice.mockResolvedValue({ value: 400 });
+
+    await useProductStore.getState().selectProduct(
+      prodTabela,
+      { ...cliente, Tabela: 'VAREJO' },
+    );
+
+    expect(useProductStore.getState().currentPrice).toBe(400);
+  });
+
+  it('retorna a promoção quando não há tabela', async () => {
+    mockedPromotion.mockResolvedValue({ value: { OFERTA: 300 } });
+    mockedPrice.mockResolvedValue({ value: undefined });
+
+    await useProductStore.getState().selectProduct(
+      prodTabela,
+      { ...cliente, Tabela: '10' },
+    );
+
+    expect(useProductStore.getState().currentPrice).toBe(300);
+  });
+
+  it('retorna o preço bruto quando não há promoção nem tabela', async () => {
+    mockedPromotion.mockResolvedValue({ value: undefined });
+    mockedPrice.mockResolvedValue({ value: undefined });
+
+    await useProductStore.getState().selectProduct(
+      prodTabela,
+      { ...cliente, Tabela: '10' },
+    );
+
+    expect(useProductStore.getState().currentPrice).toBe(400);
+  });
+});
