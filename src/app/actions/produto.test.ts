@@ -60,6 +60,21 @@ describe('GetNewPriceFromTable', () => {
     expect(result.error).toBeUndefined();
     expect(result.value).toBe(12.5);
   });
+
+  it('não lança para tabela com caracteres especiais e preserva o nome no SQL', async () => {
+    mockedCustomFetch.mockResolvedValue({
+      status: 200,
+      statusText: 'OK',
+      body: { Data: [{ NOVO_PRECO: 12.5 }], RecordCount: 1 },
+    });
+
+    const result = await GetNewPriceFromTable(prod, 'R$/PIX12,7');
+
+    const sql = mockedCustomFetch.mock.calls[0][0] as string;
+    expect(sql).toContain(`T.TABELA = 'R$/PIX12,7'`);
+    expect(result.error).toBeUndefined();
+    expect(result.value).toBe(12.5);
+  });
 });
 
 describe('GetProductPromotion', () => {

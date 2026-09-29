@@ -47,14 +47,26 @@ describe('assertSafeSQLValue - campo tabela', () => {
     expect(assertSafeSQLValue('TAB01', 'tabela')).toBe('TAB01');
   });
 
-  it('rejeita aspas no campo tabela (injeção SQL)', () => {
-    expect(() => assertSafeSQLValue("O'Brien", 'tabela')).toThrow(
+  it('aceita $ e / de nomes de tabela reais (ex.: R$/PIX12,7)', () => {
+    expect(assertSafeSQLValue('R$/PIX12,7', 'tabela')).toBe('R$/PIX12,7');
+  });
+
+  it('aceita nomes de tabela com espaço (ex.: "VIP ")', () => {
+    expect(assertSafeSQLValue('VIP ', 'tabela')).toBe('VIP ');
+  });
+
+  it('escapa aspas simples para impedir injeção SQL', () => {
+    expect(assertSafeSQLValue("O'Brien", 'tabela')).toBe("O''Brien");
+  });
+
+  it('rejeita valor vazio', () => {
+    expect(() => assertSafeSQLValue('', 'tabela')).toThrow(
       'Valor inválido para tabela',
     );
   });
 
-  it('rejeita espaços no campo tabela', () => {
-    expect(() => assertSafeSQLValue('a b', 'tabela')).toThrow(
+  it('rejeita caracteres de controle/nulo', () => {
+    expect(() => assertSafeSQLValue('a\u0000b', 'tabela')).toThrow(
       'Valor inválido para tabela',
     );
   });
