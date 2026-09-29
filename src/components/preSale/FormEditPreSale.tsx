@@ -69,6 +69,7 @@ const FormEditPreSale = ({ orc }: iFormEditPreSale) => {
       PZ10: 0,
       TIPO: '',
       DESTACAR_DESCONTO: '',
+      DESCONTO_MAX: 0,
       FORMA: '',
     });
   const [FormaPgto, setFormaPgto] = useState<iFormaPgto[]>([]);

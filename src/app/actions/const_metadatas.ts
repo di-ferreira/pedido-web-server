@@ -1,5 +1,27 @@
-import { iMovimento } from '@/@types/PreVenda';
+import { iCondicaoPgtoApi, iMovimento } from '@/@types/PreVenda';
 import { ModelMetadata } from '@/@types/QueryFilter';
+
+export const CondicaoPgtoMetadata = {
+  ID: 'number' as const,
+  TABELA: 'string' as const,
+  NOME: 'string' as const,
+  Parcelas: 'number' as const,
+  PZ01: 'number' as const,
+  PZ02: 'number' as const,
+  PZ03: 'number' as const,
+  PZ04: 'number' as const,
+  PZ05: 'number' as const,
+  PZ06: 'number' as const,
+  PZ07: 'number' as const,
+  PZ08: 'number' as const,
+  PZ09: 'number' as const,
+  PZ10: 'number' as const,
+  VALOR_PARCELA: 'number' as const,
+  DESCONTO_MAX: 'number' as const,
+  DESTACAR_DESCONTO: 'string' as const,
+  TIPO: 'string' as const,
+  FORMA: 'string' as const,
+} satisfies ModelMetadata<iCondicaoPgtoApi>;
 
 export const VendasMetadata = {
   MOVIMENTO: 'number' as const,

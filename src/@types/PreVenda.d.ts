@@ -250,6 +250,36 @@ export interface iParcelasPgto {
   VALOR: number;
 }
 
+/**
+ * Formato cru devolvido por `GET /CondicoesDePagamento`
+ * (EMSoft.DTO.Financeiro.TCondicoesDePagamento).
+ *
+ * Repare em `Parcelas` com caixa mista: é o nome real da propriedade no
+ * entity set. O restante do app trabalha com `iCondicaoPgto`, que é
+ * normalizada pela action `GetCondicaoPGTO`.
+ */
+export interface iCondicaoPgtoApi {
+  ID: number;
+  TABELA: string;
+  NOME: string;
+  Parcelas: number;
+  PZ01: number;
+  PZ02: number;
+  PZ03: number;
+  PZ04: number;
+  PZ05: number;
+  PZ06: number;
+  PZ07: number;
+  PZ08: number;
+  PZ09: number;
+  PZ10: number;
+  VALOR_PARCELA: number;
+  DESCONTO_MAX: number;
+  DESTACAR_DESCONTO: string;
+  TIPO: string;
+  FORMA: string;
+}
+
 export interface iCondicaoPgto {
   ID: number;
   NOME: string;
@@ -269,6 +299,7 @@ export interface iCondicaoPgto {
   PZ10: number;
   TIPO: string;
   DESTACAR_DESCONTO: string;
+  DESCONTO_MAX: number;
   FORMA: string;
 }
 
