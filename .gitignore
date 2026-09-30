@@ -44,3 +44,4 @@ dist
 
 # playwright mcp output
 .playwright-mcp/
+kill_port.sh
