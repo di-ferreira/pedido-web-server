@@ -260,12 +260,12 @@ export async function GetPGTOsNaoVencidos(
     },
   );
 
-  if (response.status !== 200) {
+  if (response.body!.StatusCode !== 200) {
     return {
       value: undefined,
       error: {
-        code: String(response.status),
-        message: String(response.statusText),
+        code: String(response.body!.StatusCode),
+        message: String(response.body!.StatusMessage),
       },
     };
   }
@@ -296,12 +296,12 @@ export async function GetPGTOsEmAberto(
     },
   );
 
-  if (response.status !== 200) {
+  if (response.body!.StatusCode !== 200) {
     return {
       value: undefined,
       error: {
-        code: String(response.status),
-        message: String(response.statusText),
+        code: String(response.body!.StatusCode),
+        message: String(response.body!.StatusMessage),
       },
     };
   }
@@ -320,7 +320,7 @@ export async function GetClientesPgtoEmAberto(): Promise<
   const tokenCookie = auth.value!;
   const VendedorLocal: string = await getCookie('user');
 
-  const sql: string = `select CL.nome as NOME_CLIENTE, sum(R.RESTA) as VALOR from CTS R join CAR C on (C.CARTAO = R.TIPO) join CLI CL on (CL.cliente = R.cliente) where R.CONTA in ('R', 'C') and (R.id_vendedor1 = ${VendedorLocal} or R.id_vendedor2 = ${VendedorLocal}) and R.RESTA > 0 and R.VENCIMENTO < ${String(dayjs().format('YYYY-MM-DD'))} and coalesce(C.FINANCEIRO_CLIENTE, 'N') = 'S' and R.CANCELADO = 'N' group by NOME_CLIENTE order by 2 desc`;
+  const sql: string = `select CL.nome as NOME_CLIENTE, sum(R.RESTA) as VALOR from CTS R join CAR C on (C.CARTAO = R.TIPO) join CLI CL on (CL.cliente = R.cliente) where R.CONTA in ('R', 'C') and (R.id_vendedor1 = ${VendedorLocal} or R.id_vendedor2 = ${VendedorLocal}) and R.RESTA > 0 and R.VENCIMENTO < '${String(dayjs().format('YYYY-MM-DD'))}' and coalesce(C.FINANCEIRO_CLIENTE, 'N') = 'S' and R.CANCELADO = 'N' group by NOME_CLIENTE order by 2 desc`;
 
   const response = await CustomFetch<iCustomersDebitResponse>(
     `${ROUTE_SELECT_SQL}?pSQL=${sql}`,
@@ -333,12 +333,12 @@ export async function GetClientesPgtoEmAberto(): Promise<
     },
   );
 
-  if (response.status !== 200) {
+  if (response.body!.StatusCode !== 200) {
     return {
       value: undefined,
       error: {
-        code: String(response.status),
-        message: String(response.statusText),
+        code: String(response.body!.StatusCode),
+        message: String(response.body!.StatusMessage),
       },
     };
   }
