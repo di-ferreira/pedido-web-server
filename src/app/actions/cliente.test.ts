@@ -63,13 +63,15 @@ describe('GetClientesPgtoEmAberto', () => {
     expect(result.value).toEqual(data);
   });
 
-  it('aspam a data no filtro de VENCIMENTO (sem aspas o Firebird lê como aritmética)', async () => {
+  it('aspama as datas no filtro de VENCIMENTO e limita ao ano vigente', async () => {
     mockedCustomFetch.mockResolvedValue(envelope(200, []));
 
     await GetClientesPgtoEmAberto();
 
     const hoje = dayjs().format('YYYY-MM-DD');
+    const inicioAno = dayjs().startOf('year').format('YYYY-MM-DD');
     const sql = decodeURIComponent(urlChamada());
+    expect(sql).toContain(`R.VENCIMENTO >= '${inicioAno}'`);
     expect(sql).toContain(`R.VENCIMENTO < '${hoje}'`);
     expect(sql).not.toContain(`R.VENCIMENTO < ${hoje}`);
   });

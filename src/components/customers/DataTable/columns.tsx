@@ -2,6 +2,7 @@
 import { iCliente } from '@/@types/Cliente';
 import { iColumnType } from '@/@types/Table';
 import { MaskCnpjCpf } from '@/lib/utils';
+import dayjs from 'dayjs';
 import { faBan, faCheck } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -56,10 +57,16 @@ export const headers: iColumnType<iCliente>[] = [
     width: '20rem',
   },
   {
-    key: 'UF',
-    title: 'UF',
-    width: '7rem',
+    key: 'DT_ULT_COMPRA',
+    title: 'ULT. COMPRA',
+    width: '11rem',
     isHideMobile: true,
+    render: (_, item) =>
+      item.DT_ULT_COMPRA ? (
+        <>{dayjs(item.DT_ULT_COMPRA).format('DD/MM/YYYY')}</>
+      ) : (
+        <span className='text-gray-500'>—</span>
+      ),
   },
 ];
 

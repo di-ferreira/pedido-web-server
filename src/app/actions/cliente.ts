@@ -320,7 +320,10 @@ export async function GetClientesPgtoEmAberto(): Promise<
   const tokenCookie = auth.value!;
   const VendedorLocal: string = await getCookie('user');
 
-  const sql: string = `select CL.nome as NOME_CLIENTE, sum(R.RESTA) as VALOR from CTS R join CAR C on (C.CARTAO = R.TIPO) join CLI CL on (CL.cliente = R.cliente) where R.CONTA in ('R', 'C') and (R.id_vendedor1 = ${VendedorLocal} or R.id_vendedor2 = ${VendedorLocal}) and R.RESTA > 0 and R.VENCIMENTO < '${String(dayjs().format('YYYY-MM-DD'))}' and coalesce(C.FINANCEIRO_CLIENTE, 'N') = 'S' and R.CANCELADO = 'N' group by NOME_CLIENTE order by 2 desc`;
+  const hoje = dayjs().format('YYYY-MM-DD');
+  const inicioAno = dayjs().startOf('year').format('YYYY-MM-DD');
+
+  const sql: string = `select CL.nome as NOME_CLIENTE, sum(R.RESTA) as VALOR from CTS R join CAR C on (C.CARTAO = R.TIPO) join CLI CL on (CL.cliente = R.cliente) where R.CONTA in ('R', 'C') and (R.id_vendedor1 = ${VendedorLocal} or R.id_vendedor2 = ${VendedorLocal}) and R.RESTA > 0 and R.VENCIMENTO >= '${inicioAno}' and R.VENCIMENTO < '${hoje}' and coalesce(C.FINANCEIRO_CLIENTE, 'N') = 'S' and R.CANCELADO = 'N' group by NOME_CLIENTE order by 2 desc`;
 
   const response = await CustomFetch<iCustomersDebitResponse>(
     `${ROUTE_SELECT_SQL}?pSQL=${sql}`,
